@@ -98,3 +98,4 @@
 2026-03-20-2	filename	zzform-modes.template.txt	integrated into zzform-action.template.txt, make modifications there
 2026-05-24-1	code_regex	\['image'\]\[[0-9]+\]\['link'\]	on upload_image fields, use ['path_web'] instead of ['link'] for file web URL definitions	zzform/zzform;zzform/configuration
 2026-05-24-2	breaking		on upload_image/image fields, field-level link is now navigation only (list href, link_record, dynamic_referer); use path_web for file web URL override when web URL differs from path
+2026-07-04-1	code_regex	zzform_(insert|update|delete)\([^)]*['"]msg['"]	use `'_msg'` in settings instead of `'msg'`	zzform/zzform/_functions.inc.php

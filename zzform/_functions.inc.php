@@ -247,8 +247,8 @@ function zzform_batch_def($table, $settings = []) {
 		$def['type'] = 'tables';
 	}
 	$def['table_script'] = str_replace('_', '-', trim($table, '_'));
-	$def['msg'] = $settings['msg'] ?? '';
-	if ($def['msg']) $def['msg'] .= ' ';
+	$def['msg'] = $settings['_msg'] ?? $settings['msg'] ?? '';
+	if ($def['msg']) $def['msg'] = wrap_text($def['msg']).' ';
 	$msg_2 = $settings['msg_2'] ?? '';
 	if ($msg_2) $msg_2 = sprintf(' %s', $msg_2);
 
@@ -313,7 +313,7 @@ function zzform_batch_def($table, $settings = []) {
  * @param mixed $ids
  * @param int $error_type (optional)
  * @param array $settings (optional)
- *		string 'msg': additional error messsage
+ *		string '_msg': additional error message
  *		bool 'log_post_data'
  * @return array
  */
@@ -351,7 +351,7 @@ function zzform_delete($table, $ids, $error_type = E_USER_NOTICE, $settings = []
  * @param array $data
  * @param int $error_type (optional)
  * @param array $settings (optional)
- *		string 'msg': additional error messsage
+ *		string '_msg': additional error message
  *		bool 'log_post_data'
  * @return int
  */
@@ -396,7 +396,7 @@ function zzform_insert($table, $data, $error_type = E_USER_NOTICE, $settings = [
  * @param array $data
  * @param int $error_type (optional)
  * @param array $settings (optional)
- *		string 'msg': additional error messsage
+ *		string '_msg': additional error message
  *		bool 'log_post_data'
  * @return int
  */
