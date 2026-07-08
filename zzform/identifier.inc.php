@@ -562,7 +562,7 @@ function zz_identifier_val($field_name, $my_rec, $main_post, $preferred = []) {
 		
 		$id = $my_rec['POST'][$table][$no][$field_names[0]];
 		$sql = zz_get_fielddef($field['fields'], $field_names[0], 'sql');
-		return zz_identifier_values_db($sql, $id, $field_names[1]);
+		return zz_select_sql_value($sql, $id, $field_names[1]);
 	}
 	
 	// 3. it's a field name of a main or a detail record
@@ -583,7 +583,7 @@ function zz_identifier_val($field_name, $my_rec, $main_post, $preferred = []) {
 
 	$id = $my_rec['POST'][$field_names[0]];
 	$sql = zz_get_fielddef($my_rec['fields'], $field_names[0], 'sql');
-	return zz_identifier_values_db($sql, $id, $field_names[1]);
+	return zz_select_sql_value($sql, $id, $field_names[1]);
 }
 
 /**
@@ -732,39 +732,6 @@ function zz_identifier_redirect($ops, $zz_tab) {
 		zzform_multi('redirects', $values);
 	}
 	return true;
-}
-
-/** 
- * Gets values for identifier from database
- * 
- * @param string $sql SQL query
- * @param int $id record ID
- * @param string $fieldname (optional) if set, returns just fieldname
- * @return mixed array: full line from database, string: just field if fieldname
- */
-function zz_identifier_values_db($sql, $id, $fieldname = false) {
-	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
-	// remove whitespace
-	$sql = preg_replace("/\s+/", " ", $sql); // first blank needed for SELECT
-	$sql_tokens = explode(' ', trim($sql)); // remove whitespace
-	$unwanted = ['SELECT', 'DISTINCT'];
-	foreach ($sql_tokens as $token) {
-		if (!in_array($token, $unwanted)) {
-			$id_fieldname = trim($token);
-			if (substr($id_fieldname, -1) === ',')
-				$id_fieldname = substr($id_fieldname, 0, -1);
-			break;
-		}
-	}
-	$sql = wrap_edit_sql($sql, 'WHERE', sprintf('%s = %d', $id_fieldname, $id));
-	$line = zz_db_fetch($sql);
-	if ($fieldname) {
-		if (isset($line[$fieldname])) return zz_return($line[$fieldname]);
-		zz_return(false);
-	} else {
-		if ($line) zz_return($line);
-		zz_return(false);
-	}
 }
 
 /**

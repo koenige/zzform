@@ -2018,6 +2018,38 @@ function zz_split_fieldname($field_name) {
 }
 
 /**
+ * read a column from the row selected by a select field SQL query
+ *
+ * @param string $sql SQL query of the select field
+ * @param int $id selected record ID
+ * @param string $column (optional) return this column only
+ * @return mixed array: full row, string: column value, false: not found
+ */
+function zz_select_sql_value($sql, $id, $column = false) {
+	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
+	// remove whitespace
+	$sql = preg_replace("/\s+/", " ", $sql); // first blank needed
+	$sql_tokens = explode(' ', trim($sql)); // remove whitespace
+	$unwanted = ['SELECT', 'DISTINCT'];
+	foreach ($sql_tokens as $token) {
+		if (!in_array($token, $unwanted)) {
+			$id_fieldname = trim($token);
+			if (substr($id_fieldname, -1) === ',')
+				$id_fieldname = substr($id_fieldname, 0, -1);
+			break;
+		}
+	}
+	$sql = wrap_edit_sql($sql, 'WHERE', sprintf('%s = %d', $id_fieldname, $id));
+	$line = zz_db_fetch($sql);
+	if ($column) {
+		if (isset($line[$column])) return zz_return($line[$column]);
+		zz_return(false);
+	}
+	if ($line) zz_return($line);
+	zz_return(false);
+}
+
+/**
  * Returns the field definition for a given field name from a list of 
  * field definitions, optionally checks if a key exists
  *
