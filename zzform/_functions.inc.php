@@ -247,8 +247,7 @@ function zzform_batch_def($table, $settings = []) {
 		$def['type'] = 'tables';
 	}
 	$def['table_script'] = str_replace('_', '-', trim($table, '_'));
-	$def['msg'] = $settings['_msg'] ?? $settings['msg'] ?? '';
-	if ($def['msg']) $def['msg'] = wrap_text($def['msg']).' ';
+	$def['msg'] = ($msg = wrap_text_msg($settings)) ? $msg.' ' : '';
 	$msg_2 = $settings['msg_2'] ?? '';
 	if ($msg_2) $msg_2 = sprintf(' %s', $msg_2);
 
