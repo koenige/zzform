@@ -1744,6 +1744,8 @@ function zz_validate($zz_tab, $tab, $rec = 0) {
 	//	check if there are options-fields and put values into table definition
 		if (!empty($field['read_options']))
 			$my_rec['fields'][$f] = $field = zz_validate_read_options($field, $zz_tab, $tab, $rec);
+		if (!empty($field['read_parameters']))
+			$my_rec['fields'][$f] = $field = zz_validate_read_parameters($field, $my_rec);
 
 	//	set detail types for write_once-Fields
 		if ($field['type'] === 'write_once' 
@@ -2408,6 +2410,56 @@ function zz_validate_read_options($field, $zz_tab, $tab, $rec) {
 	// values corresponding to options-field
 	if (empty($option_field['options'][$submitted_option])) return $field;
 	return array_merge($field, $option_field['options'][$submitted_option]);
+}
+
+/**
+ * merge field definition keys from a query string on another field’s SQL row
+ *
+ * @param array $field
+ * @param array $my_rec $zz_tab[$tab][$rec]
+ * @return array
+ */
+function zz_validate_read_parameters($field, $my_rec) {
+	if (empty($field['read_parameters'])) return $field;
+	if (empty($field['merge_parameters'])) return $field;
+
+	$parameters = zz_read_parameters_string($field['read_parameters'], $my_rec);
+	if (!$parameters) return $field;
+
+	parse_str($parameters, $parsed);
+	foreach ($field['merge_parameters'] as $key) {
+		if (!array_key_exists($key, $parsed)) continue;
+		if (is_array($parsed[$key]) && !empty($field[$key]) && is_array($field[$key])) {
+			$field[$key] = wrap_array_merge($field[$key], $parsed[$key]);
+		} else {
+			$field[$key] = $parsed[$key];
+		}
+	}
+	return $field;
+}
+
+/**
+ * read query string from select field SQL row (read_parameters notation)
+ *
+ * @param string $read_parameters field_name or field_name[column]
+ * @param array $my_rec $zz_tab[$tab][$rec]
+ * @return string|false
+ */
+function zz_read_parameters_string($read_parameters, $my_rec) {
+	$source_field = $read_parameters;
+	$column = 'parameters';
+	$field_names = zz_split_fieldname($read_parameters);
+	if ($field_names) {
+		$source_field = $field_names[0];
+		$column = $field_names[1];
+	}
+	if (empty($my_rec['POST'][$source_field])) return false;
+
+	$id = $my_rec['POST'][$source_field];
+	$sql = zz_get_fielddef($my_rec['fields'], $source_field, 'sql');
+	if (!$sql) return false;
+
+	return zz_select_sql_value($sql, $id, $column);
 }
 
 /**
