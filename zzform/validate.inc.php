@@ -496,9 +496,13 @@ function zz_check_number($number) {
  *		string parse_url
  *		string url
  *		bool dont_check_username_online
- * @return string
+ *		bool webfinger
+ * @return string|array|false
  */
 function zz_check_username($username, $field) {
+	if (!empty($field['webfinger']))
+		return zz_check_username_webfinger($username, $field);
+
 	// URL or username?
 	$url = parse_url($username);
 	$field_value = '';
@@ -565,6 +569,125 @@ function zz_check_username($username, $field) {
 
 	if (strstr($field_value, '%')) $field_value = urldecode($field_value);
 	return $field_value;
+}
+
+/**
+ * check username via WebFinger
+ *
+ * Accepts a federated handle or a profile URL, normalizes to user@domain,
+ * resolves the profile page via WebFinger, and stores the URL in store_fields
+ * (typically link). WebFinger must succeed; the input URL alone is not enough.
+ *
+ * Expected input:
+ * - user@example.org
+ * - @user@example.org
+ * - https://example.org/@user
+ * - https://example.org/users/user
+ *
+ * @param string $username handle or profile URL
+ * @param array $field field definition with field_name, store_fields
+ * @return array|false field_name => handle, store_fields => resolved values
+ */
+function zz_check_username_webfinger($username, $field) {
+	$username = trim($username);
+	if (!$username) return false;
+
+	$handle = zz_webfinger_normalize($username);
+	if (!$handle) return false;
+
+	$profile_url = zz_webfinger_resolve($handle);
+	if (!$profile_url || !zz_is_url($profile_url)) return false;
+
+	$result = [$field['field_name'] => $handle];
+	$store_values = ['link' => $profile_url];
+	foreach ($field['store_fields'] ?? [] as $store_field) {
+		if (!array_key_exists($store_field, $store_values)) continue;
+		$result[$store_field] = $store_values[$store_field];
+	}
+	return $result;
+}
+
+/**
+ * normalize federated handle or profile URL to local@domain
+ *
+ * @param string $input handle or profile URL
+ * @return string|false e.g. user@example.org
+ */
+function zz_webfinger_normalize($input) {
+	$input = trim($input);
+	if (!$input) return false;
+
+	if (str_starts_with($input, '@')) {
+		$input = substr($input, 1);
+	}
+
+	if (str_contains($input, '://')) {
+		$url = parse_url($input);
+		if (empty($url['host'])) return false;
+		$host = strtolower($url['host']);
+		if (empty($url['path'])) return false;
+		$path = trim($url['path'], '/');
+		if (str_starts_with($path, '@')) {
+			$local = explode('/', substr($path, 1))[0];
+			if (!$local) return false;
+			return $local.'@'.$host;
+		}
+		$parts = explode('/', $path);
+		if (($parts[0] ?? '') === 'users' && !empty($parts[1])) {
+			return $parts[1].'@'.$host;
+		}
+		return false;
+	}
+
+	if (!str_contains($input, '@')) return false;
+	$at = strrpos($input, '@');
+	$local = substr($input, 0, $at);
+	$host = substr($input, $at + 1);
+	if (!$local || !$host) return false;
+	return $local.'@'.strtolower($host);
+}
+
+/**
+ * resolve profile page URL for a federated handle via WebFinger
+ *
+ * @param string $handle e.g. user@example.org
+ * @return string|false profile URL from JRD links
+ */
+function zz_webfinger_resolve($handle) {
+	$at = strrpos($handle, '@');
+	if ($at === false) return false;
+	$domain = substr($handle, $at + 1);
+	if (!$domain) return false;
+
+	$url = sprintf(
+		'https://%s/.well-known/webfinger?resource=%s'
+		, $domain
+		, rawurlencode('acct:'.$handle)
+	);
+	wrap_include('syndication', 'zzwrap');
+	list($status, $headers, $data) = wrap_syndication_http_request($url, [
+		'headers' => ['Accept: application/jrd+json, application/json'],
+		'error_code' => E_USER_NOTICE,
+	]);
+	if ($status !== 200 || !$data) return false;
+
+	$jrd = json_decode($data, true);
+	if (!$jrd || empty($jrd['links']) || !is_array($jrd['links'])) return false;
+
+	foreach ($jrd['links'] as $link) {
+		if (!is_array($link)) continue;
+		if (($link['rel'] ?? '') !== 'http://webfinger.net/rel/profile-page') continue;
+		if (empty($link['href'])) continue;
+		return $link['href'];
+	}
+	foreach ($jrd['links'] as $link) {
+		if (!is_array($link)) continue;
+		if (($link['rel'] ?? '') !== 'self') continue;
+		if (($link['type'] ?? '') !== 'text/html') continue;
+		if (empty($link['href'])) continue;
+		return $link['href'];
+	}
+	return false;
 }
 
 

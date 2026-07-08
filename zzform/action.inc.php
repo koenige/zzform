@@ -2068,10 +2068,19 @@ function zz_validate($zz_tab, $tab, $rec = 0) {
 			break;
 		case 'username':
 			if ($my_rec['POST'][$field_name]) {
-				if (!$tempvar = zz_check_username($my_rec['POST'][$field_name], $field)) {
+				$tempvar = zz_check_username($my_rec['POST'][$field_name], $field);
+				if ($tempvar === false) {
 					$my_rec['fields'][$f]['check_validation'] = false;
 					$my_rec['validation'] = false;
-				} else $my_rec['POST'][$field_name] = $tempvar;
+				} elseif (is_array($tempvar)) {
+					$my_rec['POST'][$field_name] = $tempvar[$field_name];
+					foreach ($field['store_fields'] ?? [] as $store_field) {
+						if (!array_key_exists($store_field, $tempvar)) continue;
+						$my_rec['POST'][$store_field] = $tempvar[$store_field];
+					}
+				} else {
+					$my_rec['POST'][$field_name] = $tempvar;
+				}
 			}
 			break;
 		case 'mail':
