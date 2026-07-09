@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzform module\n"
-"POT-Creation-Date: 2026-07-03 13:34+0000\n"
+"POT-Creation-Date: 2026-07-09 18:14+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -286,10 +286,6 @@ msgstr ""
 
 #: configuration/routes.cfg:18
 msgid "Synchronize local development and production server"
-msgstr ""
-
-#: configuration/settings.cfg
-msgid "maximum characters, longer words are split with zero width in list view"
 msgstr ""
 
 #: configuration/settings.cfg:20
@@ -572,139 +568,139 @@ msgstr ""
 msgid "Text that is displayed on link back to referring page"
 msgstr ""
 
-#: configuration/settings.cfg:400
+#: configuration/settings.cfg:401
 msgid "If more content than that inside #zzform should be replaced, use this DIV element with this ID instead."
 msgstr ""
 
-#: configuration/settings.cfg:404
+#: configuration/settings.cfg:405
 msgid "List with mappings of table to query strings with placeholder for results of query for editing revisions"
 msgstr ""
 
-#: configuration/settings.cfg:408
+#: configuration/settings.cfg:409
 msgid "List with mappings of table to query for editing revisions"
 msgstr ""
 
-#: configuration/settings.cfg:412
+#: configuration/settings.cfg:413
 msgid "List with mappings of table to URL for editing revisions"
 msgstr ""
 
-#: configuration/settings.cfg:416
+#: configuration/settings.cfg:417
 msgid "Allow to search, where to show search form"
 msgstr ""
 
-#: configuration/settings.cfg:424
+#: configuration/settings.cfg:425
 msgid "Always show a search form, even if there are no records"
 msgstr ""
 
-#: configuration/settings.cfg:428
+#: configuration/settings.cfg:429
 msgid "Secret key to protect public `zzhash`-hashes"
 msgstr ""
 
-#: configuration/settings.cfg:434
+#: configuration/settings.cfg:435
 msgid "Show list of records below record that is edited/deleted/added"
 msgstr ""
 
-#: configuration/settings.cfg:439
+#: configuration/settings.cfg:440
 msgid "Max no. of records where `deletable` query is used directly, otherwise a temporary table will be created"
 msgstr ""
 
-#: configuration/settings.cfg:444
+#: configuration/settings.cfg:445
 msgid "Separator between parts of page title"
 msgstr ""
 
-#: configuration/settings.cfg:448
+#: configuration/settings.cfg:449
 msgid "Create thumbnails in zzform as background process?"
 msgstr ""
 
-#: configuration/settings.cfg:453
+#: configuration/settings.cfg:454
 msgid "If it is not allowed to check the standard directories for binary executables, enter the path to the directory"
 msgstr ""
 
-#: configuration/settings.cfg:458
+#: configuration/settings.cfg:459
 msgid "Paths on server to upload binaries (e. g. imagemagick)"
 msgstr ""
 
-#: configuration/settings.cfg:469
+#: configuration/settings.cfg:470
 msgid "Paths for each individual binary used in upload"
 msgstr ""
 
-#: configuration/settings.cfg:474
+#: configuration/settings.cfg:475
 msgid "Use the system's PATH environment variable instead of checking specific paths; needed when open_basedir restrictions prevent direct path access"
 msgstr ""
 
-#: configuration/settings.cfg:479
+#: configuration/settings.cfg:480
 msgid "Option per binary to get verbose version information"
 msgstr ""
 
-#: configuration/settings.cfg:487
+#: configuration/settings.cfg:489
 msgid "In case there are problems renaming files from one mount to another, activate to copy file and then delete old file"
 msgstr ""
 
-#: configuration/settings.cfg:491
+#: configuration/settings.cfg:493
 msgid "Options to use always with all ImageMagick’s convert calls, e. g. for using a different temporary folder"
 msgstr ""
 
-#: configuration/settings.cfg:494
+#: configuration/settings.cfg:496
 msgid "Options to use with all ImageMagick’s convert calls, only if no custom options per filetype are defined"
 msgstr ""
 
-#: configuration/settings.cfg:498
+#: configuration/settings.cfg:500
 msgid "Log system() upload commands for debugging"
 msgstr ""
 
-#: configuration/settings.cfg:502
+#: configuration/settings.cfg:504
 msgid "Maximum file size in bytes that can be uploaded"
 msgstr ""
 
-#: configuration/settings.cfg:506
+#: configuration/settings.cfg:508
 msgid "Unwanted mimetypes and their replacements"
 msgstr ""
 
-#: configuration/settings.cfg:513
+#: configuration/settings.cfg:515
 msgid "Paths which indicate that a file is on a mounted file system; instead of rename, copy/unlink is used"
 msgstr ""
 
-#: configuration/settings.cfg:520
+#: configuration/settings.cfg:522
 msgid "Use `exiftool` to get information about file"
 msgstr ""
 
-#: configuration/settings.cfg:524
+#: configuration/settings.cfg:526
 msgid "Use `file` to get information about file"
 msgstr ""
 
-#: configuration/settings.cfg:529
+#: configuration/settings.cfg:531
 msgid "Use `ghostscript` to get information about file"
 msgstr ""
 
-#: configuration/settings.cfg:534
+#: configuration/settings.cfg:536
 msgid "Use `identify` to get information about file"
 msgstr ""
 
-#: configuration/settings.cfg:539
+#: configuration/settings.cfg:541
 msgid "Use `pdfinfo` to get information about file"
 msgstr ""
 
-#: configuration/settings.cfg:543
+#: configuration/settings.cfg:545
 msgid "Use Upndown WYSYWIG Editor for Markdown"
 msgstr ""
 
-#: configuration/settings.cfg:547
+#: configuration/settings.cfg:549
 msgid "Keep query string for internal zzform URL, e. g. if a form is used to set a password integrated in another page that is only identified by an existing query string"
 msgstr ""
 
-#: configuration/settings.cfg:551
+#: configuration/settings.cfg:553
 msgid "Extensions for images that the browser can display natively"
 msgstr ""
 
-#: configuration/settings.cfg:559
+#: configuration/settings.cfg:561
 msgid "Use Pagedown Editor (old: WMD) for Markdown"
 msgstr ""
 
-#: configuration/settings.cfg:564
+#: configuration/settings.cfg:566
 msgid "Possible language(s) for Pagedown Editor for Markdown"
 msgstr ""
 
-#: configuration/settings.cfg:576
+#: configuration/settings.cfg:578
 msgid "Use XHR for select fields; needs vxJS library"
 msgstr ""
 
@@ -2002,7 +1998,7 @@ msgid "Instead of automatically generating an identifier, translate this field o
 msgstr ""
 
 #: configuration/zz-fields.cfg:499
-#: configuration/zz-fields.cfg:1079
+#: configuration/zz-fields.cfg:1094
 msgid "List of definitions that are added to table definition if a condition is not true, indexed by key of condition"
 msgstr ""
 
@@ -2355,90 +2351,106 @@ msgid "Allows you to exclude the main record ID (passed via id != …) via a WHE
 msgstr ""
 
 #: configuration/zz-fields.cfg:956
-msgid "Marks a field as the key in a key_value subtable; gets for_action_ignore automatically"
+msgid "Select field (or field[column]) whose SQL row supplies a query string merged before validation"
 msgstr ""
 
 #: configuration/zz-fields.cfg:961
-msgid "Marks a field as the value in a key_value subtable; its content determines if a record is saved"
+msgid "Keys to take from that query string and merge onto this field definition"
 msgstr ""
 
 #: configuration/zz-fields.cfg:966
-msgid "Text that appears behind value in record view"
+msgid "List of fields where additional, derived values belonging to this field are being stored (typically during validation)."
 msgstr ""
 
 #: configuration/zz-fields.cfg:971
-msgid "Build a sum of the values in this field, show sum in footer"
+msgid "Marks a field as the key in a key_value subtable; gets for_action_ignore automatically"
 msgstr ""
 
 #: configuration/zz-fields.cfg:976
+msgid "Marks a field as the value in a key_value subtable; its content determines if a record is saved"
+msgstr ""
+
+#: configuration/zz-fields.cfg:981
+msgid "Text that appears behind value in record view"
+msgstr ""
+
+#: configuration/zz-fields.cfg:986
+msgid "Build a sum of the values in this field, show sum in footer"
+msgstr ""
+
+#: configuration/zz-fields.cfg:991
 msgid "Time format for time field"
 msgstr ""
 
-#: configuration/zz-fields.cfg:980
+#: configuration/zz-fields.cfg:995
 msgid "Title of field, shown in the record and the list view"
 msgstr ""
 
-#: configuration/zz-fields.cfg:987
+#: configuration/zz-fields.cfg:1002
 msgid "Title of field, use if another field is appended to this field"
 msgstr ""
 
-#: configuration/zz-fields.cfg:992
+#: configuration/zz-fields.cfg:1007
 msgid "Title of field in the list view, if it should be different from the record view"
 msgstr ""
 
-#: configuration/zz-fields.cfg:997
+#: configuration/zz-fields.cfg:1012
 msgid "Translate the values of this field"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1003
+#: configuration/zz-fields.cfg:1018
 msgid "Trim field content of spaces"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1008
+#: configuration/zz-fields.cfg:1023
 msgid "Type of field"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1053
+#: configuration/zz-fields.cfg:1068
 msgid "Type of field if main type is generic"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1060
+#: configuration/zz-fields.cfg:1075
 msgid "Clean up some typography issues, e. g. quotation marks, spaces, etc."
 msgstr ""
 
-#: configuration/zz-fields.cfg:1064
+#: configuration/zz-fields.cfg:1079
 msgid "Replace two or more spaces in text with one space"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1068
+#: configuration/zz-fields.cfg:1083
 msgid "List of field names that do not need to be shown if first value is already uniquely describing the record"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1073
+#: configuration/zz-fields.cfg:1088
 msgid "Unit shown after a value if it is not empty"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1085
+#: configuration/zz-fields.cfg:1100
 msgid "No. of field that has a file upload that is used as a source for metadata"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1089
+#: configuration/zz-fields.cfg:1104
 msgid "Key of metadata that is used for the value of this field"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1093
+#: configuration/zz-fields.cfg:1108
 msgid "List of strings that are not allowed to be entered in this field"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1098
+#: configuration/zz-fields.cfg:1113
 msgid "Message to show if validation fails"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1103
+#: configuration/zz-fields.cfg:1118
 msgid "Predefined value for a field"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1106
+#: configuration/zz-fields.cfg:1121
+msgid "Resolve username via WebFinger instead of a URL template (for federated services)"
+msgstr ""
+
+#: configuration/zz-fields.cfg:1126
 msgid "Split words in the list view, for better readability"
 msgstr ""
 
@@ -2508,8 +2520,8 @@ msgstr ""
 #: zzbrick_make/thumbnails.inc.php:154
 msgid "Finished with %d error (see log)."
 msgid_plural "Finished with %d errors (see log)."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[] ""
+msgstr[] ""
 
 #: zzbrick_make/thumbnails.inc.php:158
 msgid "All thumbnails processed."
@@ -2557,4 +2569,29 @@ msgstr ""
 
 #: zzbrick_make/thumbnails.inc.php:496
 msgid "Thumbnail for %s × %s px could not be created."
+msgstr ""
+
+# Record form: Heading
+#: zzform/functions.inc.php
+msgid "Configuration does not allow this action: %s"
+msgstr ""
+
+# Record form: Heading
+#: zzform/functions.inc.php
+msgid "Configuration does not allow this mode: %s"
+msgstr ""
+
+# Record form: Validation, displayed above form
+#: zzform/functions.inc.php
+msgid "Creation of directory %s failed."
+msgstr ""
+
+# Record form: Validation, displayed above form
+#: zzform/functions.inc.php
+msgid "Creation of directory %s failed: Parent directory is not writable."
+msgstr ""
+
+# Error handling
+#: zzform/preparation.inc.php
+msgid "Incorrect value: %s"
 msgstr ""

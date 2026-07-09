@@ -11,7 +11,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzform\n"
-"POT-Creation-Date: \n"
+"POT-Creation-Date: 2026-07-09 18:14+0000\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Gustaf Mossakowski <gustaf@koenige.org>\n"
 "Language-Team: \n"
@@ -20,597 +20,639 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
-"X-Generator: Poedit 1.8.12\n"
+"X-Generator: Poedit 3.9\n"
 
-# Number of records as shown in page TITLE
-# Page elements
-msgid "records"
-msgstr "záznamy"
+#: behaviour/zzform-foot.js:562
+msgid "Bytes"
+msgstr ""
+
+#: behaviour/zzform-foot.js:562
+msgid "Total:"
+msgstr ""
+
+#: behaviour/zzform-foot.js:562
+msgid "Uploaded:"
+msgstr ""
+
+#: behaviour/zzform-foot.js:565
+msgid "% uploaded … please wait"
+msgstr ""
+
+#: behaviour/zzform-foot.js:572
+msgid "Upload Failed"
+msgstr ""
+
+#: behaviour/zzform-foot.js:579
+msgid "Upload Aborted"
+msgstr ""
 
 # Page elements
+#: configuration/settings.cfg
 msgid "Back to overview"
 msgstr "Zpět na přehled"
 
-# Link to go back to the last form if a new detail record was added
-# Page elements
-msgid "Back to last form"
+#: templates/debug.template.txt:11
+msgid "Debug Information"
 msgstr ""
 
-# Page elements
-msgid "page"
-msgstr "strana"
-
-# Page elements: Heading
-msgid "Search"
-msgstr "Hledat"
-
-# Link to add a new value for detail record via dropdown
-# Record form
-msgid "New …"
-msgstr "Nový …"
-
-# Link to edit a new value for detail record via dropdown
-# Record form
-msgid "Edit …"
+#: templates/debug.template.txt:16
+msgid "Time"
 msgstr ""
 
-# Page title
-msgid "Review"
-msgstr "Prohlédnout"
+#: templates/debug.template.txt:17
+msgid "Mem"
+msgstr ""
 
-# Page title
-# List view: Multi function
-msgid "Edit"
-msgstr "Editovat"
+#: templates/debug.template.txt:18
+msgid "Function"
+msgstr ""
 
-# Page title
-# List view: Multi function
-msgid "Delete"
-msgstr "Vymazat"
+#: templates/debug.template.txt:19
+msgid "Marker"
+msgstr ""
+
+#: templates/debug.template.txt:20
+msgid "SQL"
+msgstr ""
+
+#: templates/debug.template.txt:37
+msgid "Memory peak usage"
+msgstr ""
+
+#: templates/integritycheck.template.txt:13
+msgid "Nothing to check."
+msgstr ""
+
+#: templates/integritycheck.template.txt:20
+msgid "Field <code>%s</code> contains only valid values."
+msgstr ""
+
+# Record form: bottom
+#: templates/integritycheck.template.txt:20
+#: templates/zzform-actions.template.txt:16
+msgid "OK"
+msgstr "OK"
+
+#: templates/integritycheck.template.txt:22
+msgid "Error"
+msgstr ""
+
+#: templates/integritycheck.template.txt:22
+msgid "Field <code>%s</code> contains invalid values:"
+msgstr ""
+
+#: templates/logging-add.template.txt:13
+msgid "Please upload a file."
+msgstr ""
+
+#: templates/logging-add.template.txt:16
+msgid "There was an error while uploading the file."
+msgstr ""
+
+#: templates/logging-add.template.txt:19
+msgid "The content of the file was not readable (Format needs to be JSON)."
+msgstr ""
+
+#: templates/logging-add.template.txt:22
+msgid "The highest existing log entry is %d, but import starts with %d."
+msgstr ""
+
+#: templates/logging-add.template.txt:25
+msgid "There was an error adding record ID %d."
+msgstr ""
+
+#: templates/logging-add.template.txt:28
+msgid "There was an error adding log for record ID %d."
+msgstr ""
+
+#: templates/logging-add.template.txt:31
+msgid "Record ID %d was added with a different log ID %d."
+msgstr ""
+
+#: templates/logging-add.template.txt:34
+msgid "%d log entry was added, ID was %d."
+msgid_plural "All %d log entries were added, last ID was %d."
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#: templates/logging-add.template.txt:39
+msgid "These changes were applied to the remote server."
+msgstr ""
+
+#: templates/logging-add.template.txt:41
+msgid "These changes were applied to the local server."
+msgstr ""
+
+#: templates/logging-add.template.txt:47
+#: templates/maintenance-logging.template.txt:17
+msgid "Upload"
+msgstr ""
+
+#: templates/logging-add.template.txt:47
+#: templates/maintenance-logging.template.txt:17
+#: zzbrick_make/loggingadd.inc.php:33 zzbrick_make/loggingadd.inc.php:34
+msgid "Upload SQL log"
+msgstr ""
+
+#: templates/logging-archive.template.txt:13
+msgid "%d logging records from %s were archived."
+msgstr ""
+
+#: templates/logging-archive.template.txt:15
+msgid "Logging table was sorted by ID."
+msgstr ""
+
+#: templates/logging-archive.template.txt:19
+msgid "No logging data available."
+msgstr ""
+
+#: templates/logging-archive.template.txt:22
+msgid "No logging data available older than %d months."
+msgstr ""
+
+#: templates/logging-archive.template.txt:23
+msgid "The oldest data in the logging table comes from <strong>%s</strong>."
+msgstr ""
+
+#: templates/logging-archive.template.txt:26
+msgid "Re-sort logging table"
+msgstr ""
+
+#: templates/logging-archive.template.txt:30
+msgid "Archive logging data from %s"
+msgstr ""
+
+#: templates/logging-read.template.txt:13
+msgid "Logfile has only %d entries."
+msgstr ""
+
+#: templates/maintenance-logging.template.txt:11
+msgid "SQL log"
+msgstr ""
+
+#: templates/maintenance-logging.template.txt:14
+msgid "Download"
+msgstr ""
+
+#: templates/maintenance-logging.template.txt:14
+msgid "Download SQL log, starting with ID"
+msgstr ""
+
+#: templates/maintenance-logging.template.txt:22
+#: zzbrick_make/serversync.inc.php:71
+msgid "Synchronize local and remote server"
+msgstr ""
+
+#: templates/sync.template.txt:13
+msgid "Synchronization completed."
+msgstr ""
+
+# Modules: Sync
+#: templates/sync.template.txt:17
+msgid "Processing entries %s–%s …"
+msgstr ""
+
+# Modules: Sync
+#: templates/sync.template.txt:21
+msgid "%s update was made."
+msgid_plural "%s updates were made."
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+# Modules: Sync
+#: templates/sync.template.txt:25
+msgid "%s insert was made."
+msgid_plural "%s inserts were made."
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+# Modules: Sync
+#: templates/sync.template.txt:29
+msgid "%s record was left as is."
+msgid_plural "%s records were left as is."
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+# Modules: Sync
+#: templates/sync.template.txt:33
+msgid "%s record had errors."
+msgid_plural "%s records had errors."
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+# Modules: Sync
+#: templates/sync.template.txt:42
+msgid "Go on to next page"
+msgstr ""
+
+# Modules: Sync
+#: templates/sync.template.txt:44
+msgid "Finished!"
+msgstr ""
+
+# Modules: Sync
+#: templates/sync.template.txt:45
+msgid "Possibly deletable records"
+msgstr ""
+
+#: templates/sync.template.txt:53
+msgid "No."
+msgstr ""
+
+#: templates/sync.template.txt:54
+msgid "ID"
+msgstr ""
+
+# List view: Table head
+#: templates/sync.template.txt:55 templates/zzform-list-table.template.txt:21
+msgid "Action"
+msgstr "Akce"
+
+# Modules: Sync
+#: templates/sync.template.txt:104
+msgid "Synchronize"
+msgstr ""
+
+# Modules: Sync
+#: templates/sync-deletable.template.txt:14
+msgid "%s deletion was made."
+msgid_plural "%s deletions were made."
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+# Record form: bottom
+#: templates/sync-deletable.template.txt:51
+#: templates/zzform-record.template.txt:61
+msgid "Delete records"
+msgstr ""
+
+# Modules: Sync
+#: templates/sync-deletable.template.txt:55
+msgid "There are no deletable records."
+msgstr ""
+
+# Modules: Sync
+#: templates/sync-overview.template.txt:13
+msgid "There is no definition for a synchronization named <code>%s</code>."
+msgstr ""
+
+# Modules: Sync
+#: templates/sync-overview.template.txt:16
+msgid "Please select from one of the following datasets:"
+msgstr ""
+
+#: templates/sync-server.template.txt:13
+msgid "This only works from a local server!"
+msgstr ""
+
+#: templates/sync-server.template.txt:16
+msgid "The server returned with an error (%d)."
+msgstr ""
+
+#: templates/sync-server.template.txt:20
+msgid "Both servers have %s log entries."
+msgstr ""
+
+#: templates/sync-server.template.txt:20
+msgid "No synchronisation is necessary."
+msgstr ""
+
+#: templates/sync-server.template.txt:23
+msgid "A synchronisation is impossible."
+msgstr ""
+
+#: templates/sync-server.template.txt:23
+msgid "The log entries %d do not match."
+msgstr ""
+
+# Record form: Change password
+#: templates/zzform.template.txt:16
+msgid "Your password has been saved!"
+msgstr ""
+
+# Record form: Change password
+#: templates/zzform.template.txt:18
+msgid "Your password has been changed!"
+msgstr "Vaše heslo bylo změněno!"
+
+# Record form: Heading
+#: templates/zzform.template.txt:23 zzform/record.inc.php:71
+msgid "Record was deleted"
+msgstr "Záznam byl vymazán"
 
 # Page title
 # Record form: bottom
+#: templates/zzform-actions.template.txt:19
+#: templates/zzform-actions.template.txt:25
 msgid "Show"
 msgstr "Zobrazit"
 
 # Page title
-msgid "Add"
-msgstr "Přidat"
+# List view: Multi function
+#: templates/zzform-actions.template.txt:23
+#: templates/zzform-merge.template.txt:35 zzform/list.inc.php:202
+msgid "Delete"
+msgstr "Vymazat"
+
+# Page title
+# List view: Multi function
+#: templates/zzform-actions.template.txt:24
+#: templates/zzform-merge.template.txt:34 zzform/list.inc.php:200
+msgid "Edit"
+msgstr "Editovat"
 
 # Record form: Heading
+#: templates/zzform-actions.template.txt:26
 msgid "Copy"
 msgstr "Kopírovat"
 
-# Record form: Heading
-msgid "Merge"
-msgstr "Sloučit"
-
-# Record form: Heading
-msgid "Add a record"
-msgstr "Přidat záznam"
-
-# Record form: Heading
-msgid "Delete a record"
-msgstr "Vymazat záznam"
-
-# Record form: Heading
-msgid "Edit a record"
-msgstr "Editovat záznam"
-
-# Record form: Heading
-msgid "Show a record"
-msgstr "Zobrazit záznam"
-
-# Record form: Heading
-msgid "Add several records"
-msgstr ""
-
-# Record form: Heading
-msgid "Delete several records"
-msgstr ""
-
-# Record form: Heading
-msgid "Edit several records"
-msgstr ""
-
-# Record form: Heading
-msgid "Insert failed"
-msgstr "Přidat neúspěšné"
-
-# Record form: Heading
-msgid "Delete failed"
-msgstr "Vymazat neúspěšné"
-
-# Record form: Heading
-msgid "Update failed"
-msgstr "Aktualizovat neúspěšné"
-
-# Record form: Heading
-msgid "The record with the ID %d was already deleted."
-msgstr "V poli ID není žádný záznam: %d."
-
-# Record form: Heading
-msgid "A record with the ID %d does not exist."
-msgstr "V poli ID není žádný záznam: %d."
-
-# Record form: Heading
-msgid "Sorry, it is not possible to access the ID %d from here."
-msgstr ""
-
-# Record form: Heading
-msgid "Invalid ID for a record (must be an integer): %s"
-msgstr ""
-
-# Record form: Heading
-msgid "Record was updated"
-msgstr "Záznam byl aktualizován"
-
-# Record form: Heading
-msgid "Record was not updated (no changes were made)"
-msgstr ""
-
-# Record form: Heading
-msgid "Record was deleted"
-msgstr "Záznam byl vymazán"
-
-# Record form: Heading
-msgid "%d record was deleted"
-msgid_plural "%d records were deleted"
-msgstr[] "1 záznam byl vymazán"
-msgstr[] "%d records were deleted"
-
-# Record form: Heading
-msgid "Record was inserted"
-msgstr "Příspěvek byl uložen"
-
-# Record form: Heading
-msgid "Configuration does not allow this action: %s"
-msgstr ""
-
-# Record form: Heading
-msgid "Configuration does not allow this mode: %s"
-msgstr ""
-
 # Stop editing this record
 # Record form: bottom
+#: templates/zzform-actions.template.txt:32
 msgid "Cancel"
 msgstr "Storno"
 
-# Record form: bottom
-msgid "OK"
-msgstr "OK"
-
-# Record form: bottom
-msgid "Update record"
-msgstr "Aktualizovat k databáze"
-
-# Record form: bottom
-msgid "Update records"
+# Record form: Captcha
+#: templates/zzform-captcha.template.txt:15
+msgid "(Reload image)"
 msgstr ""
 
-# Record form: bottom
-msgid "Delete record"
-msgstr "Vymazat z databáze"
-
-# Record form: bottom
-msgid "Delete records"
-msgstr ""
-
-# Record form: bottom
-msgid "Add record"
-msgstr "Přidat k databáze"
-
-# Record form: bottom
-msgid "Add records"
-msgstr ""
-
-# Record form: bottom
-msgid "Edit record"
-msgstr ""
-
-# Record form: bottom
-msgid "Edit records"
-msgstr ""
-
-# no value available for display, should be abbreviated
-# Record form: field output
-msgid "<abbr title=\"Not available\">N/A</abbr>"
-msgstr ""
-
-# Record form: field output
-msgid "will be added automatically"
-msgstr "bude přidáno automaticky"
-
-# Record form: field output
-msgid "calculated field"
-msgstr "Generované políčko"
-
-# dropdown, first entry
-# Record form: Select
-msgid "None selected"
-msgstr "Žádný nevybrán"
-
-# radio buttons, first entry
-# Record form: Select
-msgid "No selection"
-msgstr "Žádný výběr"
-
-# Record form: Select
-msgid "No source defined"
-msgstr "Žádný zdroj nebyl definován"
-
-# Record form: Select
-msgid "No selection possible."
-msgstr "Žádný výběr není možný."
-
-# Record form: Select
-msgid "(This entry is the highest entry in the hierarchy.)"
-msgstr ""
-
-# select/deselect checkboxes
-# Record form: Select
-msgid "Select all"
-msgstr "Vybrat vše"
-
-# select/deselect checkboxes
-# Record form: Select
-msgid "Deselect all"
+# Record form: Captcha
+#: templates/zzform-captcha.template.txt:19
+msgid "Please enter the digits from the image."
 msgstr ""
 
 # Record form: Change password
+#: templates/zzform-field-password-change.template.txt:13
 msgid "Old:"
 msgstr "Staré:"
 
 # Record form: Change password
+#: templates/zzform-field-password-change.template.txt:15
+#: templates/zzform-field-password-change.template.txt:16
 msgid "New:"
 msgstr "Nové:"
 
 # Record form: Change password
+#: templates/zzform-field-password-change.template.txt:17
 msgid "(Please enter your new password twice)"
 msgstr "(Zadejte vaše heslo dvakrát)"
 
-# Record form: Change password
-msgid "Your password has been changed!"
-msgstr "Vaše heslo bylo změněno!"
-
-# Record form: Change password
-msgid ""
-"Your current password is different from what you entered. Please try again."
-msgstr ""
-"Vaše heslo je odlišné od toho, které jste právě zadali. Zkuste to ještě "
-"jednou."
-
-# Record form: Change password
-msgid "New passwords do not match. Please try again."
-msgstr "Nově zadaná hesla nesedí. Zkuste ještě jednou."
-
-# Record form: Change password
-msgid "Please enter your current password and twice your new password."
-msgstr "Zadejte vaše současné heslo a zároveň dvakrát potvrďte nové."
-
-# Record form: Change password
-msgid ""
-"New and old password are identical. Please choose a different new password."
-msgstr "Nové a staré heslo je stejné. Zadejte jiné nové heslo."
-
-# Record form: Change password
-msgid "hidden"
-msgstr "schovat"
-
-# Record form: Change password
-msgid "Your new password could not be saved. Please try a different one."
+#: templates/zzform-js-field-buttons.template.txt:16
+msgid "Current time"
 msgstr ""
 
-# Record form: File upload
-msgid "Error: "
-msgstr "Chyba: "
+# List view: bottom
+#: templates/zzform-list-add.template.txt:12
+#: templates/zzform-list-add.template.txt:25
+msgid "Add new record"
+msgstr "Přidat nový záznam"
 
-# Record form: File upload
-msgid "No file was uploaded."
-msgstr "Žádný soubor nebyl nahrán."
-
-# Record form: File upload
-msgid "File was only partially uploaded."
-msgstr "Soubor byl nahrán pouze částečně."
-
-# Record form: File upload
-msgid "File is too big."
-msgstr "Soubor je příliš velký."
-
-# Record form: File upload
-msgid "Maximum allowed filesize is %s."
-msgstr "Maximálně povolená velikost souboru je %s."
-
-# Record form: File upload
-msgid "Unsupported filetype:"
-msgstr "Nepovolený formát souboru:"
-
-# Record form: File upload
-msgid "Supported filetypes:"
-msgstr "Povolené formáty souborů jsou:"
-
-# Record form: File upload
-msgid "Could not delete %s."
-msgstr "Soubor %s nelze vymazat."
-
-# Record form: File upload
-msgid "Could not delete %s, file did not exist."
-msgstr "Soubor %s nelze vymazat, protože neexistuje :-)."
-
-# prefix for alt-attribute
-# Record form: File upload
-msgid "File: "
-msgstr "Soubor: "
-
-# alt-attribute if there's no image
-# Record form: File upload
-msgid "No image"
-msgstr "Žádný obrázek"
-
-# Record form: File upload
-msgid "Delete this file"
-msgstr "Smazat tento soubor"
-
-# Record form: File upload
-msgid "File uploaded:"
+# Export-Link
+# Modules: Export
+#: templates/zzform-list-add.template.txt:29
+msgid "Export"
 msgstr ""
 
-# Record form: File upload
-msgid ""
-"File could not be saved. There is a problem with the user rights. We are "
-"working on it."
+# List view: Filter
+#: templates/zzform-list-filter.template.txt:18
+#: templates/zzform-list-table.template.txt:39
+#: templates/zzform-list-ul.template.txt:34
+msgid "Selection"
+msgstr "Výběr"
+
+# Filter
+#: templates/zzform-list-filter.template.txt:20
+msgid "collapse"
 msgstr ""
 
-# Record form: File upload
-msgid "Minimum width %s was not reached."
-msgstr "Minimální šířka %s nebyla dosažena."
-
-# Record form: File upload
-msgid "Minimum height %s was not reached."
-msgstr "Minimální výška %s nebyla dosažena."
-
-# Record form: File upload
-msgid "Maximum width %s has been exceeded."
-msgstr "Maximální šířka %s byla překročena."
-
-# Record form: File upload
-msgid "Maximum height %s has been exceeded."
-msgstr "Maximální výška %s byla překročena."
-
-# Record form: File upload
-msgid "The PDF consists of %d pages. Only %d pages are allowed."
+# Filter
+#: templates/zzform-list-filter.template.txt:20
+msgid "expand"
 msgstr ""
 
-# Record form: File upload
-msgid "Transfer failed. Probably you sent a file that was too large."
-msgstr ""
+# List view: Filter
+#: templates/zzform-list-filter.template.txt:25 zzform/list.inc.php:1634
+msgid "all"
+msgstr "všechny"
 
-# Record form: File upload
-msgid "– You sent: %s data."
-msgstr ""
-
-# Record form: File upload
-msgid ""
-"The file %s is empty. If you are uploading from a Mac, please check if the "
-"data is not only available in the so-called “resource fork” of the file."
-msgstr ""
-
-# Record form: File upload
-#: zzform/record.inc.php
-msgid "File upload is currently impossible."
-msgstr ""
-
-# e. g. Add Address, Add Phone Number ...
-# Record form: Detail record
-msgid "Add %s"
-msgstr "Přidat %s"
-
-# Record form: Detail record
-msgid "Remove %s"
-msgstr "Odebrat %s"
-
-# Record form: Detail record
-msgid "Remove"
-msgstr ""
-
-# Record form: Detail record
-msgid "Minimum of records for table `%s` was not met (%d)."
-msgstr ""
-
-# Record form: Validation, displayed inside form
-msgid "Please enter more characters."
-msgstr "Prosím, zadejte více znaků."
-
-# Record form: Validation, displayed inside form
-msgid "No entry found. Try less characters."
-msgstr "Hledání bylo neúspěšné, zkuste zadat méně znaků."
-
-# Record form: Validation, displayed inside form
-msgid "Text is too long (max. %d characters, %d submitted)."
-msgstr ""
-
-# Record form: Validation, displayed inside form
-msgid "Text is too short (min. %d characters, %d submitted)."
-msgstr ""
-
-# Record form: Validation, displayed inside form
-msgid "Please make a different selection."
-msgstr ""
-
-# Record form: Validation, displayed above form
-msgid "These problems occured:"
-msgstr "Došlo k následujícím chybám:"
-
-# Record form: Validation, displayed above form
-msgid "Value incorrect in field <strong>%s</strong>."
-msgstr "Špatná hodnota <strong>%s</strong>."
-
-# Record form: Validation, displayed above form
-msgid "Value missing in field <strong>%s</strong>."
-msgstr "Chybějící hodnota <strong>%s</strong>."
-
-# Record form: Validation, displayed above form
-msgid "Nothing was uploaded in field <strong>%s</strong>."
-msgstr ""
-
-# Record form: Validation, displayed above form
-msgid "Duplicate entry in this table. Please check whether the record you were about to enter already exists or you’ll have to change the values you entered."
-msgstr "Duplikovaný záznam v této tabulce."
-
-# Record form: Validation, displayed above form
-msgid "There was a problem with the detail record."
-msgstr ""
-
-# Record form: Validation, displayed above form
-msgid "String <em>“%s”</em> is not allowed"
-msgstr ""
-
-# Record form: Validation, displayed above form
-msgid "Value “%s” needs to be greater than “%s”."
-msgstr ""
-
-# Record form: Validation, displayed above form
-msgid "Value “%s” needs to be greater than or equal to “%s”."
-msgstr ""
-
-# Record form: Validation, displayed above form
-msgid "Value “%s” needs to be smaller than “%s”."
-msgstr ""
-
-# Record form: Validation, displayed above form
-msgid "Value “%s” needs to be smaller than or equal to “%s”."
-msgstr ""
-
-# Record form: Validation, displayed above form
-msgid "Please check these values again"
-msgstr ""
-
-# Record form: Validation, displayed above form
-msgid "Please select one of the values for field <strong>%s</strong>."
-msgstr ""
-
-# Record form: Validation, displayed above form
-msgid "Please check the value for field <strong>%s</strong>."
-msgstr ""
-
-# Record form: Validation, displayed above form
-msgid "Creation of directory %s failed: Parent directory is not writable."
-msgstr ""
-
-# Record form: Validation, displayed above form
-msgid "Creation of directory %s failed."
-msgstr ""
-
-# Record form: Validation, displayed above form
-msgid ""
-"Value in field <em>“%s”</em> must not be identical to field <em>“%s”</em>."
-msgstr ""
-
-# Record form: Validation of Database Integrity, displayed above form
-msgid "No records in relation table `%s`. Please fill in records."
-msgstr "Žádné záznamy v související tabulce `%s`. Prosím, doplňte."
-
-# Record form: Validation of Database Integrity, displayed above form
-msgid ""
-"This record could not be deleted because it has other data associated with "
-"it."
-msgstr ""
-"Tento příspěvek nemůže být vymazán, protože je vázán na ostatní záznamy."
-
-# Record form: Validation, resubmit because of logout
-msgid ""
-"You had been logged out automatically. Therefore, your changes were not yet "
-"saved. Please submit the form again."
-msgstr ""
-
-# Record form: Resubmit because form was sent too quickly
-msgid "Sorry, an error has occurred.<br>Please send the form again."
-msgstr ""
-
-# Record form: foreign record
-msgid "No entry possible. First save this record."
-msgstr "Nelze přidat záznam - je třeba uložit aktuálně otevřený příspěvek."
-
-# Record form: foreign record
-msgid "No data available."
-msgstr "Žádná data k dispozici."
-
-# Record form: identifier, hidden etc.
-msgid "Record for <strong>%s</strong> does not exist. (ID: %s)"
-msgstr ""
-
-# Record form: identifier, hidden etc.
-msgid "Would be changed on update"
-msgstr ""
+# Record form: Heading
+#: templates/zzform-merge.template.txt:12 zzform/list.inc.php:204
+msgid "Merge"
+msgstr "Sloučit"
 
 # Record form: Merge
-#: zzform/merge.inc.php
+#: templates/zzform-merge.template.txt:18
 msgid "Merge: Failed to update record with ID %d in table <code>%s</code>."
 msgstr ""
 
 # Record form: Merge
-#: zzform/merge.inc.php
+#: templates/zzform-merge.template.txt:20
 msgid "Merge: Failed to delete record with ID %d in table <code>%s</code>."
 msgstr ""
 
 # Record form: Merge
-#: zzform/merge.inc.php
+#: templates/zzform-merge.template.txt:22
 msgid ""
 "Merge: Update of record with ID %d in table <code>%s</code> was successful."
 msgstr ""
 
 # Record form: Merge
-#: zzform/merge.inc.php
+#: templates/zzform-merge.template.txt:24
 msgid ""
 "Merge: Deletion of record with ID %d in table <code>%s</code> was successful."
 msgstr ""
 
 # Record form: Merge
-msgid "%d records merged successfully"
-msgstr ""
-
-# Record form: Merge
+#: templates/zzform-merge.template.txt:26
 msgid "For merging, the field <em>%s</em> has to be equal in all records."
 msgstr ""
 
 # Record form: Merge
+#: templates/zzform-merge.template.txt:28
 msgid "For merging, the fields %s and %s have to be equal in all records."
 msgstr ""
 
 # Record form: Merge
+#: templates/zzform-merge.template.txt:30
 msgid "Merge not complete, records are different:"
 msgstr ""
 
-# Record form: Revision
-msgid "Revise a record"
+# Record form: Resubmit because form was sent too quickly
+#: templates/zzform-record.template.txt:32
+msgid "Sorry, an error has occurred.<br>Please send the form again."
 msgstr ""
 
-# Record form: Revision
-msgid "Old value: %s"
+# Record form: bottom
+#: templates/zzform-record.template.txt:49
+msgid "Add records"
 msgstr ""
 
-# Record form: Revision
-msgid "– empty –"
+# Record form: bottom
+#: templates/zzform-record.template.txt:51
+msgid "Add record"
+msgstr "Přidat k databáze"
+
+# Record form: bottom
+#: templates/zzform-record.template.txt:55
+msgid "Update records"
 msgstr ""
 
-# Record form: Revision
-#: zzbrick_tables/revisions.php
-msgid "Revisions"
+# Record form: bottom
+#: templates/zzform-record.template.txt:57
+msgid "Update record"
+msgstr "Aktualizovat k databáze"
+
+# Record form: bottom
+#: templates/zzform-record.template.txt:63
+msgid "Delete record"
+msgstr "Vymazat z databáze"
+
+# Record form: foot
+#: templates/zzform-record.template.txt:69
+msgid "Submit data …"
 msgstr ""
 
-# Record form: Revision
-#: zzbrick_tables/revisions.php
-msgid "Data"
+# Link to add a new value for detail record via dropdown
+# Record form
+#: templates/zzform-record-field.template.txt:17
+msgid "New …"
+msgstr "Nový …"
+
+# Link to edit a new value for detail record via dropdown
+# Record form
+#: templates/zzform-record-field.template.txt:18 zzform/record.inc.php:1967
+msgid "Edit …"
 msgstr ""
 
-# Record form: Revision
-#: zzbrick_tables/revisions.php
-msgid "Script URL"
+# alt-attribute if there's no image
+# Record form: File upload
+#: templates/zzform-record-field-file.template.txt:14 zzform/list.inc.php:1081
+#: zzform/path.inc.php:82
+msgid "No image"
+msgstr "Žádný obrázek"
+
+# Record form: File upload
+#: templates/zzform-record-field-file.template.txt:29
+msgid "Delete this file"
+msgstr "Smazat tento soubor"
+
+# Record form: File upload
+#: templates/zzform-record-field-file.template.txt:40
+msgid "File uploaded:"
 msgstr ""
 
-# Record form: Revision
-#: zzbrick_tables/revisiondata.php
-msgid "ignore"
+# Record form: File upload
+#: templates/zzform-record-field-file.template.txt:43
+#: zzform/errorhandling.inc.php:420 zzform/upload.inc.php:1753
+msgid "Maximum allowed filesize is %s."
+msgstr "Maximálně povolená velikost souboru je %s."
+
+# radio buttons, first entry
+# Record form: Select
+#: templates/zzform-record-radio.template.txt:27 zzform/record.inc.php:3395
+msgid "No selection"
+msgstr "Žádný výběr"
+
+# Record form: Validation, displayed above form
+#: templates/zzform-record-reselect.template.txt:12
+msgid "Please check these values again"
+msgstr ""
+
+# Record form: Validation, displayed above form
+#: templates/zzform-record-reselect.template.txt:16
+msgid "Please select one of the values for field <strong>%s</strong>."
+msgstr ""
+
+# Record form: Validation, displayed above form
+#: templates/zzform-record-reselect.template.txt:18
+msgid "Please check the value for field <strong>%s</strong>."
+msgstr ""
+
+#: templates/zzform-record-select.template.txt:14
+msgid "Current value: %s"
+msgstr ""
+
+#: templates/zzform-record-select.template.txt:15
+msgid "Possible value: %s"
+msgstr ""
+
+# Record form: Select
+#: templates/zzform-record-select.template.txt:17 zzform/record.inc.php:1014
+msgid "No selection possible."
+msgstr "Žádný výběr není možný."
+
+# Record form: field output
+#: templates/zzform-record-select.template.txt:25 zzform/record.inc.php:1751
+msgid "will be added automatically"
+msgstr "bude přidáno automaticky"
+
+# Record form: Select
+#: templates/zzform-record-select.template.txt:29
+msgid "(This entry is the highest entry in the hierarchy.)"
+msgstr ""
+
+# dropdown, first entry
+# Record form: Select
+#: templates/zzform-record-select.template.txt:37
+msgid "None selected"
+msgstr "Žádný nevybrán"
+
+# List view: Search form
+#: templates/zzform-search.template.txt:14
+msgid "in"
+msgstr "ve"
+
+# Button
+# List view: Search form
+#: templates/zzform-search.template.txt:14
+msgid "search"
+msgstr "hledat"
+
+# List view: Search form
+#: templates/zzform-search.template.txt:15
+msgid "all fields"
+msgstr "všech polích"
+
+# List view: Search form
+#: templates/zzform-search.template.txt:21
+msgid "Show all records (without search filter)"
+msgstr ""
+
+#: zzbrick_make/serversync.inc.php:59
+msgid ""
+"This URL is for synchronising a production and a development server only. No "
+"direct access is possible."
+msgstr ""
+
+# Modules: Sync
+#: zzbrick_make/sync.inc.php:43
+msgid "Synchronization: %s"
+msgstr ""
+
+# Modules: Sync
+#: zzbrick_make/sync.inc.php:70
+msgid "Deletable Records"
+msgstr ""
+
+#: zzbrick_make/sync.inc.php:78
+msgid "Sync finished"
+msgstr ""
+
+#: zzbrick_request/integritycheck.inc.php:72
+#: zzbrick_request/integritycheck.inc.php:73
+msgid "Relational Integrity"
+msgstr ""
+
+#: zzbrick_request/loggingread.inc.php:28
+#: zzbrick_request/loggingread.inc.php:29
+msgid "Download SQL log"
 msgstr ""
 
 # Record form: Revision
@@ -623,151 +665,562 @@ msgstr ""
 msgid "Complete values"
 msgstr ""
 
-# Record form: Captcha
-msgid "Please enter the digits from the image."
+# Record form: Revision
+#: zzbrick_tables/revisiondata.php
+msgid "ignore"
 msgstr ""
 
-# Record form: Captcha
-msgid "(Reload image)"
+# Record form: Revision
+#: zzbrick_tables/revisions.php
+msgid "Data"
 msgstr ""
 
-# Record form: Captcha
-msgid "Please enter the following code: %s."
+# Record form: Revision
+#: zzbrick_tables/revisions.php
+msgid "Revisions"
 msgstr ""
 
-# Record form: Captcha
-msgid "Please add %s to it."
-msgstr ""
-
-# Record form: Captcha
-msgid "zero"
-msgstr ""
-
-# Record form: Captcha
-msgid "one"
-msgstr ""
-
-# Record form: Captcha
-msgid "two"
-msgstr ""
-
-# Record form: Captcha
-msgid "three"
-msgstr ""
-
-# Record form: Captcha
-msgid "four"
-msgstr ""
-
-# Record form: Captcha
-msgid "five"
-msgstr ""
-
-# Record form: Captcha
-msgid "six"
-msgstr ""
-
-# Record form: Captcha
-msgid "seven"
-msgstr ""
-
-# Record form: Captcha
-msgid "eight"
-msgstr ""
-
-# Record form: Captcha
-msgid "nine"
-msgstr ""
-
-# Record form: Captcha
-msgid "ten"
-msgstr ""
-
-# Record form: Date field
-msgid "Date"
-msgstr ""
-
-# Record form: Datetime field
-msgid "Date and time"
-msgstr ""
-
-# Record form: foot
-msgid "Submit data …"
+# Record form: Revision
+#: zzbrick_tables/revisions.php
+msgid "Script URL"
 msgstr ""
 
 # List view: Revision
+#: zzbrick_tables/revisions.php
+msgid "historic"
+msgstr ""
+
+# List view: Revision
+#: zzbrick_tables/revisions.php
 msgid "live"
 msgstr ""
 
 # List view: Revision
+#: zzbrick_tables/revisions.php
 msgid "pending"
 msgstr ""
 
-# List view: Revision
-msgid "historic"
+#: zzbrick_xhr/configs.inc.php:34 zzbrick_xhr/dependencies.inc.php:31
+#: zzbrick_xhr/zzform.inc.php:39
+msgid "Malformed field number: %s"
 msgstr ""
 
-# List view
-msgid "No entries available"
-msgstr "Žádné záznamy k dispozici"
+#: zzbrick_xhr/configs.inc.php:38 zzbrick_xhr/dependencies.inc.php:35
+#: zzbrick_xhr/zzform.inc.php:43
+msgid "Malformed subtable number: %s"
+msgstr ""
 
-# group by unknown
-# List view
-msgid "- unknown -"
-msgstr "- neznámý -"
+#: zzbrick_xhr/configs.inc.php:46 zzbrick_xhr/dependencies.inc.php:44
+#: zzbrick_xhr/zzform.inc.php:51
+msgid "Subtable %s requested, but it is not in the table definition"
+msgstr ""
+
+#: zzbrick_xhr/configs.inc.php:48 zzbrick_xhr/dependencies.inc.php:48
+#: zzbrick_xhr/zzform.inc.php:53
+msgid ""
+"Field %s in subtable %s requested, but it is not in the table definition"
+msgstr ""
+
+#: zzbrick_xhr/configs.inc.php:52 zzbrick_xhr/dependencies.inc.php:52
+#: zzbrick_xhr/zzform.inc.php:57
+msgid "Field %s requested, but it is not in the table definition"
+msgstr ""
+
+# Record form: Validation, displayed inside form
+#: zzbrick_xhr/configs.inc.php:77 zzbrick_xhr/configs.inc.php:83
+#: zzbrick_xhr/zzform.inc.php:137 zzbrick_xhr/zzform.inc.php:143
+#: zzform/functions.inc.php:2336
+msgid "Please enter more characters."
+msgstr "Prosím, zadejte více znaků."
+
+# Auto complete
+#: zzbrick_xhr/configs.inc.php:95 zzbrick_xhr/configs.inc.php:101
+#: zzbrick_xhr/zzform.inc.php:155 zzbrick_xhr/zzform.inc.php:161
+msgid "No record was found."
+msgstr ""
+
+#: zzbrick_xhr/dependencies.inc.php:65 zzbrick_xhr/zzform.inc.php:32
+msgid "Malformed values: (%s)"
+msgstr ""
+
+#: zzbrick_xhr/zzform.inc.php:76
+msgid "No SQL query was found. Values: %s"
+msgstr ""
+
+#: zzform/_functions.inc.php:288
+msgid "Unable to find ID field name for table %s."
+msgstr ""
+
+#: zzform/_functions.inc.php:323
+msgid "Deletion of IDs %s impossible."
+msgstr ""
+
+#: zzform/_functions.inc.php:334
+msgid "Unable to delete ID %s from table %s. Reason: %s"
+msgstr ""
+
+#: zzform/_functions.inc.php:358
+msgid "Unable to insert record into table %s."
+msgstr ""
+
+#: zzform/_functions.inc.php:373
+msgid ""
+"Forbidden to insert data %s into table %s: Value %s is not allowed for field "
+"%s. Reason: %s"
+msgstr ""
+
+#: zzform/_functions.inc.php:383
+msgid "Unable to insert data %s into table %s. Reason: %s"
+msgstr ""
+
+#: zzform/_functions.inc.php:409
+msgid "Unable to update record with data %s in table %s. No unique key given."
+msgstr ""
+
+#: zzform/_functions.inc.php:427
+msgid "Unable to update record with data %s in table %s. No primary key found."
+msgstr ""
+
+#: zzform/_functions.inc.php:441
+msgid "Unable to update data %s in table %s. Reason: %s"
+msgstr ""
+
+# Record form: Detail record
+#: zzform/action.inc.php
+msgid "Minimum of records for table `%s` was not met (%d)."
+msgstr ""
+
+# Record form: Validation, displayed above form
+#: zzform/action.inc.php
+msgid "String <em>“%s”</em> is not allowed"
+msgstr ""
+
+# Record form: Validation, displayed above form
+#: zzform/action.inc.php zzform/preparation.inc.php
+msgid "Value missing in field <strong>%s</strong>."
+msgstr "Chybějící hodnota <strong>%s</strong>."
+
+#: zzform/action.inc.php:339
+msgid "Detail record could not be updated"
+msgstr ""
+
+#: zzform/action.inc.php:365 zzform/action.inc.php:386
+msgid "Detail record could not be deleted"
+msgstr ""
+
+# Record form: Validation, displayed above form
+#: zzform/action.inc.php:682
+msgid "There was a problem with the detail record."
+msgstr ""
+
+#: zzform/action.inc.php:1889 zzform/action.inc.php:1907
+msgid "The number %d is too high. Maximum value is %d."
+msgstr ""
+
+# Record form: Change password
+#: zzform/action.inc.php:1955
+msgid "Please enter your current password and twice your new password."
+msgstr "Zadejte vaše současné heslo a zároveň dvakrát potvrďte nové."
+
+# Record form: Validation, displayed inside form
+#: zzform/action.inc.php:2229
+msgid "Text is too long (max. %d characters, %d submitted)."
+msgstr ""
+
+# Record form: Validation, displayed inside form
+#: zzform/action.inc.php:2241
+msgid "Text is too short (min. %d characters, %d submitted)."
+msgstr ""
+
+#: zzform/action.inc.php:2265
+msgid "Array <em>“%s”</em> does not match pattern <em>“%s”</em>"
+msgstr ""
+
+#: zzform/action.inc.php:2272
+msgid "Value <em>“%s”</em> does not match pattern <em>“%s”</em>"
+msgstr ""
+
+#: zzform/action.inc.php:2298
+msgid "unkown"
+msgstr ""
+
+# Record form: Validation, displayed above form
+#: zzform/action.inc.php:2304
+msgid ""
+"Value in field <em>“%s”</em> must not be identical to field <em>“%s”</em>."
+msgstr ""
+
+# Record form: Validation, displayed above form
+#: zzform/action.inc.php:2628
+msgid "Value “%s” needs to be greater than “%s”."
+msgstr ""
+
+# Record form: Validation, displayed above form
+#: zzform/action.inc.php:2630
+msgid "Value “%s” needs to be greater than or equal to “%s”."
+msgstr ""
+
+# Record form: Validation, displayed above form
+#: zzform/action.inc.php:2632
+msgid "Value “%s” needs to be smaller than “%s”."
+msgstr ""
+
+# Record form: Validation, displayed above form
+#: zzform/action.inc.php:2634
+msgid "Value “%s” needs to be smaller than or equal to “%s”."
+msgstr ""
+
+# Record form: Change password
+#: zzform/action.inc.php:2659
+msgid "New passwords do not match. Please try again."
+msgstr "Nově zadaná hesla nesedí. Zkuste ještě jednou."
+
+# Record form: Change password
+#: zzform/action.inc.php:2668
+msgid ""
+"New and old password are identical. Please choose a different new password."
+msgstr "Nové a staré heslo je stejné. Zadejte jiné nové heslo."
+
+# Record form: Change password
+#: zzform/action.inc.php:2678
+msgid ""
+"Your current password is different from what you entered. Please try again."
+msgstr ""
+"Vaše heslo je odlišné od toho, které jste právě zadali. Zkuste to ještě "
+"jednou."
+
+# Record form: Change password
+#: zzform/action.inc.php:2691
+msgid "Your new password could not be saved. Please try a different one."
+msgstr ""
+
+# Record form: Validation, displayed above form
+#: zzform/action.inc.php:2752 zzform/database.inc.php:508
+msgid ""
+"Duplicate entry in this table. Please check whether the record you were "
+"about to enter already exists or you’ll have to change the values you "
+"entered."
+msgstr "Duplikovaný záznam v této tabulce."
+
+# Record form: Validation of Database Integrity, displayed above form
+#: zzform/action.inc.php:2799
+msgid "No records in relation table `%s`. Please fill in records."
+msgstr "Žádné záznamy v související tabulce `%s`. Prosím, doplňte."
+
+#: zzform/batch.inc.php:25
+msgid "Sorry, multiple deletion is not permitted."
+msgstr ""
+
+# Record form: Heading
+#: zzform/batch.inc.php:58
+msgid "%d record was deleted, %d not"
+msgid_plural "%d records were deleted, %d not"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+# Record form: Heading
+#: zzform/batch.inc.php:59 zzform/record.inc.php:68
+msgid "%d record was deleted"
+msgid_plural "%d records were deleted"
+msgstr[0] "1 záznam byl vymazán"
+msgstr[1] "%d records were deleted"
+msgstr[2] ""
+
+# Record form: Captcha
+#: zzform/captcha.inc.php:132
+msgid "Please enter the following code: %s."
+msgstr ""
+
+# Record form: Captcha
+#: zzform/captcha.inc.php:133
+msgid "Please add %s to it."
+msgstr ""
+
+# Record form: Captcha
+#: zzform/captcha.inc.php:139
+msgid "zero"
+msgstr ""
+
+# Record form: Captcha
+#: zzform/captcha.inc.php:140
+msgid "one"
+msgstr ""
+
+# Record form: Captcha
+#: zzform/captcha.inc.php:141
+msgid "two"
+msgstr ""
+
+# Record form: Captcha
+#: zzform/captcha.inc.php:142
+msgid "three"
+msgstr ""
+
+# Record form: Captcha
+#: zzform/captcha.inc.php:143
+msgid "four"
+msgstr ""
+
+# Record form: Captcha
+#: zzform/captcha.inc.php:144
+msgid "five"
+msgstr ""
+
+# Record form: Captcha
+#: zzform/captcha.inc.php:145
+msgid "six"
+msgstr ""
+
+# Record form: Captcha
+#: zzform/captcha.inc.php:146
+msgid "seven"
+msgstr ""
+
+# Record form: Captcha
+#: zzform/captcha.inc.php:147
+msgid "eight"
+msgstr ""
+
+# Record form: Captcha
+#: zzform/captcha.inc.php:148
+msgid "nine"
+msgstr ""
+
+# Record form: Captcha
+#: zzform/captcha.inc.php:149
+msgid "ten"
+msgstr ""
+
+#: zzform/configuration.inc.php:65
+msgid "Deprecated notation $%s[\"%s\"] found. Please use $zz[\"%s\"] instead."
+msgstr ""
+
+#: zzform/configuration.inc.php:79
+msgid ""
+"Deprecated notation $%s[\"%s\"] found. Please use wrap_setting(\"%s\") "
+"instead."
+msgstr ""
+
+#: zzform/configuration.inc.php:87
+msgid "Deprecated notation $%s[\"%s\"] found. Please use $%s[\"%s\"] instead."
+msgstr ""
+
+#: zzform/configuration.inc.php:113
+msgid "Key $%s[\"%s\"] is set, but not used."
+msgstr ""
+
+# Error handling
+#: zzform/database.inc.php:524
+msgid "Database error"
+msgstr "Chyba databáze"
+
+# Link to go back to the last form if a new detail record was added
+# Page elements
+#: zzform/details.inc.php
+msgid "Back to last form"
+msgstr ""
+
+# Record form: Validation, displayed above form
+#: zzform/errorhandling.inc.php
+msgid "These problems occured:"
+msgstr "Došlo k následujícím chybám:"
+
+#: zzform/errorhandling.inc.php:118
+msgid "An error occured."
+msgstr ""
+
+# Error handling
+#: zzform/errorhandling.inc.php:173 zzform/errorhandling.inc.php:176
+#: zzform/record.inc.php:130
+msgid "Attention!"
+msgstr "Varování!"
+
+# Backend: Development, Error mail
+#: zzform/errorhandling.inc.php:189
+msgid "The following error(s) occured in project %s:"
+msgstr "Následující chyby se vyskytují v projektu %s:"
+
+# Backend: Development, Error mail
+#: zzform/errorhandling.inc.php:198
+msgid "Database access error"
+msgstr "Chyba zpracování dat"
+
+# Record form: File upload
+#: zzform/errorhandling.inc.php:418
+msgid "Transfer failed. Probably you sent a file that was too large."
+msgstr ""
+
+#: zzform/errorhandling.inc.php:419
+msgid "<br>"
+msgstr ""
+
+# Record form: File upload
+#: zzform/errorhandling.inc.php:421
+msgid " – You sent: %s data."
+msgstr ""
+
+# Modules: Export
+#: zzform/export.inc.php:42
+msgid ""
+"Please don’t mess with the URL parameters. <code>%s</code> is not allowed "
+"here."
+msgstr ""
+
+#: zzform/export.inc.php:195
+msgid ""
+"Standard %s export support is not supported. Please use a custom script."
+msgstr ""
+
+#: zzform/export.inc.php:445
+msgid "The required %s export function <code>%s()</code> does not exist."
+msgstr ""
 
 # List view: Filter
-msgid "Selection"
-msgstr "Výběr"
+#: zzform/filter.inc.php:142
+msgid "(no value)"
+msgstr ""
 
 # List view: Filter
-msgid "all"
-msgstr "všechny"
+#: zzform/filter.inc.php:191 zzform/filter.inc.php:390
+msgid "<a href=\"%s\">List without this filter</a>"
+msgstr ""
 
 # List view: Filter
+#: zzform/filter.inc.php:191
+msgid "This filter does not exist: %s"
+msgstr ""
+
+# List view: Filter
+#: zzform/filter.inc.php:363
 msgid ""
 "“%s” is not a valid value for the selection “%s”. Please select a different "
 "filter."
 msgstr ""
 
 # List view: Filter
+#: zzform/filter.inc.php:389
 msgid "A filter for the selection “%s” does not exist."
 msgstr ""
 
-# List view: Filter
-msgid "<a href=\"%s\">List without this filter</a>"
+#: zzform/format.inc.php:92
+msgid "The value is only visible during editing."
 msgstr ""
 
-# List view: Filter
-msgid "(no value)"
+#: zzform/functions.inc.php:327
+msgid "Adding value %s in field %s is forbidden here"
 msgstr ""
 
-# List view: Filter
-#: zzform/functions.inc.php
-msgid "This filter does not exist: %s"
+#: zzform/functions.inc.php:1061
+msgid "Only one field may be defined as `id`!"
 msgstr ""
 
-# List view: Table head
-msgid "Order by"
-msgstr "Seřadit"
+# Record form: Validation, displayed inside form
+#: zzform/functions.inc.php:2274
+msgid "No entry found. Try less characters."
+msgstr "Hledání bylo neúspěšné, zkuste zadat méně znaků."
 
-# List view: Table head
-msgid "ascending"
-msgstr "Vzestupně"
+# Record form: Validation, displayed inside form
+#: zzform/functions.inc.php:2290 zzform/functions.inc.php:2310
+msgid "Please make a different selection."
+msgstr ""
 
-# List view: Table head
-msgid "descending"
-msgstr "Sestupně"
+# Modules: Geo
+#: zzform/geo.inc.php:42
+msgctxt "North"
+msgid "N"
+msgstr ""
 
-# List view: Table head
-msgid "Action"
-msgstr "Akce"
+# Modules: Geo
+#: zzform/geo.inc.php:43
+msgctxt "South"
+msgid "S"
+msgstr ""
+
+# Modules: Geo
+#: zzform/geo.inc.php:48
+msgctxt "East"
+msgid "E"
+msgstr ""
+
+# Modules: Geo
+#: zzform/geo.inc.php:49
+msgctxt "West"
+msgid "W"
+msgstr ""
+
+#: zzform/geo.inc.php:72
+msgid "Development error. Orientation %s is not valid."
+msgstr ""
+
+# Modules: Geo
+#: zzform/geo.inc.php:88
+msgid ""
+"It looks like this coordinate has a different orientation. Maybe latitude "
+"and longitude were interchanged?"
+msgstr ""
+
+# Modules: Geo
+#: zzform/geo.inc.php:98
+msgid "Mismatch: %s signals different hemisphere than %s."
+msgstr ""
+
+# Modules: Geo
+#: zzform/geo.inc.php:118
+msgid "There are too many decimal points (or commas) in this value."
+msgstr ""
+
+# Modules: Geo
+#: zzform/geo.inc.php:125
+msgid "Only the last number might have a decimal point (or comma)."
+msgstr ""
+
+#: zzform/geo.inc.php:140
+msgid "%s is too small. Seconds must be 0 or greater."
+msgstr ""
+
+#: zzform/geo.inc.php:142
+msgid "%s is too small. Minutes must be 0 or greater."
+msgstr ""
+
+#: zzform/geo.inc.php:147
+msgid "%s is too large. Seconds must be less than 60."
+msgstr ""
+
+#: zzform/geo.inc.php:149
+msgid "%s is too large. Minutes must be less than 60."
+msgstr ""
+
+# Modules: Geo
+#: zzform/geo.inc.php:158
+msgid ""
+"Sorry, there are too many numbers. We cannot interpret what you entered."
+msgstr ""
+
+# Modules: Geo
+#: zzform/geo.inc.php:170
+msgid ""
+"Minimum value for degrees is %s. The value you entered is too small: %s."
+msgstr ""
+
+# Modules: Geo
+#: zzform/geo.inc.php:176
+msgid "Maximum value for degrees is %s. The value you entered is too big: %s."
+msgstr ""
+
+# List view
+#: zzform/list.inc.php:84
+msgid "No entries available"
+msgstr "Žádné záznamy k dispozici"
+
+# group by unknown
+# List view
+#: zzform/list.inc.php:690 zzform/path.inc.php:58
+msgid "- unknown -"
+msgstr "- neznámý -"
 
 # List view: bottom
-msgid "Add new record"
-msgstr "Přidat nový záznam"
-
-# List view: bottom
+#: zzform/list.inc.php:1580
 msgid "%d record total"
 msgid_plural "%d records total"
 msgstr[0] "%d celkový záznam"
@@ -775,278 +1228,460 @@ msgstr[1] "%d záznamů celkově"
 msgstr[2] "%d záznamů celkově"
 
 # List view: bottom
-msgid "All records on one page"
-msgstr ""
-
-# List view: bottom
+#: zzform/list.inc.php:1619
 msgid "First page"
 msgstr ""
 
 # List view: bottom
+#: zzform/list.inc.php:1629
 msgid "Previous page"
 msgstr ""
 
 # List view: bottom
+#: zzform/list.inc.php:1636
+msgid "All records on one page"
+msgstr ""
+
+# List view: bottom
+#: zzform/list.inc.php:1714
 msgid "Next page"
 msgstr ""
 
 # List view: bottom
+#: zzform/list.inc.php:1720
 msgid "Last page"
 msgstr ""
 
-# List view: Search form
-msgid "Show all records (without search filter)"
+# List view: Table head
+#: zzform/list.inc.php:1886
+msgid "descending"
+msgstr "Sestupně"
+
+# List view: Table head
+#: zzform/list.inc.php:1888
+msgid "ascending"
+msgstr "Vzestupně"
+
+# List view: Table head
+#: zzform/list.inc.php:1892
+msgid "Order by"
+msgstr "Seřadit"
+
+# Logging
+#: zzform/logging.inc.php:169
+msgid "Archive file for database logging for period %s already exists."
 msgstr ""
 
-# List view: Search form
-msgid "in"
-msgstr "ve"
+# Logging
+#: zzform/logging.inc.php:187
+msgid "Archive file for database logging for period %s was not created."
+msgstr ""
 
-# List view: Search form
-msgid "all fields"
-msgstr "všech polích"
+# Logging
+#: zzform/logging.inc.php:198
+msgid "Unable to gzip archive file for database logging for period %s."
+msgstr ""
 
-# Button
-# List view: Search form
-msgid "search"
-msgstr "hledat"
+# Page title
+#: zzform/output.inc.php
+msgid "Add"
+msgstr "Přidat"
 
-# Error handling
-msgid "Attention!"
-msgstr "Varování!"
+# Page title
+#: zzform/output.inc.php
+msgid "Review"
+msgstr "Prohlédnout"
 
-# Error handling
-msgid "Incorrect value: %s"
+# Number of records as shown in page TITLE
+# Page elements
+#: zzform/output.inc.php:399
+msgid "records"
+msgstr "záznamy"
+
+# Page elements
+#: zzform/output.inc.php:405
+msgid "page"
+msgstr "strana"
+
+# Page elements: Heading
+#: zzform/output.inc.php:441
+msgid "Search"
+msgstr "Hledat"
+
+# prefix for alt-attribute
+# Record form: File upload
+#: zzform/path.inc.php:259
+msgid "File: "
+msgstr "Soubor: "
+
+# Record form: Validation, displayed above form
+#: zzform/preparation.inc.php
+msgid "Nothing was uploaded in field <strong>%s</strong>."
+msgstr ""
+
+# Record form: Validation, displayed above form
+#: zzform/preparation.inc.php
+msgid "Value incorrect in field <strong>%s</strong>."
+msgstr "Špatná hodnota <strong>%s</strong>."
+
+# Record form: Heading
+#: zzform/record.inc.php
+msgid "Add a record"
+msgstr "Přidat záznam"
+
+# Record form: Heading
+#: zzform/record.inc.php
+msgid "Add several records"
+msgstr ""
+
+# Record form: Heading
+#: zzform/record.inc.php
+msgid "Delete a record"
+msgstr "Vymazat záznam"
+
+# Record form: Heading
+#: zzform/record.inc.php
+msgid "Delete failed"
+msgstr "Vymazat neúspěšné"
+
+# Record form: Heading
+#: zzform/record.inc.php
+msgid "Delete several records"
+msgstr ""
+
+# Record form: Heading
+#: zzform/record.inc.php
+msgid "Edit a record"
+msgstr "Editovat záznam"
+
+# Record form: bottom
+#: zzform/record.inc.php
+msgid "Edit record"
+msgstr ""
+
+# Record form: Heading
+#: zzform/record.inc.php
+msgid "Edit several records"
+msgstr ""
+
+# Record form: Heading
+#: zzform/record.inc.php
+msgid "Insert failed"
+msgstr "Přidat neúspěšné"
+
+# Record form: Revision
+#: zzform/record.inc.php
+msgid "Revise a record"
+msgstr ""
+
+# Record form: Heading
+#: zzform/record.inc.php
+msgid "Update failed"
+msgstr "Aktualizovat neúspěšné"
+
+# Record form: Heading
+#: zzform/record.inc.php:62
+msgid "Record was inserted"
+msgstr "Příspěvek byl uložen"
+
+# Record form: Heading
+#: zzform/record.inc.php:65
+msgid "Record was updated"
+msgstr "Záznam byl aktualizován"
+
+# Record form: Heading
+#: zzform/record.inc.php:75
+msgid "Record was not updated (no changes were made)"
+msgstr ""
+
+# Record form: Heading
+#: zzform/record.inc.php:96
+msgid "Invalid ID for a record (must be an integer): %s"
+msgstr ""
+
+# Record form: Heading
+#: zzform/record.inc.php:106
+msgid "Sorry, it is not possible to access the ID %d from here."
+msgstr ""
+
+# Record form: Heading
+#: zzform/record.inc.php:117
+msgid "The record with the ID %d was already deleted."
+msgstr "V poli ID není žádný záznam: %d."
+
+# Record form: Heading
+#: zzform/record.inc.php:122
+msgid "A record with the ID %d does not exist."
+msgstr "V poli ID není žádný záznam: %d."
+
+# Record form: Validation of Database Integrity, displayed above form
+#: zzform/record.inc.php:147
+msgid ""
+"This record could not be deleted because it has other data associated with "
+"it."
+msgstr ""
+"Tento příspěvek nemůže být vymazán, protože je vázán na ostatní záznamy."
+
+#: zzform/record.inc.php:148
+msgid ""
+"\n"
+"%s"
+msgstr ""
+
+# Record form: Heading
+#: zzform/record.inc.php:166
+msgid "Show a record"
+msgstr "Zobrazit záznam"
+
+# Record form: Revision
+#: zzform/record.inc.php:597
+msgid "Old value: %s"
+msgstr ""
+
+# Record form: Revision
+#: zzform/record.inc.php:598
+msgid "– empty –"
+msgstr ""
+
+# Record form: Select
+#: zzform/record.inc.php:1014
+msgid "No source defined"
+msgstr "Žádný zdroj nebyl definován"
+
+# select/deselect checkboxes
+# Record form: Select
+#: zzform/record.inc.php:1728
+msgid "Select all"
+msgstr "Vybrat vše"
+
+# select/deselect checkboxes
+# Record form: Select
+#: zzform/record.inc.php:1729
+msgid "Deselect all"
+msgstr ""
+
+# Record form: identifier, hidden etc.
+#: zzform/record.inc.php:1824
+msgid "Record for <strong>%s</strong> does not exist. (ID: %s)"
+msgstr ""
+
+# Record form: foreign record
+#: zzform/record.inc.php:1959
+msgid "No data available."
+msgstr "Žádná data k dispozici."
+
+# Record form: foreign record
+#: zzform/record.inc.php:1964
+msgid "No entry possible. First save this record."
+msgstr "Nelze přidat záznam - je třeba uložit aktuálně otevřený příspěvek."
+
+# Record form: Change password
+#: zzform/record.inc.php:1982
+msgid "hidden"
+msgstr "schovat"
+
+# Record form: Date field
+#: zzform/record.inc.php:2303
+msgid "Date"
+msgstr ""
+
+# Record form: Datetime field
+#: zzform/record.inc.php:2329
+msgid "Date and time"
+msgstr ""
+
+# Record form: File upload
+#: zzform/record.inc.php:4095
+msgid "File upload is currently impossible."
 msgstr ""
 
 # Error handling
-msgid "Database error"
-msgstr "Chyba databáze"
-
-# Error handling
+#: zzform/record.inc.php:4096
 msgid ""
 "An error occured. We are working on the solution of this problem. Sorry for "
 "your inconvenience. Please try again later."
 msgstr ""
 
-# Export-Link
-# Modules: Export
-msgid "Export"
-msgstr ""
-
-# Modules: Export
-msgid ""
-"Please don’t mess with the URL parameters. <code>%s</code> is not allowed "
-"here."
-msgstr ""
-
-# Modules: Geo
-msgctxt "North"
-msgid "N"
-msgstr ""
-
-# Modules: Geo
-msgctxt "East"
-msgid "E"
-msgstr ""
-
-# Modules: Geo
-msgctxt "South"
-msgid "S"
-msgstr ""
-
-# Modules: Geo
-msgctxt "West"
-msgid "W"
-msgstr ""
-
-# Modules: Geo
-msgid "North"
-msgstr ""
-
-# Modules: Geo
-msgid "East"
-msgstr ""
-
-# Modules: Geo
-msgid "South"
-msgstr ""
-
-# Modules: Geo
-msgid "West"
-msgstr ""
-
-# Modules: Geo
-msgid ""
-"It looks like this coordinate has a different orientation. Maybe latitude "
-"and longitude were interchanged?"
-msgstr ""
-
-# Modules: Geo
-msgid "Mismatch: %s signals different hemisphere than %s."
-msgstr ""
-
-# Modules: Geo
-msgid "There are too many decimal points (or commas) in this value."
-msgstr ""
-
-# Modules: Geo
-msgid "Only the last number might have a decimal point (or comma)."
-msgstr ""
-
-# Modules: Geo
-msgid "%s is too small. Please enter for minutes a positive value or 0."
-msgstr ""
-
-# Modules: Geo
-msgid "%s is too small. Please enter for seconds a positive value or 0."
-msgstr ""
-
-# Modules: Geo
-msgid "%s is too big. Please enter for minutes a value smaller than 60."
-msgstr ""
-
-# Modules: Geo
-msgid "%s is too big. Please enter for seconds a value smaller than 60."
-msgstr ""
-
-# Modules: Geo
-msgid ""
-"Sorry, there are too many numbers. We cannot interpret what you entered."
-msgstr ""
-
-# Modules: Geo
-msgid ""
-"Minimum value for degrees is %s. The value you entered is too small: %s."
-msgstr ""
-
-# Modules: Geo
-msgid "Maximum value for degrees is %s. The value you entered is too big: %s."
-msgstr ""
-
-# Modules: Sync
-#: zzform/sync.inc.php
-msgid "Deletable Records"
-msgstr ""
-
-# Modules: Sync
-#: zzform/sync.inc.php
-msgid "Processing entries %s–%s …"
-msgstr ""
-
-# Modules: Sync
-#: zzform/sync.inc.php
-msgid "%s update was made."
-msgid_plural "%s updates were made."
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-
-# Modules: Sync
-#: zzform/sync.inc.php
-msgid "%s insert was made."
-msgid_plural "%s inserts were made."
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-
-# Modules: Sync
-#: zzform/sync.inc.php
-msgid "%s record was left as is."
-msgid_plural "%s records were left as is."
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-
-# Modules: Sync
-#: zzform/sync.inc.php
-msgid "%s record had errors."
-msgid_plural "%s records had errors."
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-
-# Modules: Sync
-#: zzform/sync.inc.php
-msgid "Go on to next page"
-msgstr ""
-
-# Modules: Sync
-#: zzform/sync.inc.php
-msgid "Possibly deletable records"
-msgstr ""
-
-# Modules: Sync
-#: zzform/sync.inc.php
-msgid "Finished!"
-msgstr ""
-
-# Modules: Sync
-#: templates/sync-overview.template.txt
-msgid "Please select from one of the following datasets:"
-msgstr ""
-
-# Modules: Sync
-#: templates/sync-overview.template.txt
-msgid "There are no deletable records."
+# no value available for display, should be abbreviated
+# Record form: field output
+#: zzform/record.inc.php:4208
+msgid "<abbr title=\"Not available\">N/A</abbr>"
 msgstr ""
 
 # Backend: Development
+#: zzform/record.inc.php:4253
 msgid "Script configuration error. No display field set."
 msgstr "Chyba konfigurace skriptu."
 
-# introduces field name with wrong values
-# Backend: Development
-msgid "Field name"
+# Record form: field output
+#: zzform/record.inc.php:4266
+msgid "calculated field"
+msgstr "Generované políčko"
+
+# Record form: identifier, hidden etc.
+#: zzform/record.inc.php:4349
+msgid "Would be changed on update"
 msgstr ""
 
-# Backend: Development
-msgid "Database error. This query has ambiguous values in ID field."
-msgstr ""
-"Chyba databáze. Nelze přečíst záznamy ze sloupce ID databázové tabulky."
+# e. g. Add Address, Add Phone Number ...
+# Record form: Detail record
+#: zzform/record.inc.php:4425
+msgid "Add %s"
+msgstr "Přidat %s"
 
-# Backend: Development, Error mail
-msgid "Database access error"
-msgstr "Chyba zpracování dat"
-
-# Backend: Development, Error mail
-msgid "The following error(s) occured in project %s:"
-msgstr "Následující chyby se vyskytují v projektu %s:"
-
-# Auto complete
-msgid "No record was found."
+# Record form: Detail record
+#: zzform/record.inc.php:4434
+msgid "Remove"
 msgstr ""
 
-# Filter
-#: behaviour/zzform-foot.js
-msgid "expand"
+# Record form: Detail record
+#: zzform/record.inc.php:4438
+msgid "Remove %s"
+msgstr "Odebrat %s"
+
+#: zzform/sync.inc.php:45
+msgid "Import: File %s does not exist. "
 msgstr ""
 
-# Filter
-#: behaviour/zzform-foot.js
-msgid "collapse"
+#: zzform/sync.inc.php:186
+msgid ""
+"Please define a query for the existing records in the database with -- "
+"%s_existing --."
 msgstr ""
 
-#: behaviour/zzform-foot.js
-msgid "Upload Failed"
+#: zzform/sync.inc.php:373
+msgid "Could not fetch data from %s"
 msgstr ""
 
-#: behaviour/zzform-foot.js
-msgid "Upload Aborted"
+#: zzform/sync.inc.php:555
+msgid "not set"
 msgstr ""
 
-#: behaviour/zzform-foot.js
-msgid "% uploaded … please wait"
+#: zzform/sync.inc.php:855
+msgid "Field %s is missing in table definition."
 msgstr ""
 
-#: behaviour/zzform-foot.js
-msgid "Uploaded:"
+#: zzform/translations.inc.php:75
+msgid "Translations script for `%s` does not exist!"
 msgstr ""
 
-#: behaviour/zzform-foot.js
-msgid "Total:"
+# Record form: File upload
+#: zzform/upload.inc.php:354
+msgid ""
+"The file %s is empty. If you are uploading from a Mac, please check if the "
+"data is not only available in the so-called “resource fork” of the file."
 msgstr ""
 
-#: behaviour/zzform-foot.js
-msgid "Bytes"
+#: zzform/upload.inc.php:408
+msgid "unknown"
+msgstr ""
+
+# Record form: File upload
+#: zzform/upload.inc.php:409 zzform/upload.inc.php:1744
+#: zzform/upload.inc.php:1748 zzform/upload.inc.php:1752
+#: zzform/upload.inc.php:1776 zzform/upload.inc.php:1782
+#: zzform/upload.inc.php:1790 zzform/upload.inc.php:1796
+#: zzform/upload.inc.php:1805
+msgid "Error: "
+msgstr "Chyba: "
+
+# Record form: File upload
+#: zzform/upload.inc.php:410
+msgid "Unsupported filetype:"
+msgstr "Nepovolený formát souboru:"
+
+# Record form: File upload
+#: zzform/upload.inc.php:1744
+msgid "No file was uploaded."
+msgstr "Žádný soubor nebyl nahrán."
+
+# Record form: File upload
+#: zzform/upload.inc.php:1748
+msgid "File was only partially uploaded."
+msgstr "Soubor byl nahrán pouze částečně."
+
+# Record form: File upload
+#: zzform/upload.inc.php:1752
+msgid "File is too big."
+msgstr "Soubor je příliš velký."
+
+# Record form: File upload
+#: zzform/upload.inc.php:1777
+msgid "Minimum width must be at least %s px."
+msgstr "Minimální šířka %s nebyla dosažena."
+
+# Record form: File upload
+#: zzform/upload.inc.php:1779 zzform/upload.inc.php:1793
+msgid "Uploaded width is %s px."
+msgstr ""
+
+# Record form: File upload
+#: zzform/upload.inc.php:1783
+msgid "Minimum height must be at least %s px."
+msgstr "Minimální výška %s nebyla dosažena."
+
+# Record form: File upload
+#: zzform/upload.inc.php:1785 zzform/upload.inc.php:1799
+msgid "Uploaded height is %s px."
+msgstr ""
+
+# Record form: File upload
+#: zzform/upload.inc.php:1791
+msgid "Maximum width must be at most %s px."
+msgstr "Maximální šířka %s byla překročena."
+
+# Record form: File upload
+#: zzform/upload.inc.php:1797
+msgid "Maximum height must be at most %s px."
+msgstr "Maximální výška %s byla překročena."
+
+# Record form: File upload
+#: zzform/upload.inc.php:1806
+msgid "The PDF consists of %d pages. Only %d page is allowed."
+msgid_plural "The PDF consists of %d pages. Only %d pages are allowed."
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+# Record form: File upload
+#: zzform/upload.inc.php:2242
+msgid "Could not delete %s, file did not exist."
+msgstr "Soubor %s nelze vymazat, protože neexistuje :-)."
+
+# Record form: File upload
+#: zzform/upload.inc.php:2270
+msgid "Could not delete %s."
+msgstr "Soubor %s nelze vymazat."
+
+# Record form: File upload
+#: zzform/upload.inc.php:2795
+msgid ""
+"File could not be saved. There is a problem with the user rights. We are "
+"working on it."
+msgstr ""
+
+#: zzform/upload.inc.php:2861
+msgid "No user"
+msgstr ""
+
+# Record form: File upload
+#: zzform/upload.inc.php:2897
+msgid "Supported filetypes:"
+msgstr "Povolené formáty souborů jsou:"
+
+# Record form: Merge
+#: zzform/zzform.php:92
+msgid "%d records merged successfully"
+msgstr ""
+
+# Checks
+#: zzform/zzform.php:321
+msgid "Merging of record is not allowed."
+msgstr ""
+
+# Record form: Validation, resubmit because of logout
+#: zzform/zzform.php:358
+msgid ""
+"You had been logged out automatically. Therefore, your changes were not yet "
+"saved. Please submit the form again."
 msgstr ""
