@@ -27,7 +27,7 @@
 %%% endif %%%
 
 %%% else %%%
-<form method="POST" action=""><input type="submit" value="%%% text "Archive logging data from %s" oldest_month%%%"></form>
+<form method="POST" action=""><input type="submit" value="%%% text "Archive logging data from %s" oldest_month %%%"></form>
 
 %%% endif %%%
 </div>
