@@ -2201,30 +2201,6 @@ msgid_plural "%s deletions were made."
 msgstr[0] "%s Eintrag wurde gelöscht."
 msgstr[1] "%s Einträge wurden gelöscht."
 
-# Modules: Upload (Table filetypes)
-msgid "Filetypes"
-msgstr "Dateitypen"
-
-# Modules: Upload (Table filetypes)
-msgid "MIME Content Type"
-msgstr "MIME Inhaltstyp"
-
-# Modules: Upload (Table filetypes)
-msgid "MIME Subtype"
-msgstr "MIME Untertyp"
-
-# Modules: Upload (Table filetypes)
-msgid "Extension"
-msgstr "Dateierweiterung"
-
-# Modules: Upload (Table filetypes)
-msgid "Ext."
-msgstr "Ext."
-
-# Modules: Upload (Table filetypes)
-msgid "Count"
-msgstr "Anzahl"
-
 # Backend: Development
 msgid "Script configuration error. No display field set."
 msgstr "Script configuration error. No display field set."

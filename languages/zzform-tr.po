@@ -2294,30 +2294,6 @@ msgid_plural "%s deletions were made."
 msgstr[0] "%s silme işlemi yapıldı."
 msgstr[1] "%s silme işlemi yapılmıştır."
 
-# Modules: Upload (Table filetypes)
-msgid "Filetypes"
-msgstr "Dosya Türleri"
-
-# Modules: Upload (Table filetypes)
-msgid "MIME Content Type"
-msgstr "MIME İçerik Türü"
-
-# Modules: Upload (Table filetypes)
-msgid "MIME Subtype"
-msgstr "MIME Alt Türü"
-
-# Modules: Upload (Table filetypes)
-msgid "Extension"
-msgstr "Uzantı"
-
-# Modules: Upload (Table filetypes)
-msgid "Ext."
-msgstr "Uzantı"
-
-# Modules: Upload (Table filetypes)
-msgid "Count"
-msgstr "Sayı"
-
 # Backend: Development
 msgid "Script configuration error. No display field set."
 msgstr "Komut dosyası yapılandırma hatası. Ayarlanmış görüntüleme alanı yok."

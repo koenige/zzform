@@ -991,30 +991,6 @@ msgstr ""
 msgid "There are no deletable records."
 msgstr ""
 
-# Modules: Upload (Table filetypes)
-msgid "Filetypes"
-msgstr ""
-
-# Modules: Upload (Table filetypes)
-msgid "MIME Content Type"
-msgstr ""
-
-# Modules: Upload (Table filetypes)
-msgid "MIME Subtype"
-msgstr ""
-
-# Modules: Upload (Table filetypes)
-msgid "Extension"
-msgstr ""
-
-# Modules: Upload (Table filetypes)
-msgid "Ext."
-msgstr ""
-
-# Modules: Upload (Table filetypes)
-msgid "Count"
-msgstr ""
-
 # Backend: Development
 msgid "Script configuration error. No display field set."
 msgstr "Chyba konfigurace skriptu."
