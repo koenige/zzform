@@ -11,7 +11,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzform\n"
-"POT-Creation-Date: 2026-07-09 18:14+0000\n"
+"POT-Creation-Date: 2026-07-09 19:40+0000\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Gustaf Mossakowski <gustaf@koenige.org>\n"
 "Language-Team: \n"
@@ -51,286 +51,6 @@ msgstr ""
 msgid "Back to overview"
 msgstr "Zpět na přehled"
 
-#: templates/debug.template.txt:11
-msgid "Debug Information"
-msgstr ""
-
-#: templates/debug.template.txt:16
-msgid "Time"
-msgstr ""
-
-#: templates/debug.template.txt:17
-msgid "Mem"
-msgstr ""
-
-#: templates/debug.template.txt:18
-msgid "Function"
-msgstr ""
-
-#: templates/debug.template.txt:19
-msgid "Marker"
-msgstr ""
-
-#: templates/debug.template.txt:20
-msgid "SQL"
-msgstr ""
-
-#: templates/debug.template.txt:37
-msgid "Memory peak usage"
-msgstr ""
-
-#: templates/integritycheck.template.txt:13
-msgid "Nothing to check."
-msgstr ""
-
-#: templates/integritycheck.template.txt:20
-msgid "Field <code>%s</code> contains only valid values."
-msgstr ""
-
-# Record form: bottom
-#: templates/integritycheck.template.txt:20
-#: templates/zzform-actions.template.txt:16
-msgid "OK"
-msgstr "OK"
-
-#: templates/integritycheck.template.txt:22
-msgid "Error"
-msgstr ""
-
-#: templates/integritycheck.template.txt:22
-msgid "Field <code>%s</code> contains invalid values:"
-msgstr ""
-
-#: templates/logging-add.template.txt:13
-msgid "Please upload a file."
-msgstr ""
-
-#: templates/logging-add.template.txt:16
-msgid "There was an error while uploading the file."
-msgstr ""
-
-#: templates/logging-add.template.txt:19
-msgid "The content of the file was not readable (Format needs to be JSON)."
-msgstr ""
-
-#: templates/logging-add.template.txt:22
-msgid "The highest existing log entry is %d, but import starts with %d."
-msgstr ""
-
-#: templates/logging-add.template.txt:25
-msgid "There was an error adding record ID %d."
-msgstr ""
-
-#: templates/logging-add.template.txt:28
-msgid "There was an error adding log for record ID %d."
-msgstr ""
-
-#: templates/logging-add.template.txt:31
-msgid "Record ID %d was added with a different log ID %d."
-msgstr ""
-
-#: templates/logging-add.template.txt:34
-msgid "%d log entry was added, ID was %d."
-msgid_plural "All %d log entries were added, last ID was %d."
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-
-#: templates/logging-add.template.txt:39
-msgid "These changes were applied to the remote server."
-msgstr ""
-
-#: templates/logging-add.template.txt:41
-msgid "These changes were applied to the local server."
-msgstr ""
-
-#: templates/logging-add.template.txt:47
-#: templates/maintenance-logging.template.txt:17
-msgid "Upload"
-msgstr ""
-
-#: templates/logging-add.template.txt:47
-#: templates/maintenance-logging.template.txt:17
-#: zzbrick_make/loggingadd.inc.php:33 zzbrick_make/loggingadd.inc.php:34
-msgid "Upload SQL log"
-msgstr ""
-
-#: templates/logging-archive.template.txt:13
-msgid "%d logging records from %s were archived."
-msgstr ""
-
-#: templates/logging-archive.template.txt:15
-msgid "Logging table was sorted by ID."
-msgstr ""
-
-#: templates/logging-archive.template.txt:19
-msgid "No logging data available."
-msgstr ""
-
-#: templates/logging-archive.template.txt:22
-msgid "No logging data available older than %d months."
-msgstr ""
-
-#: templates/logging-archive.template.txt:23
-msgid "The oldest data in the logging table comes from <strong>%s</strong>."
-msgstr ""
-
-#: templates/logging-archive.template.txt:26
-msgid "Re-sort logging table"
-msgstr ""
-
-#: templates/logging-archive.template.txt:30
-msgid "Archive logging data from %s"
-msgstr ""
-
-#: templates/logging-read.template.txt:13
-msgid "Logfile has only %d entries."
-msgstr ""
-
-#: templates/maintenance-logging.template.txt:11
-msgid "SQL log"
-msgstr ""
-
-#: templates/maintenance-logging.template.txt:14
-msgid "Download"
-msgstr ""
-
-#: templates/maintenance-logging.template.txt:14
-msgid "Download SQL log, starting with ID"
-msgstr ""
-
-#: templates/maintenance-logging.template.txt:22
-#: zzbrick_make/serversync.inc.php:71
-msgid "Synchronize local and remote server"
-msgstr ""
-
-#: templates/sync.template.txt:13
-msgid "Synchronization completed."
-msgstr ""
-
-# Modules: Sync
-#: templates/sync.template.txt:17
-msgid "Processing entries %s–%s …"
-msgstr ""
-
-# Modules: Sync
-#: templates/sync.template.txt:21
-msgid "%s update was made."
-msgid_plural "%s updates were made."
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-
-# Modules: Sync
-#: templates/sync.template.txt:25
-msgid "%s insert was made."
-msgid_plural "%s inserts were made."
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-
-# Modules: Sync
-#: templates/sync.template.txt:29
-msgid "%s record was left as is."
-msgid_plural "%s records were left as is."
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-
-# Modules: Sync
-#: templates/sync.template.txt:33
-msgid "%s record had errors."
-msgid_plural "%s records had errors."
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-
-# Modules: Sync
-#: templates/sync.template.txt:42
-msgid "Go on to next page"
-msgstr ""
-
-# Modules: Sync
-#: templates/sync.template.txt:44
-msgid "Finished!"
-msgstr ""
-
-# Modules: Sync
-#: templates/sync.template.txt:45
-msgid "Possibly deletable records"
-msgstr ""
-
-#: templates/sync.template.txt:53
-msgid "No."
-msgstr ""
-
-#: templates/sync.template.txt:54
-msgid "ID"
-msgstr ""
-
-# List view: Table head
-#: templates/sync.template.txt:55 templates/zzform-list-table.template.txt:21
-msgid "Action"
-msgstr "Akce"
-
-# Modules: Sync
-#: templates/sync.template.txt:104
-msgid "Synchronize"
-msgstr ""
-
-# Modules: Sync
-#: templates/sync-deletable.template.txt:14
-msgid "%s deletion was made."
-msgid_plural "%s deletions were made."
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-
-# Record form: bottom
-#: templates/sync-deletable.template.txt:51
-#: templates/zzform-record.template.txt:61
-msgid "Delete records"
-msgstr ""
-
-# Modules: Sync
-#: templates/sync-deletable.template.txt:55
-msgid "There are no deletable records."
-msgstr ""
-
-# Modules: Sync
-#: templates/sync-overview.template.txt:13
-msgid "There is no definition for a synchronization named <code>%s</code>."
-msgstr ""
-
-# Modules: Sync
-#: templates/sync-overview.template.txt:16
-msgid "Please select from one of the following datasets:"
-msgstr ""
-
-#: templates/sync-server.template.txt:13
-msgid "This only works from a local server!"
-msgstr ""
-
-#: templates/sync-server.template.txt:16
-msgid "The server returned with an error (%d)."
-msgstr ""
-
-#: templates/sync-server.template.txt:20
-msgid "Both servers have %s log entries."
-msgstr ""
-
-#: templates/sync-server.template.txt:20
-msgid "No synchronisation is necessary."
-msgstr ""
-
-#: templates/sync-server.template.txt:23
-msgid "A synchronisation is impossible."
-msgstr ""
-
-#: templates/sync-server.template.txt:23
-msgid "The log entries %d do not match."
-msgstr ""
-
 # Record form: Change password
 #: templates/zzform.template.txt:16
 msgid "Your password has been saved!"
@@ -345,6 +65,11 @@ msgstr "Vaše heslo bylo změněno!"
 #: templates/zzform.template.txt:23 zzform/record.inc.php:71
 msgid "Record was deleted"
 msgstr "Záznam byl vymazán"
+
+# Record form: bottom
+#: templates/zzform-actions.template.txt:16
+msgid "OK"
+msgstr "OK"
 
 # Page title
 # Record form: bottom
@@ -442,6 +167,11 @@ msgstr ""
 msgid "all"
 msgstr "všechny"
 
+# List view: Table head
+#: templates/zzform-list-table.template.txt:21
+msgid "Action"
+msgstr "Akce"
+
 # Record form: Heading
 #: templates/zzform-merge.template.txt:12 zzform/list.inc.php:204
 msgid "Merge"
@@ -508,6 +238,11 @@ msgstr ""
 #: templates/zzform-record.template.txt:57
 msgid "Update record"
 msgstr "Aktualizovat k databáze"
+
+# Record form: bottom
+#: templates/zzform-record.template.txt:61
+msgid "Delete records"
+msgstr ""
 
 # Record form: bottom
 #: templates/zzform-record.template.txt:63
@@ -623,36 +358,6 @@ msgstr "všech polích"
 # List view: Search form
 #: templates/zzform-search.template.txt:21
 msgid "Show all records (without search filter)"
-msgstr ""
-
-#: zzbrick_make/serversync.inc.php:59
-msgid ""
-"This URL is for synchronising a production and a development server only. No "
-"direct access is possible."
-msgstr ""
-
-# Modules: Sync
-#: zzbrick_make/sync.inc.php:43
-msgid "Synchronization: %s"
-msgstr ""
-
-# Modules: Sync
-#: zzbrick_make/sync.inc.php:70
-msgid "Deletable Records"
-msgstr ""
-
-#: zzbrick_make/sync.inc.php:78
-msgid "Sync finished"
-msgstr ""
-
-#: zzbrick_request/integritycheck.inc.php:72
-#: zzbrick_request/integritycheck.inc.php:73
-msgid "Relational Integrity"
-msgstr ""
-
-#: zzbrick_request/loggingread.inc.php:28
-#: zzbrick_request/loggingread.inc.php:29
-msgid "Download SQL log"
 msgstr ""
 
 # Record form: Revision
@@ -1267,21 +972,6 @@ msgstr "Vzestupně"
 msgid "Order by"
 msgstr "Seřadit"
 
-# Logging
-#: zzform/logging.inc.php:169
-msgid "Archive file for database logging for period %s already exists."
-msgstr ""
-
-# Logging
-#: zzform/logging.inc.php:187
-msgid "Archive file for database logging for period %s was not created."
-msgstr ""
-
-# Logging
-#: zzform/logging.inc.php:198
-msgid "Unable to gzip archive file for database logging for period %s."
-msgstr ""
-
 # Page title
 #: zzform/output.inc.php
 msgid "Add"
@@ -1538,28 +1228,6 @@ msgstr ""
 #: zzform/record.inc.php:4438
 msgid "Remove %s"
 msgstr "Odebrat %s"
-
-#: zzform/sync.inc.php:45
-msgid "Import: File %s does not exist. "
-msgstr ""
-
-#: zzform/sync.inc.php:186
-msgid ""
-"Please define a query for the existing records in the database with -- "
-"%s_existing --."
-msgstr ""
-
-#: zzform/sync.inc.php:373
-msgid "Could not fetch data from %s"
-msgstr ""
-
-#: zzform/sync.inc.php:555
-msgid "not set"
-msgstr ""
-
-#: zzform/sync.inc.php:855
-msgid "Field %s is missing in table definition."
-msgstr ""
 
 #: zzform/translations.inc.php:75
 msgid "Translations script for `%s` does not exist!"

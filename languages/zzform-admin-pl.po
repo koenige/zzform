@@ -11,7 +11,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzform module\n"
-"POT-Creation-Date: 2026-07-09 18:14+0000\n"
+"POT-Creation-Date: 2026-07-09 19:40+0000\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Gustaf Mossakowski <gustaf@koenige.org>\n"
 "Language-Team: \n"
@@ -2758,6 +2758,157 @@ msgstr ""
 msgid "Split words in the list view, for better readability"
 msgstr ""
 
+#: templates/debug.template.txt:14
+msgid "Debug Information"
+msgstr ""
+
+#: templates/debug.template.txt:19
+msgid "Time"
+msgstr ""
+
+#: templates/debug.template.txt:20
+msgid "Mem"
+msgstr ""
+
+#: templates/debug.template.txt:21
+msgid "Function"
+msgstr ""
+
+#: templates/debug.template.txt:22
+msgid "Marker"
+msgstr ""
+
+#: templates/debug.template.txt:23
+msgid "SQL"
+msgstr ""
+
+#: templates/debug.template.txt:40
+msgid "Memory peak usage"
+msgstr ""
+
+#: templates/integritycheck.template.txt:16
+msgid "Nothing to check."
+msgstr "Nic do sprawdzenia"
+
+#: templates/integritycheck.template.txt:23
+msgid "Field <code>%s</code> contains only valid values."
+msgstr "Pole <code>%s</code> zawiera tylko prawidłowe wartości."
+
+#: templates/integritycheck.template.txt:23
+msgid "OK"
+msgstr ""
+
+#: templates/integritycheck.template.txt:25
+msgid "Error"
+msgstr ""
+
+#: templates/integritycheck.template.txt:25
+msgid "Field <code>%s</code> contains invalid values:"
+msgstr ""
+
+#: templates/logging-add.template.txt:16
+msgid "Please upload a file."
+msgstr "Prześlij plik."
+
+#: templates/logging-add.template.txt:19
+msgid "There was an error while uploading the file."
+msgstr "Błąd podczas przesyłania pliku."
+
+#: templates/logging-add.template.txt:22
+msgid "The content of the file was not readable (Format needs to be JSON)."
+msgstr "Zawartość pliku nie była możliwa do odczytania (format musi być JSON)."
+
+#: templates/logging-add.template.txt:25
+msgid "The highest existing log entry is %d, but import starts with %d."
+msgstr "Najwyższy istniejący wpis w logu to %d, ale import zaczyna się od %d."
+
+#: templates/logging-add.template.txt:28
+msgid "There was an error adding record ID %d."
+msgstr "Wystąpił błąd przy dodawaniu ID rekordu %d."
+
+#: templates/logging-add.template.txt:31
+msgid "There was an error adding log for record ID %d."
+msgstr "Wystąpił błąd dodawania logu dla ID rekordu %d."
+
+#: templates/logging-add.template.txt:34
+msgid "Record ID %d was added with a different log ID %d."
+msgstr "Rekord ID %d został dodany z innym ID logu %d."
+
+#: templates/logging-add.template.txt:37
+msgid "%d log entry was added, ID was %d."
+msgid_plural "All %d log entries were added, last ID was %d."
+msgstr[0] "Dodano wszystkie %d wpisy do logu, ostatni ID to %d."
+msgstr[1] "Dodano wszystkie %d wpisy do logu, ostatni ID to %d."
+msgstr[2] "Dodano wszystkie %d wpisy do logu, ostatni ID to %d."
+
+#: templates/logging-add.template.txt:42
+msgid "These changes were applied to the remote server."
+msgstr "Zmiany te zostały zastosowane do zdalnego serwera."
+
+#: templates/logging-add.template.txt:44
+msgid "These changes were applied to the local server."
+msgstr "Zmiany te zostały zastosowane do lokalnego serwera."
+
+#: templates/logging-add.template.txt:50
+#: templates/maintenance-logging.template.txt:20
+msgid "Upload"
+msgstr "Przesyłanie plików"
+
+#: templates/logging-add.template.txt:50
+#: templates/maintenance-logging.template.txt:20
+#: zzbrick_make/loggingadd.inc.php:36 zzbrick_make/loggingadd.inc.php:37
+msgid "Upload SQL log"
+msgstr "Prześlij SQL log"
+
+#: templates/logging-archive.template.txt:16
+msgid "%d logging records from %s were archived."
+msgstr ""
+
+#: templates/logging-archive.template.txt:18
+msgid "Logging table was sorted by ID."
+msgstr ""
+
+#: templates/logging-archive.template.txt:22
+msgid "No logging data available."
+msgstr ""
+
+#: templates/logging-archive.template.txt:25
+msgid "No logging data available older than %d months."
+msgstr ""
+
+#: templates/logging-archive.template.txt:26
+msgid "The oldest data in the logging table comes from <strong>%s</strong>."
+msgstr ""
+
+#: templates/logging-archive.template.txt:29
+msgid "Re-sort logging table"
+msgstr ""
+
+#: templates/logging-archive.template.txt:33
+msgid "Archive logging data from %s"
+msgstr ""
+
+#: templates/logging-read.template.txt:16
+msgid "Logfile has only %d entries."
+msgstr "Log ma tylko %d wpisów."
+
+#: templates/maintenance-logging.template.txt:14
+msgid "SQL log"
+msgstr "SQL log"
+
+#: templates/maintenance-logging.template.txt:17
+msgid "Download"
+msgstr ""
+
+#: templates/maintenance-logging.template.txt:17
+msgid "Download SQL log, starting with ID"
+msgstr "pobierz SQL log zaczynający się od ID"
+
+#: templates/maintenance-logging.template.txt:25
+#: zzbrick_make/serversync.inc.php:74
+msgid "Synchronize local and remote server"
+msgstr "Synchronizacja serwera lokalnego i zdalnego"
+
 #: templates/make-thumbnails.template.txt:15
 msgid ""
 "Here, you can create either missing thumbnails, if they were not created on "
@@ -2795,6 +2946,137 @@ msgstr ""
 
 #: templates/make-thumbnails.template.txt:28
 msgid "Progress"
+msgstr ""
+
+#: templates/sync.template.txt:16
+msgid "Synchronization completed."
+msgstr ""
+
+#: templates/sync.template.txt:20
+msgid "Processing entries %s–%s …"
+msgstr ""
+
+#: templates/sync.template.txt:24
+msgid "%s update was made."
+msgid_plural "%s updates were made."
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#: templates/sync.template.txt:28
+msgid "%s insert was made."
+msgid_plural "%s inserts were made."
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#: templates/sync.template.txt:32
+msgid "%s record was left as is."
+msgid_plural "%s records were left as is."
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#: templates/sync.template.txt:36
+msgid "%s record had errors."
+msgid_plural "%s records had errors."
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#: templates/sync.template.txt:45
+msgid "Go on to next page"
+msgstr ""
+
+#: templates/sync.template.txt:47
+msgid "Finished!"
+msgstr ""
+
+#: templates/sync.template.txt:48
+msgid "Possibly deletable records"
+msgstr ""
+
+#: templates/sync.template.txt:56
+msgid "No."
+msgstr ""
+
+#: templates/sync.template.txt:57
+msgid "ID"
+msgstr ""
+
+#: templates/sync.template.txt:58
+msgid "Action"
+msgstr ""
+
+#: templates/sync.template.txt:107
+msgid "Synchronize"
+msgstr ""
+
+#: templates/sync-deletable.template.txt:17
+msgid "%s deletion was made."
+msgid_plural "%s deletions were made."
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#: templates/sync-deletable.template.txt:54
+msgid "Delete records"
+msgstr ""
+
+#: templates/sync-deletable.template.txt:58
+msgid "There are no deletable records."
+msgstr ""
+
+#: templates/sync-overview.template.txt:16
+msgid "There is no definition for a synchronization named <code>%s</code>."
+msgstr ""
+
+#: templates/sync-overview.template.txt:19
+msgid "Please select from one of the following datasets:"
+msgstr ""
+
+#: templates/sync-server.template.txt:16
+msgid "This only works from a local server!"
+msgstr "To działa tylko z lokalnego serwera!"
+
+#: templates/sync-server.template.txt:19
+msgid "The server returned with an error (%d)."
+msgstr "Serwer powrócił z błędem (%d)."
+
+#: templates/sync-server.template.txt:23
+msgid "Both servers have %s log entries."
+msgstr "Oba serwery mają wpisy w logu %s."
+
+#: templates/sync-server.template.txt:23
+msgid "No synchronisation is necessary."
+msgstr "Synchronizacja nie jest konieczna."
+
+#: templates/sync-server.template.txt:26
+msgid "A synchronisation is impossible."
+msgstr "Synchronizacja jest niemożliwa."
+
+#: templates/sync-server.template.txt:26
+msgid "The log entries %d do not match."
+msgstr "Wpisy w logu %d nie są zgodne."
+
+#: zzbrick_make/serversync.inc.php:62
+msgid ""
+"This URL is for synchronising a production and a development server only. No "
+"direct access is possible."
+msgstr ""
+"Ten adres URL służy wyłącznie do synchronizacji serwera produkcyjnego i "
+"rozwojowego. Nie jest możliwy bezpośredni dostęp."
+
+#: zzbrick_make/sync.inc.php:46
+msgid "Synchronization: %s"
+msgstr ""
+
+#: zzbrick_make/sync.inc.php:73
+msgid "Deletable Records"
+msgstr ""
+
+#: zzbrick_make/sync.inc.php:81
+msgid "Sync finished"
 msgstr ""
 
 #: zzbrick_make/thumbnails.inc.php:50
@@ -2880,6 +3162,16 @@ msgstr "Utworzono miniaturę dla %s × %s px."
 msgid "Thumbnail for %s × %s px could not be created."
 msgstr "Nie utworzono miniatury dla %s × %s px."
 
+#: zzbrick_request/integritycheck.inc.php:75
+#: zzbrick_request/integritycheck.inc.php:76
+msgid "Relational Integrity"
+msgstr "Relacyjna integralność"
+
+#: zzbrick_request/loggingread.inc.php:31
+#: zzbrick_request/loggingread.inc.php:32
+msgid "Download SQL log"
+msgstr ""
+
 # Record form: Heading
 #: zzform/functions.inc.php
 msgid "Configuration does not allow this action: %s"
@@ -2900,7 +3192,41 @@ msgstr ""
 msgid "Creation of directory %s failed: Parent directory is not writable."
 msgstr ""
 
+#: zzform/logging.inc.php:172
+msgid "Archive file for database logging for period %s already exists."
+msgstr ""
+
+#: zzform/logging.inc.php:190
+msgid "Archive file for database logging for period %s was not created."
+msgstr ""
+
+#: zzform/logging.inc.php:201
+msgid "Unable to gzip archive file for database logging for period %s."
+msgstr ""
+
 # Error handling
 #: zzform/preparation.inc.php
 msgid "Incorrect value: %s"
 msgstr "Nieprawidłowa wartość: %s"
+
+#: zzform/sync.inc.php:48
+msgid "Import: File %s does not exist. "
+msgstr ""
+
+#: zzform/sync.inc.php:189
+msgid ""
+"Please define a query for the existing records in the database with -- "
+"%s_existing --."
+msgstr ""
+
+#: zzform/sync.inc.php:376
+msgid "Could not fetch data from %s"
+msgstr ""
+
+#: zzform/sync.inc.php:558
+msgid "not set"
+msgstr ""
+
+#: zzform/sync.inc.php:858
+msgid "Field %s is missing in table definition."
+msgstr ""
