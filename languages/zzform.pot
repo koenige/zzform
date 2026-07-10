@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzform module\n"
-"POT-Creation-Date: 2026-07-09 19:40+0000\n"
+"POT-Creation-Date: 2026-07-10 10:22+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -501,18 +501,13 @@ msgid "Unable to update data %s in table %s. Reason: %s"
 msgstr ""
 
 # Record form: Detail record
-#: zzform/action.inc.php
+#: zzform/action.inc.php:125
 msgid "Minimum of records for table `%s` was not met (%d)."
 msgstr ""
 
 # Record form: Validation, displayed above form
-#: zzform/action.inc.php
-msgid "String <em>“%s”</em> is not allowed"
-msgstr ""
-
-# Record form: Validation, displayed above form
-#: zzform/action.inc.php
-#: zzform/preparation.inc.php
+#: zzform/action.inc.php:129
+#: zzform/preparation.inc.php:1535
 msgid "Value missing in field <strong>%s</strong>."
 msgstr ""
 
@@ -565,6 +560,11 @@ msgstr ""
 # Record form: Validation, displayed above form
 #: zzform/action.inc.php:2304
 msgid "Value in field <em>“%s”</em> must not be identical to field <em>“%s”</em>."
+msgstr ""
+
+# Record form: Validation, displayed above form
+#: zzform/action.inc.php:2606
+msgid "String <em>“%s”</em> is not allowed"
 msgstr ""
 
 # Record form: Validation, displayed above form
@@ -1003,12 +1003,13 @@ msgstr ""
 
 # Record form: Validation, displayed above form
 #: zzform/preparation.inc.php
-msgid "Nothing was uploaded in field <strong>%s</strong>."
+msgid "Value incorrect in field <strong>%s</strong>."
 msgstr ""
 
 # Record form: Validation, displayed above form
-#: zzform/preparation.inc.php
-msgid "Value incorrect in field <strong>%s</strong>."
+#: zzform/preparation.inc.php:1522
+#: zzform/preparation.inc.php:1530
+msgid "Nothing was uploaded in field <strong>%s</strong>."
 msgstr ""
 
 # Record form: Heading

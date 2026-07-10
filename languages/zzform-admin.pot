@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzform module\n"
-"POT-Creation-Date: 2026-07-09 20:05+0000\n"
+"POT-Creation-Date: 2026-07-10 10:22+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -2854,24 +2854,128 @@ msgstr ""
 msgid "Download SQL log"
 msgstr ""
 
-# Record form: Heading
-#: zzform/functions.inc.php
-msgid "Configuration does not allow this action: %s"
+#: zzform/action.inc.php:528
+msgid "Update of timestamp failed (ID %d), query: %s"
+msgstr ""
+
+#: zzform/action.inc.php:620
+msgid "Update without existing record? Record: %s"
+msgstr ""
+
+#: zzform/action.inc.php:684
+msgid "Query: %s"
+msgstr ""
+
+#: zzform/action.inc.php:821
+msgid "Hook function %s was not found. Continuing without hook."
+msgstr ""
+
+#: zzform/action.inc.php:845
+msgid "Function for hook (%s) tries to set record_replace. Will not be evaluated at this point."
+msgstr ""
+
+#: zzform/action.inc.php:1496
+msgid "Folder cannot be renamed."
+msgstr ""
+
+#: zzform/action.inc.php:1502
+msgid "There is already a folder by that name."
+msgstr ""
+
+#: zzform/action.inc.php:2679
+msgid "(Encryption: %s, existing hash: %s, entered hash: %s)"
+msgstr ""
+
+#: zzform/action.inc.php:3163
+msgid "Field has no maximum integer value (is it an integer?): %s.%s.%s"
+msgstr ""
+
+#: zzform/conditions.inc.php:535
+msgid "Value condition can’t get corresponding value from database (field %s)"
+msgstr ""
+
+#: zzform/conditions.inc.php:547
+msgid "Value condition has empty value in database (field %s)"
+msgstr ""
+
+#: zzform/database.inc.php:287
+msgid "Statement not supported: %s"
+msgstr ""
+
+#: zzform/database.inc.php:323
+msgid "MySQL reports a problem."
+msgstr ""
+
+#: zzform/database.inc.php:654
+msgid "Field %s not found in table %s."
+msgstr ""
+
+#: zzform/debug.inc.php:121
+msgid "[DEBUG] %stime: %s"
+msgstr ""
+
+#: zzform/export.inc.php:76
+msgid "Export parameter not allowed: `%s`"
 msgstr ""
 
 # Record form: Heading
-#: zzform/functions.inc.php
+#: zzform/functions.inc.php:1562
 msgid "Configuration does not allow this mode: %s"
 msgstr ""
 
-# Record form: Validation, displayed above form
-#: zzform/functions.inc.php
-msgid "Creation of directory %s failed."
+# Record form: Heading
+#: zzform/functions.inc.php:1572
+msgid "Configuration does not allow this action: %s"
 msgstr ""
 
 # Record form: Validation, displayed above form
-#: zzform/functions.inc.php
+#: zzform/functions.inc.php:1812
 msgid "Creation of directory %s failed: Parent directory is not writable."
+msgstr ""
+
+# Record form: Validation, displayed above form
+#: zzform/functions.inc.php:1826
+msgid "Creation of directory %s failed."
+msgstr ""
+
+#: zzform/functions.inc.php:2125
+msgid "It is not possible to depend on different fields in a single subtable (%s). Second field is ignored."
+msgstr ""
+
+#: zzform/functions.inc.php:2349
+msgid "Multiple records matching (maybe set \"ids\" for zzform_multi?): value %s in field %s. <br>SQL: %s"
+msgstr ""
+
+#: zzform/functions.inc.php:2354
+msgid "No entry found: value %s in field %s. <br>SQL: %s"
+msgstr ""
+
+#: zzform/geo.inc.php:470
+msgid "Record definition incorrect, only one of latitude/longitude present."
+msgstr ""
+
+#: zzform/geo.inc.php:501
+msgid "Error: geocode_sql not defined for field no %d"
+msgstr ""
+
+#: zzform/identifier.inc.php:682
+msgid "Missing field name for redirect"
+msgstr ""
+
+#: zzform/image-gd.inc.php:321
+msgid "No support for GD image cropping below PHP 8 implemented."
+msgstr ""
+
+#: zzform/image-imagemagick.inc.php:350
+msgid "No ICC profile found for %s"
+msgstr ""
+
+#: zzform/list.inc.php:311
+msgid "Identical field name would be overwritten: %s"
+msgstr ""
+
+#: zzform/list.inc.php:571
+msgid "Wrong key_field_name `%s`. Please set $zz[\"fields\"][n][\"key_field_name\"] to something different: %s"
 msgstr ""
 
 #: zzform/logging.inc.php:172
@@ -2886,9 +2990,89 @@ msgstr ""
 msgid "Unable to gzip archive file for database logging for period %s."
 msgstr ""
 
+#: zzform/output.inc.php:679
+msgid "Table prefix is incorrect somehow: %s"
+msgstr ""
+
+#: zzform/path.inc.php:363
+msgid "Configuration Error: mode with non-existing function `%s`"
+msgstr ""
+
+#: zzform/preparation.inc.php:134
+msgid "Trying to update a non-existent record in table `%s` with ID %d."
+msgstr ""
+
+#: zzform/preparation.inc.php:774
+msgid "Detail record with invalid ID was posted (ID of table_name %s was said to be %s, main record was ID %s)"
+msgstr ""
+
+#: zzform/preparation.inc.php:883
+msgid "Field marked as unique, but value appears more than once in record: %s (SQL %s)"
+msgstr ""
+
+#: zzform/preparation.inc.php:918
+msgid "UNIQUE was set but field %s is not in POST"
+msgstr ""
+
+#: zzform/preparation.inc.php:991
+msgid "Field marked as unique, but could not find corresponding value: %s"
+msgstr ""
+
+#: zzform/preparation.inc.php:1507
+msgid "Illegal value: %s"
+msgstr ""
+
 # Error handling
-#: zzform/preparation.inc.php
+#: zzform/preparation.inc.php:1510
 msgid "Incorrect value: %s"
+msgstr ""
+
+#: zzform/preparation.inc.php:1552
+msgid "Validation error, value missing in field `%s`. Error was hidden (table misconfiguration?)."
+msgstr ""
+
+#: zzform/preparation.inc.php:1557
+msgid "Validation error, image upload missing in field `%s`. Error was hidden (table misconfiguration?)."
+msgstr ""
+
+#: zzform/preparation.inc.php:1606
+msgid "No ID %s found (Query: %s)."
+msgstr ""
+
+#: zzform/record.inc.php:2457
+msgid "For a subtable with a form_display = `set`, there needs to be a field with a field type `select`."
+msgstr ""
+
+#: zzform/record.inc.php:2588
+msgid "Found a value selected that is set to non-selectable (table %s, ID %d)"
+msgstr ""
+
+#: zzform/record.inc.php:2634
+msgid "For a subtable with form_display = `key_value`, a field with `subtable_key` = true is required."
+msgstr ""
+
+#: zzform/record.inc.php:2642
+msgid "For a subtable with form_display = `key_value`, a field with `subtable_value` = true is required."
+msgstr ""
+
+#: zzform/record.inc.php:3308
+msgid "Subtree with ID %s does not exist."
+msgstr ""
+
+#: zzform/record.inc.php:4099
+msgid "Configuration error. Missing upload_image details."
+msgstr ""
+
+#: zzform/searchform.inc.php:522
+msgid "Column definition for field `%s.%s` cannot be read."
+msgstr ""
+
+#: zzform/searchform.inc.php:628
+msgid "Subtable definition is wrong. There must be a field which is defined as \"foreign_key\"."
+msgstr ""
+
+#: zzform/searchform.inc.php:677
+msgid "Search: empty key for %s found in query"
 msgstr ""
 
 #: zzform/sync.inc.php:48
@@ -2909,4 +3093,89 @@ msgstr ""
 
 #: zzform/sync.inc.php:858
 msgid "Field %s is missing in table definition."
+msgstr ""
+
+#: zzform/translations.inc.php:28
+msgid "`default_translationfields__table` must be set."
+msgstr ""
+
+#: zzform/upload.inc.php:552
+msgid "%s returns with a warning:\n\n%s"
+msgstr ""
+
+#: zzform/upload.inc.php:926
+msgid "File type %s does not match MIME type %s as found by file() for %s"
+msgstr ""
+
+#: zzform/upload.inc.php:1337
+#: zzform/upload.inc.php:1442
+msgid "Error: Source file %s does not exist."
+msgstr ""
+
+#: zzform/upload.inc.php:1499
+msgid "Error: File %s does not exist. Temporary Directory: %s"
+msgstr ""
+
+#: zzform/upload.inc.php:1572
+msgid "No options for field %s were found."
+msgstr ""
+
+#: zzform/upload.inc.php:1641
+msgid "Configuration error: function <code>%s()</code> for image upload does not exist."
+msgstr ""
+
+#: zzform/upload.inc.php:1709
+msgid "Error. Could not determine file ending"
+msgstr ""
+
+#: zzform/upload.inc.php:1815
+msgid "`max_pages` can only be used with PDF filetypes and `pdfinfo` as upload tool."
+msgstr ""
+
+#: zzform/upload.inc.php:1852
+msgid "Error in $zz definition for upload_field: [%d]"
+msgstr ""
+
+#: zzform/upload.inc.php:2252
+msgid "File %s exists, but is not a file."
+msgstr ""
+
+#: zzform/upload.inc.php:2324
+msgid "Insert: `%s` exists, but is not a file."
+msgstr ""
+
+#: zzform/upload.inc.php:2736
+msgid "zz_rename(): No new filename given."
+msgstr ""
+
+#: zzform/upload.inc.php:2743
+msgid "zz_rename(): File %s does not exist."
+msgstr ""
+
+#: zzform/upload.inc.php:2801
+msgid "Insufficient rights. Directory `%s` is not writable."
+msgstr ""
+
+#: zzform/upload.inc.php:2804
+msgid "Unknown error. Copying of file not successful. <br>From: %s <br>To: %s<br>"
+msgstr ""
+
+#: zzform/upload.inc.php:2830
+msgid "Value for upload_max_filesize from php.ini is smaller than value which is set in the script. The value from php.ini will be used. To upload bigger files, please adjust your configuration settings."
+msgstr ""
+
+#: zzform/validate.inc.php:482
+msgid "%s(): calculation did not work. [%s]"
+msgstr ""
+
+#: zzform/zzform.php:102
+msgid "There is no table definition available ('fields'). Please check."
+msgstr ""
+
+#: zzform/zzform.php:590
+msgid "Hash of script and ID differs from secret key (hash %s, secret %s)."
+msgstr ""
+
+#: zzform/zzform.php:688
+msgid "zzform has been called as a function more than once. You might want to check if this is correct."
 msgstr ""
