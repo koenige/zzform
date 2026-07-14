@@ -160,8 +160,18 @@ function zz_extract_assignment_value($content, $offset, $relative_path, $pot, $k
 		return;
 	}
 
-	// array literal: ['value1', 'value2']
+	// wrap_text-style array: ['msgid', ['context' => '...']]
 	if ($char === '[') {
+		$text_array = wrap_extract_text_array($content, $offset);
+		if ($text_array) {
+			$reference = sprintf(
+				'%s:%d', $relative_path,
+				wrap_extract_line_number($content, $text_array['offset'])
+			);
+			wrap_extract_add($entries, $text_array['msgid'], $reference, $pot, $text_array['context']);
+			return;
+		}
+		// plain array literal: ['value1', 'value2']
 		zz_extract_array_values($content, $offset, $relative_path, $pot, $key, $entries);
 		return;
 	}
