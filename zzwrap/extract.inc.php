@@ -43,19 +43,32 @@ function zz_extract_table_fields($content, $relative_path, &$entries) {
 	$pot = wrap_extract_translate_pot($content);
 	$field_keys = zz_extract_translatable_field_keys();
 	$zz_keys = zz_extract_translatable_zz_keys();
+	$enum_skip = zz_extract_enum_skip_indices($content);
 
 	// $zz['fields'][n]['key'] = 'value';
 	// $zz['fields'][n]['key'][] = 'value';
 	// $zz['fields'][n]['key']['subkey'] = 'value';
 	foreach ($field_keys as $key) {
-		$pattern = '/\$zz\[\'fields\'\]\[\d+\]\[\''
-			. preg_quote($key, '/')
-			. '\'\](\[\]|\[\'[^\']*\'\]|\["[^"]*"\])?\s*=\s*/';
+		if ($key === 'enum') {
+			$pattern = '/\$zz\[\'fields\'\]\[(\d+)\]\[\'enum\'\]'
+				. '(\[\]|\[\'[^\']*\'\]|\["[^"]*"\])?\s*=\s*/';
+		} else {
+			$pattern = '/\$zz\[\'fields\'\]\[\d+\]\[\''
+				. preg_quote($key, '/')
+				. '\'\](\[\]|\[\'[^\']*\'\]|\["[^"]*"\])?\s*=\s*/';
+		}
 		if (!preg_match_all($pattern, $content, $matches, PREG_OFFSET_CAPTURE)) continue;
 
 		foreach ($matches[0] as $index => $match) {
+			if ($key === 'enum') {
+				if (isset($enum_skip[$matches[1][$index][0]])) continue;
+				$array_suffix = $matches[2][$index][0];
+			} else {
+				$array_suffix = $matches[1][$index][0];
+			}
+
 			$value_offset = $match[1] + strlen($match[0]);
-			$is_array_push = ($matches[1][$index][0] === '[]');
+			$is_array_push = ($array_suffix === '[]');
 			zz_extract_assignment_value(
 				$content, $value_offset, $relative_path, $pot, $key,
 				$is_array_push, $entries
@@ -79,6 +92,31 @@ function zz_extract_table_fields($content, $relative_path, &$entries) {
 
 	// implicit titles: field_name without explicit title
 	zz_extract_implicit_titles($content, $relative_path, $pot, $entries);
+}
+
+/**
+ * Field indices whose enum values are not shown (enum_title or enum_tsv)
+ *
+ * When a field has top-level enum_title, display uses those labels instead of
+ * enum values (see zz_field_enum_set()). enum_tsv builds enum at runtime from
+ * TSV English strings. Skip extracting enum literals for those fields.
+ *
+ * @param string $content file contents with Unix line endings
+ * @return array<int, true> field index => true
+ */
+function zz_extract_enum_skip_indices($content) {
+	$skip = [];
+	$patterns = [
+		'/\$zz\[\'fields\'\]\[(\d+)\]\[\'enum_title\'\]/',
+		'/\$zz\[\'fields\'\]\[(\d+)\]\[\'enum_tsv\'\]/',
+	];
+	foreach ($patterns as $pattern) {
+		if (!preg_match_all($pattern, $content, $matches)) continue;
+		foreach ($matches[1] as $field_index) {
+			$skip[$field_index] = true;
+		}
+	}
+	return $skip;
 }
 
 /**
