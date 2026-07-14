@@ -11,7 +11,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzform module\n"
-"POT-Creation-Date: 2026-07-09 19:40+0000\n"
+"POT-Creation-Date: 2026-07-14 17:56+0000\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Gustaf Mossakowski <gustaf@koenige.org>\n"
 "Language-Team: \n"
@@ -2213,7 +2213,7 @@ msgid ""
 "if the user enters a translation"
 msgstr ""
 
-#: configuration/zz-fields.cfg:499 configuration/zz-fields.cfg:1094
+#: configuration/zz-fields.cfg:499 configuration/zz-fields.cfg:1099
 msgid ""
 "List of definitions that are added to table definition if a condition is not "
 "true, indexed by key of condition"
@@ -2687,73 +2687,77 @@ msgid "Title of field, use if another field is appended to this field"
 msgstr ""
 
 #: configuration/zz-fields.cfg:1007
+msgid "Text for button for adding a subtable, defaults to `title` if not set"
+msgstr ""
+
+#: configuration/zz-fields.cfg:1012
 msgid ""
 "Title of field in the list view, if it should be different from the record "
 "view"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1012
+#: configuration/zz-fields.cfg:1017
 msgid "Translate the values of this field"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1018
+#: configuration/zz-fields.cfg:1023
 msgid "Trim field content of spaces"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1023
+#: configuration/zz-fields.cfg:1028
 msgid "Type of field"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1068
+#: configuration/zz-fields.cfg:1073
 msgid "Type of field if main type is generic"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1075
+#: configuration/zz-fields.cfg:1080
 msgid "Clean up some typography issues, e. g. quotation marks, spaces, etc."
 msgstr ""
 
-#: configuration/zz-fields.cfg:1079
+#: configuration/zz-fields.cfg:1084
 msgid "Replace two or more spaces in text with one space"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1083
+#: configuration/zz-fields.cfg:1088
 msgid ""
 "List of field names that do not need to be shown if first value is already "
 "uniquely describing the record"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1088
+#: configuration/zz-fields.cfg:1093
 msgid "Unit shown after a value if it is not empty"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1100
+#: configuration/zz-fields.cfg:1105
 msgid ""
 "No. of field that has a file upload that is used as a source for metadata"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1104
+#: configuration/zz-fields.cfg:1109
 msgid "Key of metadata that is used for the value of this field"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1108
+#: configuration/zz-fields.cfg:1113
 msgid "List of strings that are not allowed to be entered in this field"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1113
+#: configuration/zz-fields.cfg:1118
 msgid "Message to show if validation fails"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1118
+#: configuration/zz-fields.cfg:1124
 msgid "Predefined value for a field"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1121
+#: configuration/zz-fields.cfg:1127
 msgid ""
 "Resolve username via WebFinger instead of a URL template (for federated "
 "services)"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1126
+#: configuration/zz-fields.cfg:1132
 msgid "Split words in the list view, for better readability"
 msgstr ""
 
@@ -3026,8 +3030,8 @@ msgstr "Es gibt keine löschbaren Datensätze."
 #: templates/sync-overview.template.txt:16
 msgid "There is no definition for a synchronization named <code>%s</code>."
 msgstr ""
-"Es gibt keine Definition für eine Synchronisierung mit dem Namen "
-"<code>%s</code>."
+"Es gibt keine Definition für eine Synchronisierung mit dem Namen <code>%s</"
+"code>."
 
 #: templates/sync-overview.template.txt:19
 msgid "Please select from one of the following datasets:"
@@ -3169,27 +3173,139 @@ msgstr "Relationale Integrität"
 msgid "Download SQL log"
 msgstr ""
 
-# Record form: Heading
-#: zzform/functions.inc.php
-msgid "Configuration does not allow this action: %s"
-msgstr "Die Konfiguration erlaubt diese Aktion nicht: %s"
+#: zzform/action.inc.php:528
+msgid "Update of timestamp failed (ID %d), query: %s"
+msgstr ""
+
+#: zzform/action.inc.php:620
+msgid "Update without existing record? Record: %s"
+msgstr ""
+
+#: zzform/action.inc.php:684
+msgid "Query: %s"
+msgstr ""
+
+#: zzform/action.inc.php:821
+msgid "Hook function %s was not found. Continuing without hook."
+msgstr ""
+
+#: zzform/action.inc.php:845
+msgid ""
+"Function for hook (%s) tries to set record_replace. Will not be evaluated at "
+"this point."
+msgstr ""
+
+#: zzform/action.inc.php:1496
+msgid "Folder cannot be renamed."
+msgstr ""
+
+#: zzform/action.inc.php:1502
+msgid "There is already a folder by that name."
+msgstr ""
+
+#: zzform/action.inc.php:2679
+msgid "(Encryption: %s, existing hash: %s, entered hash: %s)"
+msgstr ""
+
+#: zzform/action.inc.php:3163
+msgid "Field has no maximum integer value (is it an integer?): %s.%s.%s"
+msgstr ""
+
+#: zzform/conditions.inc.php:535
+msgid "Value condition can’t get corresponding value from database (field %s)"
+msgstr ""
+
+#: zzform/conditions.inc.php:547
+msgid "Value condition has empty value in database (field %s)"
+msgstr ""
+
+#: zzform/database.inc.php:287
+msgid "Statement not supported: %s"
+msgstr ""
+
+#: zzform/database.inc.php:323
+msgid "MySQL reports a problem."
+msgstr ""
+
+#: zzform/database.inc.php:654
+msgid "Field %s not found in table %s."
+msgstr ""
+
+#: zzform/debug.inc.php:121
+msgid "[DEBUG] %stime: %s"
+msgstr ""
+
+#: zzform/export.inc.php:76
+msgid "Export parameter not allowed: `%s`"
+msgstr ""
 
 # Record form: Heading
-#: zzform/functions.inc.php
+#: zzform/functions.inc.php:1572
 msgid "Configuration does not allow this mode: %s"
 msgstr "Die Konfiguration erlaubt diesen Modus nicht: %s"
 
-# Record form: Validation, displayed above form
-#: zzform/functions.inc.php
-msgid "Creation of directory %s failed."
-msgstr "Erstellung des Verzeichnisses %s ist fehlgeschlagen."
+# Record form: Heading
+#: zzform/functions.inc.php:1582
+msgid "Configuration does not allow this action: %s"
+msgstr "Die Konfiguration erlaubt diese Aktion nicht: %s"
 
 # Record form: Validation, displayed above form
-#: zzform/functions.inc.php
+#: zzform/functions.inc.php:1822
 msgid "Creation of directory %s failed: Parent directory is not writable."
 msgstr ""
 "Erstellung des Verzeichnisses %s ist fehlgeschlagen: Hauptverzeichnis ist "
 "nicht schreibbar."
+
+# Record form: Validation, displayed above form
+#: zzform/functions.inc.php:1836
+msgid "Creation of directory %s failed."
+msgstr "Erstellung des Verzeichnisses %s ist fehlgeschlagen."
+
+#: zzform/functions.inc.php:2135
+msgid ""
+"It is not possible to depend on different fields in a single subtable (%s). "
+"Second field is ignored."
+msgstr ""
+
+#: zzform/functions.inc.php:2359
+msgid ""
+"Multiple records matching (maybe set \"ids\" for zzform_multi?): value %s in "
+"field %s. <br>SQL: %s"
+msgstr ""
+
+#: zzform/functions.inc.php:2364
+msgid "No entry found: value %s in field %s. <br>SQL: %s"
+msgstr ""
+
+#: zzform/geo.inc.php:470
+msgid "Record definition incorrect, only one of latitude/longitude present."
+msgstr ""
+
+#: zzform/geo.inc.php:501
+msgid "Error: geocode_sql not defined for field no %d"
+msgstr ""
+
+#: zzform/identifier.inc.php:682
+msgid "Missing field name for redirect"
+msgstr ""
+
+#: zzform/image-gd.inc.php:321
+msgid "No support for GD image cropping below PHP 8 implemented."
+msgstr ""
+
+#: zzform/image-imagemagick.inc.php:350
+msgid "No ICC profile found for %s"
+msgstr ""
+
+#: zzform/list.inc.php:311
+msgid "Identical field name would be overwritten: %s"
+msgstr ""
+
+#: zzform/list.inc.php:571
+msgid ""
+"Wrong key_field_name `%s`. Please set $zz[\"fields\"][n][\"key_field_name\"] "
+"to something different: %s"
+msgstr ""
 
 #: zzform/logging.inc.php:172
 msgid "Archive file for database logging for period %s already exists."
@@ -3209,10 +3325,106 @@ msgstr ""
 "Es war nicht möglich, ein gzip-Archiv der Datenbank-Aufzeichungsdatei für "
 "die Periode %s zu erstellen."
 
+#: zzform/output.inc.php:679
+msgid "Table prefix is incorrect somehow: %s"
+msgstr ""
+
+#: zzform/path.inc.php:363
+msgid "Configuration Error: mode with non-existing function `%s`"
+msgstr ""
+
+#: zzform/preparation.inc.php:134
+msgid "Trying to update a non-existent record in table `%s` with ID %d."
+msgstr ""
+
+#: zzform/preparation.inc.php:774
+msgid ""
+"Detail record with invalid ID was posted (ID of table_name %s was said to be "
+"%s, main record was ID %s)"
+msgstr ""
+
+#: zzform/preparation.inc.php:883
+msgid ""
+"Field marked as unique, but value appears more than once in record: %s (SQL "
+"%s)"
+msgstr ""
+
+#: zzform/preparation.inc.php:918
+msgid "UNIQUE was set but field %s is not in POST"
+msgstr ""
+
+#: zzform/preparation.inc.php:991
+msgid "Field marked as unique, but could not find corresponding value: %s"
+msgstr ""
+
+#: zzform/preparation.inc.php:1507
+msgid "Illegal value: %s"
+msgstr ""
+
 # Error handling
-#: zzform/preparation.inc.php
+#: zzform/preparation.inc.php:1510
 msgid "Incorrect value: %s"
 msgstr "Falscher Wert: %s"
+
+#: zzform/preparation.inc.php:1552
+msgid ""
+"Validation error, value missing in field `%s`. Error was hidden (table "
+"misconfiguration?)."
+msgstr ""
+
+#: zzform/preparation.inc.php:1557
+msgid ""
+"Validation error, image upload missing in field `%s`. Error was hidden "
+"(table misconfiguration?)."
+msgstr ""
+
+#: zzform/preparation.inc.php:1606
+msgid "No ID %s found (Query: %s)."
+msgstr ""
+
+#: zzform/record.inc.php:2457
+msgid ""
+"For a subtable with a form_display = `set`, there needs to be a field with a "
+"field type `select`."
+msgstr ""
+
+#: zzform/record.inc.php:2588
+msgid "Found a value selected that is set to non-selectable (table %s, ID %d)"
+msgstr ""
+
+#: zzform/record.inc.php:2634
+msgid ""
+"For a subtable with form_display = `key_value`, a field with `subtable_key` "
+"= true is required."
+msgstr ""
+
+#: zzform/record.inc.php:2642
+msgid ""
+"For a subtable with form_display = `key_value`, a field with "
+"`subtable_value` = true is required."
+msgstr ""
+
+#: zzform/record.inc.php:3308
+msgid "Subtree with ID %s does not exist."
+msgstr ""
+
+#: zzform/record.inc.php:4099
+msgid "Configuration error. Missing upload_image details."
+msgstr ""
+
+#: zzform/searchform.inc.php:522
+msgid "Column definition for field `%s.%s` cannot be read."
+msgstr ""
+
+#: zzform/searchform.inc.php:628
+msgid ""
+"Subtable definition is wrong. There must be a field which is defined as "
+"\"foreign_key\"."
+msgstr ""
+
+#: zzform/searchform.inc.php:677
+msgid "Search: empty key for %s found in query"
+msgstr ""
 
 #: zzform/sync.inc.php:48
 msgid "Import: File %s does not exist. "
@@ -3234,4 +3446,100 @@ msgstr ""
 
 #: zzform/sync.inc.php:858
 msgid "Field %s is missing in table definition."
+msgstr ""
+
+#: zzform/translations.inc.php:28
+msgid "`default_translationfields__table` must be set."
+msgstr ""
+
+#: zzform/upload.inc.php:552
+msgid ""
+"%s returns with a warning:\n"
+"\n"
+"%s"
+msgstr ""
+
+#: zzform/upload.inc.php:926
+msgid "File type %s does not match MIME type %s as found by file() for %s"
+msgstr ""
+
+#: zzform/upload.inc.php:1337 zzform/upload.inc.php:1442
+msgid "Error: Source file %s does not exist."
+msgstr ""
+
+#: zzform/upload.inc.php:1499
+msgid "Error: File %s does not exist. Temporary Directory: %s"
+msgstr ""
+
+#: zzform/upload.inc.php:1572
+msgid "No options for field %s were found."
+msgstr ""
+
+#: zzform/upload.inc.php:1641
+msgid ""
+"Configuration error: function <code>%s()</code> for image upload does not "
+"exist."
+msgstr ""
+
+#: zzform/upload.inc.php:1709
+msgid "Error. Could not determine file ending"
+msgstr ""
+
+#: zzform/upload.inc.php:1815
+msgid ""
+"`max_pages` can only be used with PDF filetypes and `pdfinfo` as upload tool."
+msgstr ""
+
+#: zzform/upload.inc.php:1852
+msgid "Error in $zz definition for upload_field: [%d]"
+msgstr ""
+
+#: zzform/upload.inc.php:2252
+msgid "File %s exists, but is not a file."
+msgstr ""
+
+#: zzform/upload.inc.php:2324
+msgid "Insert: `%s` exists, but is not a file."
+msgstr ""
+
+#: zzform/upload.inc.php:2736
+msgid "zz_rename(): No new filename given."
+msgstr ""
+
+#: zzform/upload.inc.php:2743
+msgid "zz_rename(): File %s does not exist."
+msgstr ""
+
+#: zzform/upload.inc.php:2801
+msgid "Insufficient rights. Directory `%s` is not writable."
+msgstr ""
+
+#: zzform/upload.inc.php:2804
+msgid ""
+"Unknown error. Copying of file not successful. <br>From: %s <br>To: %s<br>"
+msgstr ""
+
+#: zzform/upload.inc.php:2830
+msgid ""
+"Value for upload_max_filesize from php.ini is smaller than value which is "
+"set in the script. The value from php.ini will be used. To upload bigger "
+"files, please adjust your configuration settings."
+msgstr ""
+
+#: zzform/validate.inc.php:482
+msgid "%s(): calculation did not work. [%s]"
+msgstr ""
+
+#: zzform/zzform.php:102
+msgid "There is no table definition available ('fields'). Please check."
+msgstr ""
+
+#: zzform/zzform.php:590
+msgid "Hash of script and ID differs from secret key (hash %s, secret %s)."
+msgstr ""
+
+#: zzform/zzform.php:688
+msgid ""
+"zzform has been called as a function more than once. You might want to check "
+"if this is correct."
 msgstr ""

@@ -11,7 +11,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzform\n"
-"POT-Creation-Date: 2026-07-09 19:40+0000\n"
+"POT-Creation-Date: 2026-07-14 17:56+0000\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Gustaf Mossakowski <gustaf@koenige.org>\n"
 "Language-Team: \n"
@@ -168,6 +168,7 @@ msgstr "Alle"
 
 # List view: Table head
 #: templates/zzform-list-table.template.txt:21
+#: zzbrick_tables/revisiondata.php:39
 msgid "Action"
 msgstr "Aktion"
 
@@ -326,11 +327,11 @@ msgstr "Bitte prüfen Sie den Wert für das Feld <strong>%s</strong>."
 
 #: templates/zzform-record-select.template.txt:14
 msgid "Current value: %s"
-msgstr ""
+msgstr "Aktueller Wert: %s"
 
 #: templates/zzform-record-select.template.txt:15
 msgid "Possible value: %s"
-msgstr ""
+msgstr "Möglicher Wert: %s"
 
 # Record form: Select
 #: templates/zzform-record-select.template.txt:17 zzform/record.inc.php:1014
@@ -374,60 +375,108 @@ msgstr "allen Feldern"
 msgid "Show all records (without search filter)"
 msgstr "Zeige alle Einträge (ohne Suchfilter)"
 
+#: zzbrick_tables/revisiondata.php:16
+msgid "Revisiondata"
+msgstr "Daten der Überarbeitung"
+
+#: zzbrick_tables/revisiondata.php:19 zzbrick_tables/revisions.php:21
+msgid "ID"
+msgstr "ID"
+
+#: zzbrick_tables/revisiondata.php:23
+msgid "Revision"
+msgstr "Überarbeitung"
+
+#: zzbrick_tables/revisiondata.php:25 zzbrick_tables/revisions.php:25
+msgid "Table"
+msgstr "Tabelle"
+
+#: zzbrick_tables/revisiondata.php:28 zzbrick_tables/revisions.php:28
+msgid "Record"
+msgstr "Eintrag"
+
 # Record form: Revision
-#: zzbrick_tables/revisiondata.php
+#: zzbrick_tables/revisiondata.php:30
 msgid "Changed values"
 msgstr "Geänderte Werte"
 
 # Record form: Revision
-#: zzbrick_tables/revisiondata.php
+#: zzbrick_tables/revisiondata.php:34
 msgid "Complete values"
 msgstr "Alle Werte"
 
+#: zzbrick_tables/revisiondata.php:42
+msgid "delete"
+msgstr "Löschen"
+
 # Record form: Revision
-#: zzbrick_tables/revisiondata.php
+#: zzbrick_tables/revisiondata.php:42
 msgid "ignore"
 msgstr "ignorieren"
 
-# Record form: Revision
-#: zzbrick_tables/revisions.php
-msgid "Data"
-msgstr "Daten"
+#: zzbrick_tables/revisiondata.php:42
+msgid "insert"
+msgstr "Einfügen"
+
+#: zzbrick_tables/revisiondata.php:42
+msgid "update"
+msgstr "Aktualisieren"
 
 # Record form: Revision
-#: zzbrick_tables/revisions.php
+#: zzbrick_tables/revisions.php:18
 msgid "Revisions"
 msgstr "Revisionen"
 
-# Record form: Revision
-#: zzbrick_tables/revisions.php
-msgid "Script URL"
-msgstr "Skript-URL"
+#: zzbrick_tables/revisions.php:37
+msgid "User"
+msgstr "Benutzer"
+
+#: zzbrick_tables/revisions.php:41
+msgid "Status"
+msgstr "Status"
 
 # List view: Revision
-#: zzbrick_tables/revisions.php
+#: zzbrick_tables/revisions.php:44
 msgid "historic"
 msgstr "historisch"
 
 # List view: Revision
-#: zzbrick_tables/revisions.php
+#: zzbrick_tables/revisions.php:44
 msgid "live"
 msgstr "live"
 
 # List view: Revision
-#: zzbrick_tables/revisions.php
+#: zzbrick_tables/revisions.php:44
 msgid "pending"
 msgstr "unerledigt"
+
+#: zzbrick_tables/revisions.php:47
+msgid "Created"
+msgstr "Erstellt"
+
+# Record form: Revision
+#: zzbrick_tables/revisions.php:53
+msgid "Data"
+msgstr "Daten"
+
+# Record form: Revision
+#: zzbrick_tables/revisions.php:60
+msgid "Script URL"
+msgstr "Skript-URL"
+
+#: zzbrick_tables/revisions.php:64
+msgid "Last update"
+msgstr "Stand"
 
 #: zzbrick_xhr/configs.inc.php:34 zzbrick_xhr/dependencies.inc.php:31
 #: zzbrick_xhr/zzform.inc.php:39
 msgid "Malformed field number: %s"
-msgstr ""
+msgstr "Fehlerhafte Nummer des Felds: %s"
 
 #: zzbrick_xhr/configs.inc.php:38 zzbrick_xhr/dependencies.inc.php:35
 #: zzbrick_xhr/zzform.inc.php:43
 msgid "Malformed subtable number: %s"
-msgstr ""
+msgstr "Fehlerhafte Nummer der Detailtabelle: %s"
 
 #: zzbrick_xhr/configs.inc.php:46 zzbrick_xhr/dependencies.inc.php:44
 #: zzbrick_xhr/zzform.inc.php:51
@@ -448,7 +497,7 @@ msgstr ""
 # Record form: Validation, displayed inside form
 #: zzbrick_xhr/configs.inc.php:77 zzbrick_xhr/configs.inc.php:83
 #: zzbrick_xhr/zzform.inc.php:137 zzbrick_xhr/zzform.inc.php:143
-#: zzform/functions.inc.php:2336
+#: zzform/functions.inc.php:2346
 msgid "Please enter more characters."
 msgstr "Bitte geben Sie mehr Buchstaben ein."
 
@@ -505,17 +554,12 @@ msgid "Unable to update data %s in table %s. Reason: %s"
 msgstr ""
 
 # Record form: Detail record
-#: zzform/action.inc.php
+#: zzform/action.inc.php:125
 msgid "Minimum of records for table `%s` was not met (%d)."
 msgstr "Im Feld `%s` sind mehr Daten erforderlich (min. Anzahl: %d)."
 
 # Record form: Validation, displayed above form
-#: zzform/action.inc.php
-msgid "String <em>“%s”</em> is not allowed"
-msgstr "Die Zeichenfolge <em>»%s«</em> ist nicht erlaubt"
-
-# Record form: Validation, displayed above form
-#: zzform/action.inc.php zzform/preparation.inc.php
+#: zzform/action.inc.php:129 zzform/preparation.inc.php:1535
 msgid "Value missing in field <strong>%s</strong>."
 msgstr "Angabe im Feld <strong>%s</strong> fehlt."
 
@@ -573,6 +617,11 @@ msgid ""
 msgstr ""
 "Der Wert im Feld <em>„%s“</em> darf nicht mit dem im Feld <em>„%s“</em> "
 "identisch sein."
+
+# Record form: Validation, displayed above form
+#: zzform/action.inc.php:2606
+msgid "String <em>“%s”</em> is not allowed"
+msgstr "Die Zeichenfolge <em>»%s«</em> ist nicht erlaubt"
 
 # Record form: Validation, displayed above form
 #: zzform/action.inc.php:2628
@@ -850,17 +899,17 @@ msgstr "Der Wert ist nur bei der Bearbeitung sichtbar."
 msgid "Adding value %s in field %s is forbidden here"
 msgstr ""
 
-#: zzform/functions.inc.php:1061
+#: zzform/functions.inc.php:1071
 msgid "Only one field may be defined as `id`!"
 msgstr ""
 
 # Record form: Validation, displayed inside form
-#: zzform/functions.inc.php:2274
+#: zzform/functions.inc.php:2284
 msgid "No entry found. Try less characters."
 msgstr "Keinen Eintrag gefunden. Versuchen Sie es mit weniger Zeichen."
 
 # Record form: Validation, displayed inside form
-#: zzform/functions.inc.php:2290 zzform/functions.inc.php:2310
+#: zzform/functions.inc.php:2300 zzform/functions.inc.php:2320
 msgid "Please make a different selection."
 msgstr "Bitte treffen Sie eine andere Auswahl."
 
@@ -1047,13 +1096,13 @@ msgstr "Datei: "
 
 # Record form: Validation, displayed above form
 #: zzform/preparation.inc.php
-msgid "Nothing was uploaded in field <strong>%s</strong>."
-msgstr "Es wurde nichts im Feld <strong>%s</strong> hochgeladen."
-
-# Record form: Validation, displayed above form
-#: zzform/preparation.inc.php
 msgid "Value incorrect in field <strong>%s</strong>."
 msgstr "Angabe im Feld <strong>%s</strong> erscheint falsch."
+
+# Record form: Validation, displayed above form
+#: zzform/preparation.inc.php:1522 zzform/preparation.inc.php:1530
+msgid "Nothing was uploaded in field <strong>%s</strong>."
+msgstr "Es wurde nichts im Feld <strong>%s</strong> hochgeladen."
 
 # Record form: Heading
 #: zzform/record.inc.php
@@ -1403,3 +1452,7 @@ msgid ""
 msgstr ""
 "Sie wurden automatisch ausgeloggt, Ihre Änderungen wurden daher noch nicht "
 "gespeichert. Bitte schicken Sie das Formular erneut ab."
+
+#: zzwrap/extract.inc.php:362
+msgid "translatable key \"%s\" uses wrap_text()"
+msgstr ""
