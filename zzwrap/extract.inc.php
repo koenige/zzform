@@ -76,6 +76,53 @@ function zz_extract_table_fields($content, $relative_path, &$entries) {
 			);
 		}
 	}
+
+	// implicit titles: field_name without explicit title
+	zz_extract_implicit_titles($content, $relative_path, $pot, $entries);
+}
+
+/**
+ * Extract implicit titles derived from field_name when title is not set
+ *
+ * @param string $content file contents with Unix line endings
+ * @param string $relative_path path relative to package folder
+ * @param string $pot translate_pot suffix
+ * @param array $entries collected entries (by reference)
+ * @return void
+ */
+function zz_extract_implicit_titles($content, $relative_path, $pot, &$entries) {
+	// collect field indices that have an explicit title
+	$has_title = [];
+	if (preg_match_all(
+		'/\$zz\[\'fields\'\]\[(\d+)\]\[\'title\'\]/',
+		$content, $matches
+	)) {
+		$has_title = array_flip($matches[1]);
+	}
+
+	// collect field_name assignments
+	if (!preg_match_all(
+		'/\$zz\[\'fields\'\]\[(\d+)\]\[\'field_name\'\]\s*=\s*(\'(?:[^\'\\\\]|\\\\.)*\'|"(?:[^"\\\\]|\\\\.)*")/',
+		$content, $matches, PREG_OFFSET_CAPTURE
+	)) return;
+
+	foreach ($matches[1] as $index => $field_index_match) {
+		$field_index = $field_index_match[0];
+		if (isset($has_title[$field_index])) continue;
+
+		$quoted = $matches[2][$index][0];
+		$field_name = zz_extract_string_at($content, $matches[2][$index][1]);
+		if ($field_name === null OR $field_name === '') continue;
+
+		$title = zz_field_title_extract($field_name);
+		if ($title === '') continue;
+
+		$reference = sprintf(
+			'%s:%d', $relative_path,
+			wrap_extract_line_number($content, $matches[2][$index][1])
+		);
+		wrap_extract_add($entries, $title, $reference, $pot);
+	}
 }
 
 /**

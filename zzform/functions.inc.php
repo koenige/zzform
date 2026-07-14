@@ -1031,14 +1031,24 @@ function zz_field_title($field) {
 			, json_encode($field, JSON_PRETTY_PRINT)
 		), E_USER_ERROR);
 	}
-	$title = ucfirst($field['field_name']);
-	$title = str_replace('_ID', ' ', $title);
-	$title = str_replace('_id', ' ', $title);
-	$title = str_replace('_', ' ', $title);
-	$title = rtrim($title);
+	$title = zz_field_title_extract($field['field_name']);
 	$title = wrap_text($title, ['source' => wrap_static('zzform', 'script_path')]);
 	$translations[] = $title;
 	return $title;
+}
+
+/**
+ * Derive a display title from a field_name (mirrors zz_field_title runtime)
+ *
+ * @param string $field_name database field name
+ * @return string derived title
+ */
+function zz_field_title_extract($field_name) {
+	$title = ucfirst($field_name);
+	$title = str_replace('_ID', ' ', $title);
+	$title = str_replace('_id', ' ', $title);
+	$title = str_replace('_', ' ', $title);
+	return rtrim($title);
 }
 
 /**
