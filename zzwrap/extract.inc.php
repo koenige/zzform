@@ -46,10 +46,11 @@ function zz_extract_table_fields($content, $relative_path, &$entries) {
 
 	// $zz['fields'][n]['key'] = 'value';
 	// $zz['fields'][n]['key'][] = 'value';
+	// $zz['fields'][n]['key']['subkey'] = 'value';
 	foreach ($field_keys as $key) {
 		$pattern = '/\$zz\[\'fields\'\]\[\d+\]\[\''
 			. preg_quote($key, '/')
-			. '\'\](\[\])?\s*=\s*/';
+			. '\'\](\[\]|\[\'[^\']*\'\]|\["[^"]*"\])?\s*=\s*/';
 		if (!preg_match_all($pattern, $content, $matches, PREG_OFFSET_CAPTURE)) continue;
 
 		foreach ($matches[0] as $index => $match) {
