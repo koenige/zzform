@@ -655,14 +655,6 @@ function zz_record_rows($zz_tab, $mode, $display, $zz_record, $data = []) {
 				if (!empty($field['format']) AND empty($field['hide_format_in_title_desc']) AND $field_display === 'form') { 
 					// formatted fields: show that they are being formatted!
 					$out['data']['format'] = $field['format'];
-					$out['data']['format_link'] = wrap_path_helptext($field['format']);
-					if (!$out['data']['format_link']) {
-						$out['data']['format_link'] = wrap_setting('zzform_format['.$field['format'].'][link]');
-						if ($out['data']['format_link'])
-							wrap_error(sprintf(
-								'Please use a file in help folder instead of `zzformat[%s][link]`', $field['format']
-							), E_USER_DEPRECATED);
-					}
 				}
 			} elseif (!$data['tab']) {
 				// for main record, show empty cells

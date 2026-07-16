@@ -1,0 +1,15 @@
+# zzform module
+# HTML output: link to help text
+#
+# Part of »Zugzwang Project«
+# https://www.zugzwang.org/modules/zzform
+#
+# @author Gustaf Mossakowski <gustaf@koenige.org>
+# @copyright Copyright © 2026 Gustaf Mossakowski
+# @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
+#
+%%% if identifier %%%
+[<a href="%%% path default_help identifier %%%" target="help">%%% item title %%%</a>]
+%%% else %%%
+[%%% item title %%%]
+%%% endif %%%

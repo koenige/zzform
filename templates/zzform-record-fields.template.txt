@@ -54,8 +54,7 @@
 %%% if th_content %%%
 <th%%% item th_class " class='%s'" %%%>%%% item th_content %%%
 %%% if title_desc | format %%%<p class="desc">%%% item title_desc %%%
-%%% if format_link %%% [<a href="%%% item format_link %%%" target="help">%%% item format format=ucfirst %%%</a>]
-%%% elseif format %%%%%% item format format=ucfirst %%%%%% endif %%%
+%%% show format_link field=format %%%
 </p>
 %%% endif %%%
 </th>
