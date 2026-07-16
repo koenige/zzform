@@ -9,7 +9,7 @@
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 %%% if identifier %%%
-[<a href="%%% path default_help identifier %%%" target="help">%%% item title %%%</a>]
+[<a href="%%% path default_help package identifier %%%" target="help">%%% item title %%%</a>]
 %%% else %%%
 [%%% item title %%%]
 %%% endif %%%
