@@ -58,7 +58,7 @@
 2024-10-16-1	code	$zz_conf['url_self']	removed, use setting `request_uri` or other
 2024-11-22-1	code	zz_log_sql	use zz_db_log() instead	zzform/zzform/database.inc.php
 2024-11-24-1	code	tick_to_save	use a detail table with form_display 'set' instead
-2024-12-04-1	code	zzform_format	removed, use `request helptext *` instead	zzform/configuration/settings.cfg;zzform/configuration/zz_conf.cfg;zzform/zzform/record.inc.php
+2024-12-04-1	code	zzform_format	removed, use `request help *` instead	zzform/configuration/settings.cfg;zzform/configuration/zz_conf.cfg;zzform/zzform/record.inc.php
 2024-12-13-1	code	multi_function	now `batch_function`	zzform/configuration/zz.cfg;zzform/configuration/zz_conf.cfg
 2024-12-13-2	code	multi_delete	now `batch_delete`	zzform/configuration/zz.cfg;zzform/configuration/zz_conf.cfg
 2024-12-13-3	code	multi_edit	now `batch_edit`	zzform/configuration/zz.cfg;zzform/configuration/zz_conf.cfg
