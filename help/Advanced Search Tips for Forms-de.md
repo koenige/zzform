@@ -9,6 +9,8 @@
 # @copyright Copyright © 2025 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
+# Variables
+# audience = editor
 -->
 
 # Erweiterte Suche für Formulare
