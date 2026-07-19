@@ -741,11 +741,6 @@ function zz_prepare_fields($fields, $db_table, $multiple_times = false, $mode = 
 		if (!isset($fields[$no]['explanation'])) {
 			$fields[$no]['explanation'] = '';
 		}
-		if (!empty($fields[$no]['explanation_vars'])) {
-			if (!is_array($fields[$no]['explanation_vars']))
-				$fields[$no]['explanation_vars'] = [$fields[$no]['explanation_vars']];
-			$fields[$no]['explanation'] = vsprintf($fields[$no]['explanation'], $fields[$no]['explanation_vars']);
-		}
 		if (!$multiple_times) {
 			if (!empty($fields[$no]['sql'])) // replace whitespace with space
 				$fields[$no]['sql'] = preg_replace("/\s+/", " ", $fields[$no]['sql']);
