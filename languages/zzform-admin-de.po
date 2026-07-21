@@ -11,7 +11,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzform module\n"
-"POT-Creation-Date: 2026-07-14 17:56+0000\n"
+"POT-Creation-Date: 2026-07-21 13:32+0000\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Gustaf Mossakowski <gustaf@koenige.org>\n"
 "Language-Team: \n"
@@ -282,6 +282,10 @@ msgstr ""
 msgid "Array of validated field values"
 msgstr ""
 
+#: configuration/package.cfg:13
+msgid "zzform module"
+msgstr ""
+
 #: configuration/package.cfg:15
 msgid "Database-backed forms: lists, records, uploads, validation, and exports"
 msgstr ""
@@ -460,295 +464,291 @@ msgid "Position of filters related to list data"
 msgstr ""
 
 #: configuration/settings.cfg:240
-msgid "Link to the markdown manual"
-msgstr ""
-
-#: configuration/settings.cfg:246
 msgid "HTML code for headings of groups in tables"
 msgstr ""
 
-#: configuration/settings.cfg:250
+#: configuration/settings.cfg:244
 msgid "Graphics library to use with zzform (imagemagick or gd)"
 msgstr ""
 
-#: configuration/settings.cfg:256
+#: configuration/settings.cfg:250
 msgid "HTML prefix for all tables before h1 heading"
 msgstr ""
 
-#: configuration/settings.cfg:259
+#: configuration/settings.cfg:253
 msgid "Do not show line with no. of total records below list"
 msgstr ""
 
-#: configuration/settings.cfg:263
+#: configuration/settings.cfg:257
 msgid ""
 "Add host base to action URLs, only needed if HTML base element points to a "
 "different server"
 msgstr ""
 
-#: configuration/settings.cfg:267
+#: configuration/settings.cfg:261
 msgid "List of ICC profiles in the form of name of profile => path to profile"
 msgstr ""
 
-#: configuration/settings.cfg:271
+#: configuration/settings.cfg:265
 msgid ""
 "Use type = date for date inputs (allows lesser flexibility, does not allow "
 "incomplete dates)"
 msgstr ""
 
-#: configuration/settings.cfg:275
+#: configuration/settings.cfg:269
 msgid "Fields in POST data that are used by zzform internally"
 msgstr ""
 
-#: configuration/settings.cfg:290
+#: configuration/settings.cfg:284
 msgid "Limit of records shown in zzform’s lists"
 msgstr ""
 
-#: configuration/settings.cfg:296
+#: configuration/settings.cfg:290
 msgid "Maximum records in list shown on one page (for performance reasons)"
 msgstr ""
 
-#: configuration/settings.cfg:300
+#: configuration/settings.cfg:294
 msgid "Display links to limits as page no. or as no. of entries"
 msgstr ""
 
-#: configuration/settings.cfg:307
+#: configuration/settings.cfg:301
 msgid ""
 "Range in which links to records in list around current selection will be "
 "shown"
 msgstr ""
 
-#: configuration/settings.cfg:311
+#: configuration/settings.cfg:305
 msgid "Use logfile for state tokens and definition hashes for zzform"
 msgstr ""
 
-#: configuration/settings.cfg:316
+#: configuration/settings.cfg:310
 msgid "List of fields for zzform state token log"
 msgstr ""
 
-#: configuration/settings.cfg:323
+#: configuration/settings.cfg:317
 msgid "Logfile tokens might contain spaces?"
 msgstr ""
 
-#: configuration/settings.cfg:328
+#: configuration/settings.cfg:322
 msgid "Validity of entries in 404 error log"
 msgstr ""
 
-#: configuration/settings.cfg:333
+#: configuration/settings.cfg:327
 msgid "Log database changes?"
 msgstr ""
 
-#: configuration/settings.cfg:339
+#: configuration/settings.cfg:333
 msgid "Use field _logging.record_id (turning off is @deprecated)"
 msgstr ""
 
-#: configuration/settings.cfg:344
+#: configuration/settings.cfg:338
 msgid "Time in months to keep logging data in the database before archiving it"
 msgstr ""
 
-#: configuration/settings.cfg:349
+#: configuration/settings.cfg:343
 msgid "Maximum number of lines that are read from logging table"
 msgstr ""
 
-#: configuration/settings.cfg:354
+#: configuration/settings.cfg:348
 msgid "Maximum entries in select/option, if bigger than sub-select"
 msgstr ""
 
-#: configuration/settings.cfg:359
+#: configuration/settings.cfg:353
 msgid "Maximum length of values in select"
 msgstr ""
 
-#: configuration/settings.cfg:364
+#: configuration/settings.cfg:358
 msgid ""
 "List of fields to ignore when comparing two records while merging "
 "(last_update = for all tables, addresses.last_update = just for table "
 "addresses)"
 msgstr ""
 
-#: configuration/settings.cfg:369
+#: configuration/settings.cfg:363
 msgid "Max no. of detail records to add in a record form"
 msgstr ""
 
-#: configuration/settings.cfg:374
+#: configuration/settings.cfg:368
 msgid "Min no. of detail records to add in a record form"
 msgstr ""
 
-#: configuration/settings.cfg:379
+#: configuration/settings.cfg:373
 msgid ""
 "List of table name aliases used for better readability if a table name is "
 "displayed, e. g. if a record cannot be deleted because of database "
 "constraints"
 msgstr ""
 
-#: configuration/settings.cfg:383
+#: configuration/settings.cfg:377
 msgid "Packagecss is not used, therefore include zzform.css via zzform"
 msgstr ""
 
-#: configuration/settings.cfg:387
+#: configuration/settings.cfg:381
 msgid "Default value for rating fields, if `max` is not set"
 msgstr ""
 
-#: configuration/settings.cfg:392
+#: configuration/settings.cfg:386
 msgid "Symbol used for rating fields"
 msgstr ""
 
-#: configuration/settings.cfg:396
+#: configuration/settings.cfg:390
 msgid "Text that is displayed on link back to referring page"
 msgstr ""
 
-#: configuration/settings.cfg:401
+#: configuration/settings.cfg:395
 msgid ""
 "If more content than that inside #zzform should be replaced, use this DIV "
 "element with this ID instead."
 msgstr ""
 
-#: configuration/settings.cfg:405
+#: configuration/settings.cfg:399
 msgid ""
 "List with mappings of table to query strings with placeholder for results of "
 "query for editing revisions"
 msgstr ""
 
-#: configuration/settings.cfg:409
+#: configuration/settings.cfg:403
 msgid "List with mappings of table to query for editing revisions"
 msgstr ""
 
-#: configuration/settings.cfg:413
+#: configuration/settings.cfg:407
 msgid "List with mappings of table to URL for editing revisions"
 msgstr ""
 
-#: configuration/settings.cfg:417
+#: configuration/settings.cfg:411
 msgid "Allow to search, where to show search form"
 msgstr ""
 
-#: configuration/settings.cfg:425
+#: configuration/settings.cfg:419
 msgid "Always show a search form, even if there are no records"
 msgstr ""
 
-#: configuration/settings.cfg:429
+#: configuration/settings.cfg:423
 msgid "Secret key to protect public `zzhash`-hashes"
 msgstr ""
 
-#: configuration/settings.cfg:435
+#: configuration/settings.cfg:429
 msgid "Show list of records below record that is edited/deleted/added"
 msgstr ""
 
-#: configuration/settings.cfg:440
+#: configuration/settings.cfg:434
 msgid ""
 "Max no. of records where `deletable` query is used directly, otherwise a "
 "temporary table will be created"
 msgstr ""
 
-#: configuration/settings.cfg:445
+#: configuration/settings.cfg:439
 msgid "Separator between parts of page title"
 msgstr ""
 
-#: configuration/settings.cfg:449
+#: configuration/settings.cfg:443
 msgid "Create thumbnails in zzform as background process?"
 msgstr ""
 
-#: configuration/settings.cfg:454
+#: configuration/settings.cfg:448
 msgid ""
 "If it is not allowed to check the standard directories for binary "
 "executables, enter the path to the directory"
 msgstr ""
 
-#: configuration/settings.cfg:459
+#: configuration/settings.cfg:453
 msgid "Paths on server to upload binaries (e. g. imagemagick)"
 msgstr ""
 
-#: configuration/settings.cfg:470
+#: configuration/settings.cfg:464
 msgid "Paths for each individual binary used in upload"
 msgstr ""
 
-#: configuration/settings.cfg:475
+#: configuration/settings.cfg:469
 msgid ""
 "Use the system's PATH environment variable instead of checking specific "
 "paths; needed when open_basedir restrictions prevent direct path access"
 msgstr ""
 
-#: configuration/settings.cfg:480
+#: configuration/settings.cfg:474
 msgid "Option per binary to get verbose version information"
 msgstr ""
 
-#: configuration/settings.cfg:489
+#: configuration/settings.cfg:483
 msgid ""
 "In case there are problems renaming files from one mount to another, "
 "activate to copy file and then delete old file"
 msgstr ""
 
-#: configuration/settings.cfg:493
+#: configuration/settings.cfg:487
 msgid ""
 "Options to use always with all ImageMagick’s convert calls, e. g. for using "
 "a different temporary folder"
 msgstr ""
 
-#: configuration/settings.cfg:496
+#: configuration/settings.cfg:490
 msgid ""
 "Options to use with all ImageMagick’s convert calls, only if no custom "
 "options per filetype are defined"
 msgstr ""
 
-#: configuration/settings.cfg:500
+#: configuration/settings.cfg:494
 msgid "Log system() upload commands for debugging"
 msgstr ""
 
-#: configuration/settings.cfg:504
+#: configuration/settings.cfg:498
 msgid "Maximum file size in bytes that can be uploaded"
 msgstr ""
 
-#: configuration/settings.cfg:508
+#: configuration/settings.cfg:502
 msgid "Unwanted mimetypes and their replacements"
 msgstr ""
 
-#: configuration/settings.cfg:515
+#: configuration/settings.cfg:509
 msgid ""
 "Paths which indicate that a file is on a mounted file system; instead of "
 "rename, copy/unlink is used"
 msgstr ""
 
-#: configuration/settings.cfg:522
+#: configuration/settings.cfg:516
 msgid "Use `exiftool` to get information about file"
 msgstr ""
 
-#: configuration/settings.cfg:526
+#: configuration/settings.cfg:520
 msgid "Use `file` to get information about file"
 msgstr ""
 
-#: configuration/settings.cfg:531
+#: configuration/settings.cfg:525
 msgid "Use `ghostscript` to get information about file"
 msgstr ""
 
-#: configuration/settings.cfg:536
+#: configuration/settings.cfg:530
 msgid "Use `identify` to get information about file"
 msgstr ""
 
-#: configuration/settings.cfg:541
+#: configuration/settings.cfg:535
 msgid "Use `pdfinfo` to get information about file"
 msgstr ""
 
-#: configuration/settings.cfg:545
+#: configuration/settings.cfg:539
 msgid "Use Upndown WYSYWIG Editor for Markdown"
 msgstr ""
 
-#: configuration/settings.cfg:549
+#: configuration/settings.cfg:543
 msgid ""
 "Keep query string for internal zzform URL, e. g. if a form is used to set a "
 "password integrated in another page that is only identified by an existing "
 "query string"
 msgstr ""
 
-#: configuration/settings.cfg:553
+#: configuration/settings.cfg:547
 msgid "Extensions for images that the browser can display natively"
 msgstr ""
 
-#: configuration/settings.cfg:561
+#: configuration/settings.cfg:555
 msgid "Use Pagedown Editor (old: WMD) for Markdown"
 msgstr ""
 
-#: configuration/settings.cfg:566
+#: configuration/settings.cfg:560
 msgid "Possible language(s) for Pagedown Editor for Markdown"
 msgstr ""
 
-#: configuration/settings.cfg:578
+#: configuration/settings.cfg:572
 msgid "Use XHR for select fields; needs vxJS library"
 msgstr ""
 
@@ -3173,6 +3173,47 @@ msgstr "Relationale Integrität"
 msgid "Download SQL log"
 msgstr ""
 
+#: zzform/_functions.inc.php:163
+msgid "%s is not a possible type for %s()."
+msgstr ""
+
+#: zzform/_functions.inc.php:174 zzform/_functions.inc.php:185
+msgid "%s definition for %s: file is missing."
+msgstr ""
+
+#: zzform/_functions.inc.php:212
+msgid "No %s definition in file %s found."
+msgstr ""
+
+#: zzform/_functions.inc.php:287
+msgid "Unable to find ID field name for table %s."
+msgstr ""
+
+#: zzform/_functions.inc.php:338
+msgid "Unable to delete ID %s from table %s."
+msgstr ""
+
+#: zzform/_functions.inc.php:381
+msgid ""
+"Forbidden to insert data into table %s: Value %s is not allowed for field %s."
+msgstr ""
+
+#: zzform/_functions.inc.php:395
+msgid "Unable to insert data into table %s."
+msgstr ""
+
+#: zzform/_functions.inc.php:425
+msgid "Unable to update record in table %s. No unique key given."
+msgstr ""
+
+#: zzform/_functions.inc.php:443
+msgid "Unable to update record in table %s. No primary key found."
+msgstr ""
+
+#: zzform/_functions.inc.php:457
+msgid "Unable to update data in table %s."
+msgstr ""
+
 #: zzform/action.inc.php:528
 msgid "Update of timestamp failed (ID %d), query: %s"
 msgstr ""
@@ -3219,15 +3260,31 @@ msgstr ""
 msgid "Value condition has empty value in database (field %s)"
 msgstr ""
 
-#: zzform/database.inc.php:287
+#: zzform/configuration.inc.php:113
+msgid "Key $%s[\"%s\"] is set, but not used."
+msgstr ""
+
+#: zzform/copy.inc.php:69
+msgid "Could not copy %s %d"
+msgstr ""
+
+#: zzform/copy.inc.php:114
+msgid "Could not copy translation for table %s ID %d"
+msgstr ""
+
+#: zzform/database.inc.php:105
+msgid "Unable to evaluate regular expression for logging hook %s (Error: %s)"
+msgstr ""
+
+#: zzform/database.inc.php:284
 msgid "Statement not supported: %s"
 msgstr ""
 
-#: zzform/database.inc.php:323
+#: zzform/database.inc.php:320
 msgid "MySQL reports a problem."
 msgstr ""
 
-#: zzform/database.inc.php:654
+#: zzform/database.inc.php:651
 msgid "Field %s not found in table %s."
 msgstr ""
 
@@ -3239,41 +3296,46 @@ msgstr ""
 msgid "Export parameter not allowed: `%s`"
 msgstr ""
 
+#: zzform/functions.inc.php:1025
+msgid ""
+"zzform field definition incorrect, field has neither field_name nor title."
+msgstr ""
+
 # Record form: Heading
-#: zzform/functions.inc.php:1572
+#: zzform/functions.inc.php:1567
 msgid "Configuration does not allow this mode: %s"
 msgstr "Die Konfiguration erlaubt diesen Modus nicht: %s"
 
 # Record form: Heading
-#: zzform/functions.inc.php:1582
+#: zzform/functions.inc.php:1577
 msgid "Configuration does not allow this action: %s"
 msgstr "Die Konfiguration erlaubt diese Aktion nicht: %s"
 
 # Record form: Validation, displayed above form
-#: zzform/functions.inc.php:1822
+#: zzform/functions.inc.php:1817
 msgid "Creation of directory %s failed: Parent directory is not writable."
 msgstr ""
 "Erstellung des Verzeichnisses %s ist fehlgeschlagen: Hauptverzeichnis ist "
 "nicht schreibbar."
 
 # Record form: Validation, displayed above form
-#: zzform/functions.inc.php:1836
+#: zzform/functions.inc.php:1831
 msgid "Creation of directory %s failed."
 msgstr "Erstellung des Verzeichnisses %s ist fehlgeschlagen."
 
-#: zzform/functions.inc.php:2135
+#: zzform/functions.inc.php:2130
 msgid ""
 "It is not possible to depend on different fields in a single subtable (%s). "
 "Second field is ignored."
 msgstr ""
 
-#: zzform/functions.inc.php:2359
+#: zzform/functions.inc.php:2354
 msgid ""
 "Multiple records matching (maybe set \"ids\" for zzform_multi?): value %s in "
 "field %s. <br>SQL: %s"
 msgstr ""
 
-#: zzform/functions.inc.php:2364
+#: zzform/functions.inc.php:2359
 msgid "No entry found: value %s in field %s. <br>SQL: %s"
 msgstr ""
 
@@ -3325,8 +3387,20 @@ msgstr ""
 "Es war nicht möglich, ein gzip-Archiv der Datenbank-Aufzeichungsdatei für "
 "die Periode %s zu erstellen."
 
+#: zzform/output.inc.php:175
+msgid "First key of subtitle query needs to be numeric to be translated: %s"
+msgstr ""
+
 #: zzform/output.inc.php:679
 msgid "Table prefix is incorrect somehow: %s"
+msgstr ""
+
+#: zzform/output.inc.php:793
+msgid "Preformat function %s does not exist."
+msgstr ""
+
+#: zzform/path.inc.php:317
+msgid "Unknown definition key %s in %s"
 msgstr ""
 
 #: zzform/path.inc.php:363
@@ -3382,33 +3456,37 @@ msgstr ""
 msgid "No ID %s found (Query: %s)."
 msgstr ""
 
-#: zzform/record.inc.php:2457
+#: zzform/record.inc.php:2449
 msgid ""
 "For a subtable with a form_display = `set`, there needs to be a field with a "
 "field type `select`."
 msgstr ""
 
-#: zzform/record.inc.php:2588
+#: zzform/record.inc.php:2580
 msgid "Found a value selected that is set to non-selectable (table %s, ID %d)"
 msgstr ""
 
-#: zzform/record.inc.php:2634
+#: zzform/record.inc.php:2626
 msgid ""
 "For a subtable with form_display = `key_value`, a field with `subtable_key` "
 "= true is required."
 msgstr ""
 
-#: zzform/record.inc.php:2642
+#: zzform/record.inc.php:2634
 msgid ""
 "For a subtable with form_display = `key_value`, a field with "
 "`subtable_value` = true is required."
 msgstr ""
 
-#: zzform/record.inc.php:3308
+#: zzform/record.inc.php:3300
 msgid "Subtree with ID %s does not exist."
 msgstr ""
 
-#: zzform/record.inc.php:4099
+#: zzform/record.inc.php:3681
+msgid "Mismatch of no. of enum translations in field “%s”"
+msgstr ""
+
+#: zzform/record.inc.php:4091
 msgid "Configuration error. Missing upload_image details."
 msgstr ""
 
@@ -3426,30 +3504,62 @@ msgstr ""
 msgid "Search: empty key for %s found in query"
 msgstr ""
 
+#: zzform/session.inc.php:96
+msgid "Merging session data is not supported for type `%s`."
+msgstr ""
+
+#: zzform/sql.inc.php:97
+msgid "Table prefix for key %s (item %s) replaced which was not anticipated"
+msgstr ""
+
+#: zzform/state.inc.php:103
+msgid "POST data removed because of illegal zz_token value"
+msgstr ""
+
+#: zzform/state.inc.php:138
+msgid "Unable to find hash for token %s"
+msgstr ""
+
 #: zzform/sync.inc.php:48
 msgid "Import: File %s does not exist. "
 msgstr ""
 
-#: zzform/sync.inc.php:189
+#: zzform/sync.inc.php:181
+msgid ""
+"Please set an import type via <code>$setting[\"type\"]</code>. Possible "
+"types are: %s"
+msgstr ""
+
+#: zzform/sync.inc.php:187
 msgid ""
 "Please define a query for the existing records in the database with -- "
 "%s_existing --."
 msgstr ""
 
-#: zzform/sync.inc.php:376
+#: zzform/sync.inc.php:300
+msgid ""
+"New record has not enough values for the key. (%d expected, record looks as "
+"follows: %s)"
+msgstr ""
+
+#: zzform/sync.inc.php:374
 msgid "Could not fetch data from %s"
 msgstr ""
 
-#: zzform/sync.inc.php:558
+#: zzform/sync.inc.php:556
 msgid "not set"
 msgstr ""
 
-#: zzform/sync.inc.php:858
+#: zzform/sync.inc.php:856
 msgid "Field %s is missing in table definition."
 msgstr ""
 
 #: zzform/translations.inc.php:28
 msgid "`default_translationfields__table` must be set."
+msgstr ""
+
+#: zzform/translations.inc.php:75
+msgid "Translations script for `%s` does not exist!"
 msgstr ""
 
 #: zzform/upload.inc.php:552
@@ -3526,6 +3636,16 @@ msgid ""
 "files, please adjust your configuration settings."
 msgstr ""
 
+#: zzform/upload.inc.php:2987
+msgid ""
+"Set `zzform_upload_binary_version_option` for command `%s` to get version "
+"information."
+msgstr ""
+
+#: zzform/upload.inc.php:2993
+msgid "Binary command `%s` not found."
+msgstr ""
+
 #: zzform/validate.inc.php:482
 msgid "%s(): calculation did not work. [%s]"
 msgstr ""
@@ -3533,6 +3653,11 @@ msgstr ""
 #: zzform/zzform.php:102
 msgid "There is no table definition available ('fields'). Please check."
 msgstr ""
+
+# Checks
+#: zzform/zzform.php:321
+msgid "Merging of record is not allowed."
+msgstr "Das Zusammenführen von Einträgen ist nicht erlaubt."
 
 #: zzform/zzform.php:590
 msgid "Hash of script and ID differs from secret key (hash %s, secret %s)."

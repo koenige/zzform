@@ -11,7 +11,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzform\n"
-"POT-Creation-Date: 2026-07-09 19:40+0000\n"
+"POT-Creation-Date: 2026-07-21 13:32+0000\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Gustaf Mossakowski <gustaf@koenige.org>\n"
 "Language-Team: \n"
@@ -170,6 +170,7 @@ msgstr "Wszystkie"
 
 # List view: Table head
 #: templates/zzform-list-table.template.txt:21
+#: zzbrick_tables/revisiondata.php:39
 msgid "Action"
 msgstr "Akcja"
 
@@ -263,7 +264,7 @@ msgstr "Nowy …"
 
 # Link to edit a new value for detail record via dropdown
 # Record form
-#: templates/zzform-record-field.template.txt:18 zzform/record.inc.php:1967
+#: templates/zzform-record-field.template.txt:18 zzform/record.inc.php:1959
 msgid "Edit …"
 msgstr "Zmienić …"
 
@@ -292,7 +293,7 @@ msgstr "Maksymalna wielkość pliku wynosi %s."
 
 # radio buttons, first entry
 # Record form: Select
-#: templates/zzform-record-radio.template.txt:27 zzform/record.inc.php:3395
+#: templates/zzform-record-radio.template.txt:27 zzform/record.inc.php:3387
 msgid "No selection"
 msgstr "brak wyboru"
 
@@ -320,12 +321,12 @@ msgid "Possible value: %s"
 msgstr ""
 
 # Record form: Select
-#: templates/zzform-record-select.template.txt:17 zzform/record.inc.php:1014
+#: templates/zzform-record-select.template.txt:17 zzform/record.inc.php:1006
 msgid "No selection possible."
 msgstr "Wybór niemożliwy"
 
 # Record form: field output
-#: templates/zzform-record-select.template.txt:25 zzform/record.inc.php:1751
+#: templates/zzform-record-select.template.txt:25 zzform/record.inc.php:1743
 msgid "will be added automatically"
 msgstr "zostanie automatycznie dodane"
 
@@ -361,49 +362,98 @@ msgstr "wszystkich polach"
 msgid "Show all records (without search filter)"
 msgstr "Wszystkie rekordy"
 
+#: zzbrick_tables/revisiondata.php:16
+msgid "Revisiondata"
+msgstr ""
+
+#: zzbrick_tables/revisiondata.php:19 zzbrick_tables/revisions.php:21
+msgid "ID"
+msgstr ""
+
+#: zzbrick_tables/revisiondata.php:23
+msgid "Revision"
+msgstr ""
+
+#: zzbrick_tables/revisiondata.php:25 zzbrick_tables/revisions.php:25
+msgid "Table"
+msgstr ""
+
+#: zzbrick_tables/revisiondata.php:28 zzbrick_tables/revisions.php:28
+msgid "Record"
+msgstr ""
+
 # Record form: Revision
-#: zzbrick_tables/revisiondata.php
+#: zzbrick_tables/revisiondata.php:30
 msgid "Changed values"
 msgstr ""
 
 # Record form: Revision
-#: zzbrick_tables/revisiondata.php
+#: zzbrick_tables/revisiondata.php:34
 msgid "Complete values"
 msgstr ""
 
+#: zzbrick_tables/revisiondata.php:42
+msgid "delete"
+msgstr ""
+
 # Record form: Revision
-#: zzbrick_tables/revisiondata.php
+#: zzbrick_tables/revisiondata.php:42
 msgid "ignore"
 msgstr ""
 
-# Record form: Revision
-#: zzbrick_tables/revisions.php
-msgid "Data"
+#: zzbrick_tables/revisiondata.php:42
+msgid "insert"
+msgstr ""
+
+#: zzbrick_tables/revisiondata.php:42
+msgid "update"
 msgstr ""
 
 # Record form: Revision
-#: zzbrick_tables/revisions.php
+#: zzbrick_tables/revisions.php:18
 msgid "Revisions"
 msgstr ""
 
-# Record form: Revision
-#: zzbrick_tables/revisions.php
-msgid "Script URL"
+#: zzbrick_tables/revisions.php:37
+msgid "User"
+msgstr ""
+
+#: zzbrick_tables/revisions.php:41
+msgid "Status"
 msgstr ""
 
 # List view: Revision
-#: zzbrick_tables/revisions.php
+#: zzbrick_tables/revisions.php:44
 msgid "historic"
 msgstr ""
 
 # List view: Revision
-#: zzbrick_tables/revisions.php
+#: zzbrick_tables/revisions.php:44
 msgid "live"
 msgstr ""
 
 # List view: Revision
-#: zzbrick_tables/revisions.php
+#: zzbrick_tables/revisions.php:44
 msgid "pending"
+msgstr ""
+
+#: zzbrick_tables/revisions.php:47
+msgid "Created"
+msgstr ""
+
+# Record form: Revision
+#: zzbrick_tables/revisions.php:53 zzform/_functions.inc.php:384
+#: zzform/_functions.inc.php:398 zzform/_functions.inc.php:460
+msgid "Data"
+msgstr ""
+
+# Record form: Revision
+#: zzbrick_tables/revisions.php:60
+msgid "Script URL"
+msgstr ""
+
+#: zzbrick_tables/revisions.php:64
+msgid "Last update"
 msgstr ""
 
 #: zzbrick_xhr/configs.inc.php:34 zzbrick_xhr/dependencies.inc.php:31
@@ -435,7 +485,7 @@ msgstr ""
 # Record form: Validation, displayed inside form
 #: zzbrick_xhr/configs.inc.php:77 zzbrick_xhr/configs.inc.php:83
 #: zzbrick_xhr/zzform.inc.php:137 zzbrick_xhr/zzform.inc.php:143
-#: zzform/functions.inc.php:2336
+#: zzform/functions.inc.php:2341
 msgid "Please enter more characters."
 msgstr "Prosze podać więcej liter."
 
@@ -453,56 +503,26 @@ msgstr ""
 msgid "No SQL query was found. Values: %s"
 msgstr ""
 
-#: zzform/_functions.inc.php:288
-msgid "Unable to find ID field name for table %s."
-msgstr ""
-
-#: zzform/_functions.inc.php:323
+#: zzform/_functions.inc.php:326
 msgid "Deletion of IDs %s impossible."
 msgstr ""
 
-#: zzform/_functions.inc.php:334
-msgid "Unable to delete ID %s from table %s. Reason: %s"
+#: zzform/_functions.inc.php:341 zzform/_functions.inc.php:398
+#: zzform/_functions.inc.php:460
+msgid "Reason"
 msgstr ""
 
-#: zzform/_functions.inc.php:358
+#: zzform/_functions.inc.php:366
 msgid "Unable to insert record into table %s."
 msgstr ""
 
-#: zzform/_functions.inc.php:373
-msgid ""
-"Forbidden to insert data %s into table %s: Value %s is not allowed for field "
-"%s. Reason: %s"
-msgstr ""
-
-#: zzform/_functions.inc.php:383
-msgid "Unable to insert data %s into table %s. Reason: %s"
-msgstr ""
-
-#: zzform/_functions.inc.php:409
-msgid "Unable to update record with data %s in table %s. No unique key given."
-msgstr ""
-
-#: zzform/_functions.inc.php:427
-msgid "Unable to update record with data %s in table %s. No primary key found."
-msgstr ""
-
-#: zzform/_functions.inc.php:441
-msgid "Unable to update data %s in table %s. Reason: %s"
-msgstr ""
-
 # Record form: Detail record
-#: zzform/action.inc.php
+#: zzform/action.inc.php:125
 msgid "Minimum of records for table `%s` was not met (%d)."
 msgstr "Minimalne rekordów w tabela '%s' nie było spełnione (%d)."
 
 # Record form: Validation, displayed above form
-#: zzform/action.inc.php
-msgid "String <em>“%s”</em> is not allowed"
-msgstr "Ciąg znaków <em>\"%s\"</em> nie jest dozwolone"
-
-# Record form: Validation, displayed above form
-#: zzform/action.inc.php zzform/preparation.inc.php
+#: zzform/action.inc.php:129 zzform/preparation.inc.php:1535
 msgid "Value missing in field <strong>%s</strong>."
 msgstr "Brak danych <strong>%s</strong>."
 
@@ -557,6 +577,11 @@ msgid ""
 msgstr ""
 
 # Record form: Validation, displayed above form
+#: zzform/action.inc.php:2606
+msgid "String <em>“%s”</em> is not allowed"
+msgstr "Ciąg znaków <em>\"%s\"</em> nie jest dozwolone"
+
+# Record form: Validation, displayed above form
 #: zzform/action.inc.php:2628
 msgid "Value “%s” needs to be greater than “%s”."
 msgstr ""
@@ -599,7 +624,7 @@ msgid "Your new password could not be saved. Please try a different one."
 msgstr "Nie można zapisać ponownie nowe hasło. Spróbuj inną."
 
 # Record form: Validation, displayed above form
-#: zzform/action.inc.php:2752 zzform/database.inc.php:508
+#: zzform/action.inc.php:2752 zzform/database.inc.php:505
 msgid ""
 "Duplicate entry in this table. Please check whether the record you were "
 "about to enter already exists or you’ll have to change the values you "
@@ -696,26 +721,8 @@ msgstr ""
 msgid "ten"
 msgstr ""
 
-#: zzform/configuration.inc.php:65
-msgid "Deprecated notation $%s[\"%s\"] found. Please use $zz[\"%s\"] instead."
-msgstr ""
-
-#: zzform/configuration.inc.php:79
-msgid ""
-"Deprecated notation $%s[\"%s\"] found. Please use wrap_setting(\"%s\") "
-"instead."
-msgstr ""
-
-#: zzform/configuration.inc.php:87
-msgid "Deprecated notation $%s[\"%s\"] found. Please use $%s[\"%s\"] instead."
-msgstr ""
-
-#: zzform/configuration.inc.php:113
-msgid "Key $%s[\"%s\"] is set, but not used."
-msgstr ""
-
 # Error handling
-#: zzform/database.inc.php:524
+#: zzform/database.inc.php:521
 msgid "Database error"
 msgstr "Błąd bazy danych"
 
@@ -815,17 +822,17 @@ msgstr ""
 msgid "Adding value %s in field %s is forbidden here"
 msgstr ""
 
-#: zzform/functions.inc.php:1061
+#: zzform/functions.inc.php:1066
 msgid "Only one field may be defined as `id`!"
 msgstr ""
 
 # Record form: Validation, displayed inside form
-#: zzform/functions.inc.php:2274
+#: zzform/functions.inc.php:2279
 msgid "No entry found. Try less characters."
 msgstr "Nie odnaleziono. Prosze spróbować z większą ilością znaków."
 
 # Record form: Validation, displayed inside form
-#: zzform/functions.inc.php:2290 zzform/functions.inc.php:2310
+#: zzform/functions.inc.php:2295 zzform/functions.inc.php:2315
 msgid "Please make a different selection."
 msgstr ""
 
@@ -1005,13 +1012,13 @@ msgstr "Plik: "
 
 # Record form: Validation, displayed above form
 #: zzform/preparation.inc.php
-msgid "Nothing was uploaded in field <strong>%s</strong>."
-msgstr "Nic nie zostało przesłane w polu <strong>%s</strong>."
-
-# Record form: Validation, displayed above form
-#: zzform/preparation.inc.php
 msgid "Value incorrect in field <strong>%s</strong>."
 msgstr "Błąd danych <strong>%s</strong>."
+
+# Record form: Validation, displayed above form
+#: zzform/preparation.inc.php:1522 zzform/preparation.inc.php:1530
+msgid "Nothing was uploaded in field <strong>%s</strong>."
+msgstr "Nic nie zostało przesłane w polu <strong>%s</strong>."
 
 # Record form: Heading
 #: zzform/record.inc.php
@@ -1133,59 +1140,59 @@ msgid "– empty –"
 msgstr ""
 
 # Record form: Select
-#: zzform/record.inc.php:1014
+#: zzform/record.inc.php:1006
 msgid "No source defined"
 msgstr "Brak podanego źródła"
 
 # select/deselect checkboxes
 # Record form: Select
-#: zzform/record.inc.php:1728
+#: zzform/record.inc.php:1720
 msgid "Select all"
 msgstr "Wybierz wszystkie"
 
 # select/deselect checkboxes
 # Record form: Select
-#: zzform/record.inc.php:1729
+#: zzform/record.inc.php:1721
 msgid "Deselect all"
 msgstr "Usuń zaznaczenie wszystkich"
 
 # Record form: identifier, hidden etc.
-#: zzform/record.inc.php:1824
+#: zzform/record.inc.php:1816
 msgid "Record for <strong>%s</strong> does not exist. (ID: %s)"
 msgstr "Rekord dla <strong>%s</strong> nie istnieje. (ID: %s)"
 
 # Record form: foreign record
-#: zzform/record.inc.php:1959
+#: zzform/record.inc.php:1951
 msgid "No data available."
 msgstr "Brak danych"
 
 # Record form: foreign record
-#: zzform/record.inc.php:1964
+#: zzform/record.inc.php:1956
 msgid "No entry possible. First save this record."
 msgstr "Zapisz przed edycją."
 
 # Record form: Change password
-#: zzform/record.inc.php:1982
+#: zzform/record.inc.php:1974
 msgid "hidden"
 msgstr "Ukryte"
 
 # Record form: Date field
-#: zzform/record.inc.php:2303
+#: zzform/record.inc.php:2295
 msgid "Date"
 msgstr ""
 
 # Record form: Datetime field
-#: zzform/record.inc.php:2329
+#: zzform/record.inc.php:2321
 msgid "Date and time"
 msgstr ""
 
 # Record form: File upload
-#: zzform/record.inc.php:4095
+#: zzform/record.inc.php:4087
 msgid "File upload is currently impossible."
 msgstr ""
 
 # Error handling
-#: zzform/record.inc.php:4096
+#: zzform/record.inc.php:4088
 msgid ""
 "An error occured. We are working on the solution of this problem. Sorry for "
 "your inconvenience. Please try again later."
@@ -1193,44 +1200,40 @@ msgstr ""
 
 # no value available for display, should be abbreviated
 # Record form: field output
-#: zzform/record.inc.php:4208
+#: zzform/record.inc.php:4200
 msgid "<abbr title=\"Not available\">N/A</abbr>"
 msgstr "Niedostępne"
 
 # Backend: Development
-#: zzform/record.inc.php:4253
+#: zzform/record.inc.php:4245
 msgid "Script configuration error. No display field set."
 msgstr "Błąd konfiguracji skryptu. Nie zestaw pole wyświetlacza."
 
 # Record form: field output
-#: zzform/record.inc.php:4266
+#: zzform/record.inc.php:4258
 msgid "calculated field"
 msgstr "Pole wyliczone"
 
 # Record form: identifier, hidden etc.
-#: zzform/record.inc.php:4349
+#: zzform/record.inc.php:4341
 msgid "Would be changed on update"
 msgstr "Zmiany na aktualizację"
 
 # e. g. Add Address, Add Phone Number ...
 # Record form: Detail record
-#: zzform/record.inc.php:4425
+#: zzform/record.inc.php:4417
 msgid "Add %s"
 msgstr "Dodaj %s"
 
 # Record form: Detail record
-#: zzform/record.inc.php:4434
+#: zzform/record.inc.php:4426
 msgid "Remove"
 msgstr "Usuń"
 
 # Record form: Detail record
-#: zzform/record.inc.php:4438
+#: zzform/record.inc.php:4430
 msgid "Remove %s"
 msgstr "Usunąć %s"
-
-#: zzform/translations.inc.php:75
-msgid "Translations script for `%s` does not exist!"
-msgstr ""
 
 # Record form: File upload
 #: zzform/upload.inc.php:354
@@ -1345,14 +1348,13 @@ msgstr "Obsługiwane typy plików:"
 msgid "%d records merged successfully"
 msgstr ""
 
-# Checks
-#: zzform/zzform.php:321
-msgid "Merging of record is not allowed."
-msgstr ""
-
 # Record form: Validation, resubmit because of logout
 #: zzform/zzform.php:358
 msgid ""
 "You had been logged out automatically. Therefore, your changes were not yet "
 "saved. Please submit the form again."
+msgstr ""
+
+#: zzwrap/extract.inc.php:362
+msgid "translatable key \"%s\" uses wrap_text()"
 msgstr ""
