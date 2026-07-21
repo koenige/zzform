@@ -160,7 +160,7 @@ function zzform_include($file, $values = [], $type = 'tables', $brick = []) {
 	}
 
 	if (!in_array($type, ['tables', 'forms', 'subs', 'field', 'filter']))
-		wrap_error(sprintf('%s is not a possible type for %s().', ucfirst($type), __FUNCTION__), E_USER_ERROR);
+		wrap_error(['%s is not a possible type for %s().', ['values' => [ucfirst($type), __FUNCTION__]]], E_USER_ERROR);
 	
 	$path = in_array($type, ['subs', 'field', 'filter']) ? 'zzform_%s/%s.php' : 'zzbrick_%s/%s.php';
 	$file = str_replace('_', '-', $file);
@@ -171,7 +171,7 @@ function zzform_include($file, $values = [], $type = 'tables', $brick = []) {
 	}
 	if (!$files)
 		if (!empty($brick['parameter'])) wrap_quit(404); // looking with *
-		else wrap_error(sprintf('%s definition for %s: file is missing.', ucfirst($type), $file), E_USER_ERROR);
+		else wrap_error(['%s definition for %s: file is missing.', ['values' => [ucfirst($type), $file]]], E_USER_ERROR);
 
 	// allow to use script without recursion
 	$backtrace = debug_backtrace();
@@ -182,7 +182,7 @@ function zzform_include($file, $values = [], $type = 'tables', $brick = []) {
 		unset($files[$key]);
 	}
 	if (!$files)
-		wrap_error(sprintf('%s definition for %s: file is missing.', ucfirst($type), $file), E_USER_ERROR);
+		wrap_error(['%s definition for %s: file is missing.', ['values' => [ucfirst($type), $file]]], E_USER_ERROR);
 
 	if (key($files) === 'default' AND count($files) > 1)
 		array_shift($files);
@@ -209,7 +209,7 @@ function zzform_include($file, $values = [], $type = 'tables', $brick = []) {
 	} else {
 		$def = $zz ?? $zz_sub ?? [];
 		if (!$def)
-			wrap_error(sprintf('No %s definition in file %s found.', $type, $file), E_USER_ERROR);
+			wrap_error(['No %s definition in file %s found.', ['values' => [$type, $file]]], E_USER_ERROR);
 	}
 	return $def;
 }
@@ -247,9 +247,8 @@ function zzform_batch_def($table, $settings = []) {
 		$def['type'] = 'tables';
 	}
 	$def['table_script'] = str_replace('_', '-', trim($table, '_'));
-	$def['msg'] = ($msg = wrap_text_msg($settings)) ? $msg.' ' : '';
+	$def['msg'] = wrap_text_msg($settings);
 	$msg_2 = $settings['msg_2'] ?? '';
-	if ($msg_2) $msg_2 = sprintf(' %s', $msg_2);
 
 	$zz = zzform_include($def['table_script'], [], $def['type']);
 	
@@ -284,10 +283,13 @@ function zzform_batch_def($table, $settings = []) {
 	}
 	$def['sql'] = $zz['sql'];
 	if (empty($def['primary_key'])) {
-		wrap_error($def['msg'].wrap_text(
-			'Unable to find ID field name for table %s.',
-			['values' => [$def['table'], implode(', ', $ids)]]
-		).$msg_2, E_USER_ERROR, $def['error_settings']);
+		wrap_error([
+			'Unable to find ID field name for table %s.', [
+				'values' => [$def['table']],
+				'intro' => $def['msg'],
+				'outro' => $msg_2
+			]
+		], E_USER_ERROR, $def['error_settings']);
 	}
 	if (!empty($zz['add'])) {
 		foreach ($zz['add'] as $add) {
@@ -320,7 +322,9 @@ function zzform_delete($table, $ids, $error_type = E_USER_NOTICE, $settings = []
 	if (!is_array($ids)) $ids = [$ids];
 	// @todo add support for UNIQUE ids with else
 
-	$settings['msg_2'] = wrap_text('Deletion of IDs %s impossible.', ['values' => [implode(', ', $ids)]]);
+	$settings['msg_2'] = wrap_text(
+		'Deletion of IDs %s impossible.', ['values' => [implode(', ', $ids)]]
+	);
 	$def = zzform_batch_def($table, $settings);
 
 	$deleted_ids = [];
@@ -330,10 +334,14 @@ function zzform_delete($table, $ids, $error_type = E_USER_NOTICE, $settings = []
 		$values['POST'][$def['primary_key']] = $id;
 		$ops = zzform_multi($def['table_script'], $values, $def['type']);
 		if (!$ops['id']) {
-			wrap_error($def['msg'].wrap_text(
-				'Unable to delete ID %s from table %s. Reason: %s',
-				['values' => [$id, $def['table'], json_encode($ops['error'])]]
-			), $error_type, $def['error_settings']);
+			wrap_error([
+				'Unable to delete ID %s from table %s.',
+				[
+					'values' => [$id, $def['table']],
+					'data' => [wrap_text('Reason') => $ops['error']],
+					'intro' => $def['msg']
+				]
+			], $error_type, $def['error_settings']);
 		} else {
 			$deleted_ids[] = $ops['id'];
 		}
@@ -369,20 +377,28 @@ function zzform_insert($table, $data, $error_type = E_USER_NOTICE, $settings = [
 		} elseif (in_array('', $ids)) {
 			// do nothing
 		} else {
-			wrap_error($def['msg'].wrap_text(
-				'Forbidden to insert data %s into table %s: Value %s is not allowed for field %s. Reason: %s',
-				['values' => [json_encode($data), $def['table'], $data[$field_name], $field_name, json_encode($ops['error'])]]
-			), $error_type, $def['error_settings']);
+			wrap_error([
+				'Forbidden to insert data into table %s: Value %s is not allowed for field %s.',
+				[
+					'values' => [$def['table'], $data[$field_name], $field_name],
+					'data' => [wrap_text('Data') => $data],
+					'intro' => $def['msg']
+				]
+			], $error_type, $def['error_settings']);
 			return NULL;
 		}
 	}
 	$values['POST'] = $data;
 	$ops = zzform_multi($def['table_script'], $values, $def['type']);
 	if (!$ops['id'] AND !$ops['ignore']) {
-		wrap_error($def['msg'].wrap_text(
-			'Unable to insert data %s into table %s. Reason: %s',
-			['values' => [json_encode($data), $def['table'], json_encode($ops['error'])]]
-		), $error_type, $def['error_settings']);
+		wrap_error([
+			'Unable to insert data into table %s.',
+			[
+				'values' => [$def['table']],
+				'data' => [wrap_text('Data') => $data, wrap_text('Reason') => $ops['error']],
+				'intro' => $def['msg']
+			]
+		], $error_type, $def['error_settings']);
 		return NULL;
 	}
 	return $ops['id'];
@@ -405,10 +421,10 @@ function zzform_update($table, $data, $error_type = E_USER_NOTICE, $settings = [
 	// allow to update with unique value instead of primary key, too
 	if (empty($data[$def['primary_key']])) {
 		if (!$def['uniques']) {
-			wrap_error($def['msg'].wrap_text(
-				'Unable to update record with data %s in table %s. No unique key given.',
-				['values' => [json_encode($data), $def['table']]]
-			), $error_type, $def['error_settings']);
+			wrap_error([
+				'Unable to update record in table %s. No unique key given.',
+				['values' => [$def['table']], 'data' => $data, 'intro' => $def['msg']]
+			], $error_type, $def['error_settings']);
 			return NULL;
 		}
 		foreach ($def['uniques'] as $unique_fields) {
@@ -423,10 +439,10 @@ function zzform_update($table, $data, $error_type = E_USER_NOTICE, $settings = [
 			if ($data[$def['primary_key']]) break;
 		}
 		if (empty($data[$def['primary_key']])) {
-			wrap_error($def['msg'].wrap_text(
-				'Unable to update record with data %s in table %s. No primary key found.',
-				['values' => [json_encode($data), $def['table']]]
-			), $error_type, $def['error_settings']);
+			wrap_error([
+				'Unable to update record in table %s. No primary key found.',
+				['values' => [$def['table']], 'data' => $data, 'intro' => $def['msg']]
+			], $error_type, $def['error_settings']);
 			return NULL;
 		}
 	}
@@ -437,10 +453,14 @@ function zzform_update($table, $data, $error_type = E_USER_NOTICE, $settings = [
 	$values['POST'] = $data;
 	$ops = zzform_multi($def['table_script'], $values, $def['type']);
 	if (!$ops['id'] AND !$ops['ignore']) {
-		wrap_error($def['msg'].wrap_text(
-			'Unable to update data %s in table %s. Reason: %s',
-			['values' => [json_encode($data), $def['table'], json_encode($ops['error'])]]
-		), $error_type, $def['error_settings']);
+		wrap_error([
+			'Unable to update data in table %s.',
+			[
+				'values' => [$def['table']],
+				'data' => [wrap_text('Data') => $data, wrap_text('Reason') => $ops['error']],
+				'intro' => $def['msg']
+			],
+		], $error_type, $def['error_settings']);
 		return NULL;
 	}
 	if ($ops['result'] === 'no_update') return 0;

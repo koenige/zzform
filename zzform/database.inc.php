@@ -102,10 +102,7 @@ function zz_db_log_hook($sql) {
 			$pattern = zz_sql_like_to_pcre($query[0]);
 			if (!preg_match($pattern, $sql)) {
 				if ($error = preg_last_error())
-					wrap_error(sprintf(
-						'Unable to evaluate regular expression for logging hook %s (Error: %s)',
-						$pattern, $error
-					));
+					wrap_error(['Unable to evaluate regular expression for logging hook %s (Error: %s)', ['values' => [$pattern, $error]]]);
 				continue;
 			}
 			$files = wrap_include('zzform/logging', $package);

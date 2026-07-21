@@ -93,8 +93,10 @@ function zz_sql_prefix_change_zz(&$item, $key) {
 	];
 	if (in_array($key, $sql_fields)) return false;
 	if (function_exists('wrap_error')) {
-		wrap_error(sprintf('Table prefix for key %s (item %s) replaced'
-		.' which was not anticipated', $key, $item), E_USER_NOTICE);
+		wrap_error([
+			'Table prefix for key %s (item %s) replaced which was not anticipated',
+			['values' => [$key, $item]]
+		], E_USER_NOTICE);
 	}
 }
 

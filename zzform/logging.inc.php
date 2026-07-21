@@ -168,10 +168,10 @@ function zz_logging_save($period, $data) {
 		$logfile = sprintf('%s/%s-%d-logging.jsonl.gz', $logdir, $period, $i);
 		$i++;
 		if ($i > 1000) {
-			wrap_error(wrap_text(
+			wrap_error([
 				'Archive file for database logging for period %s already exists.'
 				, ['values' => [$period]]
-			), E_USER_WARNING);
+			], E_USER_WARNING);
 			return false;
 		}
 	}
@@ -186,10 +186,10 @@ function zz_logging_save($period, $data) {
 	fclose($stream);
 
 	if (!file_exists($logfile)) {
-		wrap_error(wrap_text(
+		wrap_error([
 			'Archive file for database logging for period %s was not created.'
 			, ['values' => [$month]]
-		), E_USER_WARNING);
+		], E_USER_WARNING);
 		return false;
 	}
 
@@ -197,10 +197,10 @@ function zz_logging_save($period, $data) {
 	wrap_include('archive', 'zzwrap');
 	$success = wrap_gzip($logfile);
 	if (!$success) {
-		wrap_error(wrap_text(
+		wrap_error([
 			'Unable to gzip archive file for database logging for period %s.'
 			, ['values' => [$month]]
-		), E_USER_WARNING);
+		], E_USER_WARNING);
 		return false;
 	}
 	return true;

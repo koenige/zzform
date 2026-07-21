@@ -172,7 +172,7 @@ function zz_output_heading_nice($heading, $zz) {
 					if (!empty($tables[0]) AND is_numeric(reset($heading_values)))
 						$heading_values = wrap_translate($heading_values, $tables[0]);
 					elseif (!empty($tables[0]))
-						wrap_error(sprintf('First key of subtitle query needs to be numeric to be translated: %s', $wh_sql), E_USER_NOTICE);
+						wrap_error(['First key of subtitle query needs to be numeric to be translated: %s', ['values' => [$wh_sql]]], E_USER_NOTICE);
 					foreach ($subheading['var'] as $myfield)
 						$heading_addition[$i][] = $heading_values[$myfield];
 				}
@@ -790,7 +790,7 @@ function zz_field_format($value, $field) {
 	$field_type = zz_get_fieldtype($field);
 	if (!empty($field['preformat'])) {
 		if (!function_exists($field['preformat']))
-			wrap_error(sprintf('Preformat function %s does not exist.', $field['preformat']), E_USER_ERROR);
+			wrap_error(['Preformat function %s does not exist.', ['values' => [$field['preformat']]]], E_USER_ERROR);
 		if (!empty($field['preformat_parameters'])) {
 			$value = $field['preformat']($value, $field['preformat_parameters']);
 		} else {

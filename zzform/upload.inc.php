@@ -2984,13 +2984,13 @@ function zz_upload_binary($command, $log_error = true) {
 function zz_upload_binary_version($command, $log_error = true) {
 	$options = wrap_setting('zzform_upload_binary_version_option['.$command.']');
 	if (!$options) {
-		wrap_error(sprintf('Set `zzform_upload_binary_version_option` for command `%s` to get version information.', $command), E_USER_WARNING);
+		wrap_error(['Set `zzform_upload_binary_version_option` for command `%s` to get version information.', ['values' => [$command]]], E_USER_WARNING);
 		return '';
 	}
 	$cmd = zz_upload_binary($command, $log_error);
 	if (!$cmd) {
 		if ($log_error)
-			wrap_error(sprintf('Binary command `%s` not found.', $command), E_USER_WARNING);
+			wrap_error(['Binary command `%s` not found.', ['values' => [$command]]], E_USER_WARNING);
 		return '';
 	}
 	$cmd = sprintf('%s %s', $cmd, $options);

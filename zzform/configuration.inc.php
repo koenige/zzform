@@ -110,7 +110,7 @@ function zz_configuration_unused($cfg_key, $values, $settings) {
 		if (is_array($value) && !$ignored) zz_configuration_unused($cfg_key.'["'.$key.'"]', $value, $settings[$key] ?? []);
 		if (array_key_exists($key, $settings)) continue;
 		if ($ignored) continue;
-		wrap_error(wrap_text('Key $%s["%s"] is set, but not used.', ['values' => [$cfg_key, $key]]), E_USER_NOTICE);
+		wrap_error(['Key $%s["%s"] is set, but not used.', ['values' => [$cfg_key, $key]]], E_USER_NOTICE);
 	}
 }
 

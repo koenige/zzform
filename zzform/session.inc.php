@@ -93,7 +93,7 @@ function zz_session_read($type, $data = [], $use_token_over_session = false) {
 	if (!$data) return $session;
 
 	if ($type !== 'filedata') {
-		wrap_error(sprintf('Merging session data is not supported for type `%s`.', $type));
+		wrap_error(['Merging session data is not supported for type `%s`.', ['values' => [$type]]]);
 		return $session;
 	}
 	foreach ($data as $field_name => $files) {

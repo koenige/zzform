@@ -314,7 +314,7 @@ function zz_path($def, $record) {
 			break;
 
 		default:
-			wrap_error(sprintf('Unknown definition key %s in %s', $part, __FUNCTION__), E_USER_NOTICE);
+			wrap_error(['Unknown definition key %s in %s', ['values' => [$part, __FUNCTION__]]], E_USER_NOTICE);
 			break;
 		}
 	}

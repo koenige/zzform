@@ -177,18 +177,16 @@ function zz_sync_defaults($setting) {
 	case 'sparql':
 		break;
 	default:
-		wrap_error(
-			sprintf(
-				'Please set an import type via <code>$setting["type"]</code>. Possible types are: %s'
-				, implode(', ', ['csv', 'sql', 'sparql'])
-			), E_USER_ERROR
-		);
+		wrap_error([
+			'Please set an import type via <code>$setting["type"]</code>. Possible types are: %s',
+			['values' => [implode(', ', ['csv', 'sql', 'sparql'])]]
+		], E_USER_ERROR);
 	}
 
 	if (empty($setting['existing']))
-		wrap_error(wrap_text('Please define a query for the existing records in the database with -- %s_existing --.',
+		wrap_error(['Please define a query for the existing records in the database with -- %s_existing --.',
 			['values' => [$setting['identifier']]]
-		), E_USER_ERROR);
+		], E_USER_ERROR);
 	if (empty($setting['fields']))
 		wrap_error('Please set which fields should be imported in `fields`.', E_USER_ERROR);	
 	if (empty($setting['form_script']))
@@ -298,10 +296,10 @@ function zz_sync_csv($setting) {
 		$key = [];
 		foreach ($setting['csv_key'] AS $no) {
 			if (!isset($line[$no])) {
-				wrap_error(sprintf(
+				wrap_error([
 					'New record has not enough values for the key. (%d expected, record looks as follows: %s)',
-					count($line), implode(' -- ', $line)
-				), E_USER_ERROR);
+					['values' => [count($setting['csv_key']), implode(' -- ', $line)]]
+				], E_USER_ERROR);
 			}
 			$key[] = $line[$no];
 		}
@@ -373,7 +371,7 @@ function zz_sync_sparql($setting) {
 	$context = stream_context_create($options);
 	$raw = file_get_contents($url, false, $context);
 	if (!$raw)
-		wrap_error(wrap_text('Could not fetch data from %s', ['values' => [$setting['sparql_uri']]])); // @todo better error message
+		wrap_error(['Could not fetch data from %s', ['values' => [$setting['sparql_uri']]]]); // @todo better error message
 
 	$raw = json_decode($raw, true);
 	list($raw, $count) = $setting['sparql_raw_function']($raw);
@@ -855,7 +853,7 @@ function zz_sync_list($data, $setting) {
 	}
 
 	foreach ($missing_fields as $field)
-		wrap_error(wrap_text('Field %s is missing in table definition.', ['values' => [$field]]));
+		wrap_error(['Field %s is missing in table definition.', ['values' => [$field]]]);
 	
 	foreach ($data['fields'] as $num => $field) {
 		if (substr($num, 0, 1) === '_') continue;

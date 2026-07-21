@@ -66,7 +66,7 @@ function zz_copy_records($table, $foreign_id_field_name, $source_id, $destinatio
 			$values['POST'][$transfer_field_name] = $line[$def['primary_key']];
 		$ops = zzform_multi($def['script_name'], $values);
 		if (!$ops['id'])
-			wrap_error(sprintf('Could not copy %s %d', $def['primary_key'], $line[$def['primary_key']]));
+			wrap_error(['Could not copy %s %d', ['values' => [$def['primary_key'], $line[$def['primary_key']]]]]);
 		// map old fields to new fields for translations
 		$map[$line[$def['primary_key']]] = $ops['id'];
 	}
@@ -111,7 +111,7 @@ function zz_copy_records_translations($table, $ids, $map) {
 			$values['POST']['language_id'] = $translation['language_id'];
 			$ops = zzform_multi(sprintf('translations-%s', $field['field_type']), $values);
 			if (!$ops['id']) {
-				wrap_error(sprintf('Could not copy translation for table %s ID %d', $table, $map[$translation['field_id']]));
+				wrap_error(['Could not copy translation for table %s ID %d', ['values' => [$table, $map[$translation['field_id']]]]]);
 			}
 		}
 	}

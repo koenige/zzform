@@ -880,7 +880,7 @@ function zz_prepare_fields($fields, $db_table, $multiple_times = false, $mode = 
 		case 'identifier':
 			if (!empty($fields[$no]['conf_identifier'])) {
 				$fields[$no]['identifier'] = $fields[$no]['conf_identifier'];
-				wrap_error('Deprecated: Use key `identifier` instead of `conf_identifier`', E_USER_DEPRECATED);
+				wrap_error('Use key `identifier` instead of `conf_identifier`', E_USER_DEPRECATED);
 			}
 			break;
 		case 'url':
@@ -1021,10 +1021,10 @@ function zz_field_title($field) {
 	
 	// title will be created from field_name, translate it
 	if (!isset($field['field_name'])) {
-		wrap_error(sprintf(
-			'zzform field definition incorrect, field has neither field_name nor title: %s'
-			, json_encode($field, JSON_PRETTY_PRINT)
-		), E_USER_ERROR);
+		wrap_error([
+			'zzform field definition incorrect, field has neither field_name nor title.',
+			['data' => $field]
+		], E_USER_ERROR);
 	}
 	$title = zz_field_title_extract($field['field_name']);
 	$title = wrap_text($title, ['source' => wrap_static('zzform', 'script_path')]);

@@ -318,7 +318,7 @@ function zzform_record($zz, $ops, $zz_conditions) {
 
 	if (isset($_POST['zz_merge'])) {
 		if (empty($zz['list']['merge']))
-			wrap_error(wrap_text('Merging of record is not allowed.'), E_USER_ERROR);
+			wrap_error(['Merging of record is not allowed.'], E_USER_ERROR);
 
 		require_once __DIR__.'/merge.inc.php';
 		$merge = zz_merge_records($zz);

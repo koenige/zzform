@@ -99,7 +99,10 @@ function zz_state_token_validate($string) {
 function zz_state_token_validate_error() {
 	if (!empty($_POST['zz_token'])) {
 		wrap_setting('log_username_suffix', wrap_setting('remote_ip'));
-		wrap_error(sprintf('POST data removed because of illegal zz_token value `%s`', json_encode($_POST['zz_token'])), E_USER_NOTICE);
+		wrap_error([
+			'POST data removed because of illegal zz_token value',
+			['data' => $_POST['zz_token']]
+		], E_USER_NOTICE);
 		unset($_POST);
 	}
 	return wrap_random_hash(6);
@@ -132,7 +135,7 @@ function zz_state_definition($zz = []) {
 	if (array_key_exists($token, $hashes))
 		return $hashes[$token];
 	if (!$zz) {
-		wrap_error(sprintf('Unable to find hash for token %s', $token), E_USER_NOTICE);
+		wrap_error(['Unable to find hash for token %s', ['values' => [$token]]], E_USER_NOTICE);
 		return '';
 	}
 	

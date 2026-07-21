@@ -71,10 +71,10 @@ function zz_translations_init($table, $fields, $action) {
 			sprintf('translationfield_id = %d', $translationfields[$field_name]['translationfield_id'])
 		);
 		if (!$zz)
-			wrap_error(wrap_text(
+			wrap_error([
 				'Translations script for `%s` does not exist!',
 				['values' => [$translationfields[$field_name]['field_type']]]
-			), E_USER_ERROR);
+			], E_USER_ERROR);
 		$zz = zz_sql_prefix($zz);
 		// change title
 		$zz['title'] = sprintf('%s (%s)'
