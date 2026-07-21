@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzform module\n"
-"POT-Creation-Date: 2026-07-21 13:32+0000\n"
+"POT-Creation-Date: 2026-07-21 16:54+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -1191,49 +1191,49 @@ msgid "Date and time"
 msgstr ""
 
 # Record form: File upload
-#: zzform/record.inc.php:4087
+#: zzform/record.inc.php:4090
 msgid "File upload is currently impossible."
 msgstr ""
 
 # Error handling
-#: zzform/record.inc.php:4088
+#: zzform/record.inc.php:4091
 msgid "An error occured. We are working on the solution of this problem. Sorry for your inconvenience. Please try again later."
 msgstr ""
 
 # no value available for display, should be abbreviated
 # Record form: field output
-#: zzform/record.inc.php:4200
+#: zzform/record.inc.php:4203
 msgid "<abbr title=\"Not available\">N/A</abbr>"
 msgstr ""
 
 # Backend: Development
-#: zzform/record.inc.php:4245
+#: zzform/record.inc.php:4248
 msgid "Script configuration error. No display field set."
 msgstr ""
 
 # Record form: field output
-#: zzform/record.inc.php:4258
+#: zzform/record.inc.php:4261
 msgid "calculated field"
 msgstr ""
 
 # Record form: identifier, hidden etc.
-#: zzform/record.inc.php:4341
+#: zzform/record.inc.php:4344
 msgid "Would be changed on update"
 msgstr ""
 
 # e. g. Add Address, Add Phone Number ...
 # Record form: Detail record
-#: zzform/record.inc.php:4417
+#: zzform/record.inc.php:4420
 msgid "Add %s"
 msgstr ""
 
 # Record form: Detail record
-#: zzform/record.inc.php:4426
+#: zzform/record.inc.php:4429
 msgid "Remove"
 msgstr ""
 
 # Record form: Detail record
-#: zzform/record.inc.php:4430
+#: zzform/record.inc.php:4433
 msgid "Remove %s"
 msgstr ""
 

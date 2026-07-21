@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzform module\n"
-"POT-Creation-Date: 2026-07-21 13:32+0000\n"
+"POT-Creation-Date: 2026-07-21 16:54+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -3136,11 +3136,15 @@ msgstr ""
 msgid "Subtree with ID %s does not exist."
 msgstr ""
 
-#: zzform/record.inc.php:3681
+#: zzform/record.inc.php:3439
+msgid "`%s` is not a folder. Check `[\"set_folder\"]` definition."
+msgstr ""
+
+#: zzform/record.inc.php:3684
 msgid "Mismatch of no. of enum translations in field “%s”"
 msgstr ""
 
-#: zzform/record.inc.php:4091
+#: zzform/record.inc.php:4094
 msgid "Configuration error. Missing upload_image details."
 msgstr ""
 
@@ -3176,12 +3180,28 @@ msgstr ""
 msgid "Import: File %s does not exist. "
 msgstr ""
 
+#: zzform/sync.inc.php:169
+msgid "Please set an import filename via $setting[\"csv_filename\"]."
+msgstr ""
+
 #: zzform/sync.inc.php:181
 msgid "Please set an import type via <code>$setting[\"type\"]</code>. Possible types are: %s"
 msgstr ""
 
 #: zzform/sync.inc.php:187
 msgid "Please define a query for the existing records in the database with -- %s_existing --."
+msgstr ""
+
+#: zzform/sync.inc.php:191
+msgid "Please set which fields should be imported in `fields`."
+msgstr ""
+
+#: zzform/sync.inc.php:193
+msgid "Please tell us the name of the form script in `form_script`."
+msgstr ""
+
+#: zzform/sync.inc.php:259
+msgid "Please set one or more fields as unique key fields in `csv_key`."
 msgstr ""
 
 #: zzform/sync.inc.php:300
@@ -3273,11 +3293,15 @@ msgstr ""
 msgid "Value for upload_max_filesize from php.ini is smaller than value which is set in the script. The value from php.ini will be used. To upload bigger files, please adjust your configuration settings."
 msgstr ""
 
-#: zzform/upload.inc.php:2987
+#: zzform/upload.inc.php:2969
+msgid "Configuration error on server: command `%s` was not found. Paths tried: %s"
+msgstr ""
+
+#: zzform/upload.inc.php:2988
 msgid "Set `zzform_upload_binary_version_option` for command `%s` to get version information."
 msgstr ""
 
-#: zzform/upload.inc.php:2993
+#: zzform/upload.inc.php:2994
 msgid "Binary command `%s` not found."
 msgstr ""
 

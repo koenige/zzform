@@ -2965,9 +2965,10 @@ function zz_upload_binary($command, $log_error = true) {
 
 	if ($path === '/notexistent') {
 		if ($log_error)
-			wrap_error('Configuration error on server: command `'.$command
-				.'` could not be found. Paths tried: '
-				.implode(', ', wrap_setting('zzform_upload_binary_folders')), E_USER_WARNING);
+			wrap_error([
+				'Configuration error on server: command `%s` was not found. Paths tried: %s',
+				['values' => [$command, implode(', ', wrap_setting('zzform_upload_binary_folders'))]]
+			], E_USER_WARNING);
 		return '';
 	}
 	$command = sprintf('%s/%s ', $path, $command);

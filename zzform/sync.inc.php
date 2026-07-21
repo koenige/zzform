@@ -166,7 +166,7 @@ function zz_sync_defaults($setting) {
 	case 'csv':
 		// get source file
 		if (empty($setting['csv_filename']))
-			wrap_error('Please set an import filename via $setting["csv_filename"].', E_USER_ERROR);
+			wrap_error(['Please set an import filename via $setting["csv_filename"].'], E_USER_ERROR);
 		if (str_starts_with($setting['csv_filename'], '%'))
 			$setting['csv_source'] = wrap_setting_value_placeholder($setting['csv_filename']);
 		else
@@ -188,9 +188,9 @@ function zz_sync_defaults($setting) {
 			['values' => [$setting['identifier']]]
 		], E_USER_ERROR);
 	if (empty($setting['fields']))
-		wrap_error('Please set which fields should be imported in `fields`.', E_USER_ERROR);	
+		wrap_error(['Please set which fields should be imported in `fields`.'], E_USER_ERROR);	
 	if (empty($setting['form_script']))
-		wrap_error('Please tell us the name of the form script in `form_script`.', E_USER_ERROR);	
+		wrap_error(['Please tell us the name of the form script in `form_script`.'], E_USER_ERROR);	
 
 	// set correct table_name for subtables
 	$setting = zz_sync_table_shortcut($setting);
@@ -256,7 +256,7 @@ function zz_sync_csv($setting) {
 	$handle = fopen($setting['csv_source'], "r");
 
 	if (!count($setting['csv_key']))
-		wrap_error('Please set one or more fields as unique key fields in `csv_key`.', E_USER_ERROR);
+		wrap_error(['Please set one or more fields as unique key fields in `csv_key`.'], E_USER_ERROR);
 
 	$processed = 0;
 	while (!feof($handle)) {
