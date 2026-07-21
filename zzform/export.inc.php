@@ -255,7 +255,7 @@ function zz_export_kml($ops, $zz) {
 	$kml['title'] = zz_nice_title($ops['heading'], $ops['output']['head'], $ops);
 	if (wrap_setting('character_set') !== 'utf-8')
 		$kml['title'] = mb_convert_encoding($kml['title'], 'UTF-8', wrap_setting('character_set'));
-	$kml['description'] = zz_format($zz['explanation']);
+	$kml['description'] = $zz['explanation'];
 	$kml['styles'] = [];
 	$kml['placemarks'] = [];
 	

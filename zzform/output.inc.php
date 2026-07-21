@@ -62,11 +62,8 @@ function zz_output_full($ops) {
 	elseif (!empty($ops['footer']['text']))
 		$ops['footer_text'] .= $ops['footer']['text'];
 	$ops['error_out'] = zz_error_output();
-	if (isset($ops['explanation_insert']) AND !empty($_GET['insert'])) {
-		$ops['explanation'] = zz_format($ops['explanation_insert']);
-	} else {
-		$ops['explanation'] = zz_format($ops['explanation']);
-	}
+	if (isset($ops['explanation_insert']) AND !empty($_GET['insert']))
+		$ops['explanation'] = $ops['explanation_insert'];
 
 	if ($zz_conf['int']['record']) {
 		$ops['upndown_editor'] = zz_output_upndown_editor();
@@ -760,23 +757,6 @@ function zz_init_referer() {
 	wrap_static('zzform_page', 'referer', (
 		(!empty($url['scheme']) ? $url['scheme'].'://'.$url['host'] : '').$url['path'].($url['query'] ?? '')
 	));
-}
-
-/**
- * formats a string, currently only available: translate text from inside zzform
- *
- * @param string $text
- * @return string
- */
-function zz_format($text) {
-	if (!$text) return $text;
-	if (!str_starts_with($text, '%%% text')) return $text;
-	if (!str_ends_with($text, '%%%')) return $text;
-
-	$text = trim(substr($text, 8, -3));
-	if (substr($text, 0, 1) === '"' AND substr($text, -1) === '"')
-		$text = trim(substr($text, 1, -1));
-	return wrap_text($text, ['source' => wrap_static('zzform', 'script_path')]);
 }
 
 /**
