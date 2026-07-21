@@ -22,13 +22,14 @@
  *
  * @param array $ops
  * @param array $zz
- * @global array $zz_conf
  * @return array $ops
  */
 function zz_export_init(&$ops, &$zz) {
-	global $zz_conf;
-	if (!$zz['export']) return;
 	if (empty($_GET['export'])) return;
+	if (!$zz['export']) {
+		zz_export_remove();
+		return;
+	}
 
 	// no edit modes allowed
 	$unwanted_keys = [
@@ -44,12 +45,14 @@ function zz_export_init(&$ops, &$zz) {
 			'level' => E_USER_NOTICE,
 			'status' => 404
 		]);
+		zz_export_remove();
 		$ops['mode'] = false;
 		return;
 	}
 	// do not export anything if it's a 404 in export mode
 	// and e. g. limit is incorrect
 	if (wrap_static('zzform_page', 'status') === 404) {
+		zz_export_remove();
 		$ops['mode'] = false;
 		return;
 	}
@@ -78,7 +81,7 @@ function zz_export_init(&$ops, &$zz) {
 			'level' => E_USER_NOTICE,
 			'status' => 404
 		]);
-		zzform_url_remove(['export']);
+		zz_export_remove();
 		$ops['mode'] = false;
 		return;
 	}
@@ -103,6 +106,16 @@ function zz_export_init(&$ops, &$zz) {
 		wrap_page_limit('remove');
 		break;
 	}
+}
+
+/**
+ * Remove invalid export parameter from request and URLs
+ *
+ * @return void
+ */
+function zz_export_remove() {
+	unset($_GET['export']);
+	zzform_url_remove(['export']);
 }
 
 /**
