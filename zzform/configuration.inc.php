@@ -61,9 +61,9 @@ function zz_configuration_deprecated($cfg_key, $settings) {
 			$new_key = $def['moved_to_zz'] === '1' ? $key : $def['moved_to_zz'];
 			$settings = wrap_array_merge($settings, wrap_setting_key($new_key, $value));
 			// @todo better display of error message for arrays
-			wrap_error(wrap_text(
+			wrap_error(sprintf(
 				'Deprecated notation $%s["%s"] found. Please use $zz["%s"] instead.'
-				, ['values' => [$cfg_key, $key, $new_key]]
+				, $cfg_key, $key, $new_key
 			), E_USER_DEPRECATED);
 		} elseif (!empty($def['moved_to_setting'])) {
 			$new_key = $def['moved_to_setting'] === '1' ? $key : $def['moved_to_setting'];
@@ -75,17 +75,17 @@ function zz_configuration_deprecated($cfg_key, $settings) {
 				else
 					wrap_setting($new_key, $value);
 			}
-			wrap_error(wrap_text(
+			wrap_error(sprintf(
 				'Deprecated notation $%s["%s"] found. Please use wrap_setting("%s") instead.'
-				, ['values' => [$cfg_key, $key, $new_key]]
+				, $cfg_key, $key, $new_key
 			), E_USER_DEPRECATED);
 		} elseif (!empty($def['moved_to'])) {
 			$new_key = $def['moved_to'];
 			$settings = wrap_array_merge($settings, wrap_setting_key($new_key, $value));
 			$settings = wrap_setting_key_unset($key, $settings);
-			wrap_error(wrap_text(
+			wrap_error(sprintf(
 				'Deprecated notation $%s["%s"] found. Please use $%s["%s"] instead.'
-				, ['values' => [$cfg_key, $key, $cfg_key, $new_key]]
+				, $cfg_key, $key, $cfg_key, $new_key
 			), E_USER_DEPRECATED);
 		
 		}
