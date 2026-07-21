@@ -1445,14 +1445,12 @@ function zz_list_word_split($text) {
  * @param string $field_name (optional) if set, only values in this column
  *			will be marked
  * @param array $field field definition
- * @global array $zz_conf
  * @return string $value value with marks
  * @todo support strings which are splitted by <wbr>
  */
 function zz_mark_search_string($value, $field_name = false, $field = []) {
-	global $zz_conf;
 	// check if field should be marked
-	if (!empty($zz_conf['int']['export'])) return $value;
+	if (!empty($_GET['export'])) return $value;
 	if (!empty($field['dont_mark_search_string'])) return $value;
 	if (empty($_GET['q'])) return $value;
 	if (!empty($_GET['scope'])) {
