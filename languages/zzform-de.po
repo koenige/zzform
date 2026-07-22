@@ -11,7 +11,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzform\n"
-"POT-Creation-Date: 2026-07-21 13:32+0000\n"
+"POT-Creation-Date: 2026-07-22 06:08+0000\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Gustaf Mossakowski <gustaf@koenige.org>\n"
 "Language-Team: \n"
@@ -162,7 +162,7 @@ msgid "expand"
 msgstr "ausklappen"
 
 # List view: Filter
-#: templates/zzform-list-filter.template.txt:25 zzform/list.inc.php:1634
+#: templates/zzform-list-filter.template.txt:25 zzform/list.inc.php:1632
 msgid "all"
 msgstr "Alle"
 
@@ -483,17 +483,23 @@ msgstr "Fehlerhafte Nummer der Detailtabelle: %s"
 #: zzbrick_xhr/zzform.inc.php:51
 msgid "Subtable %s requested, but it is not in the table definition"
 msgstr ""
+"Die Detailtabelle %s wurde angefordert, ist jedoch nicht in der "
+"Tabellendefinition enthalten"
 
 #: zzbrick_xhr/configs.inc.php:48 zzbrick_xhr/dependencies.inc.php:48
 #: zzbrick_xhr/zzform.inc.php:53
 msgid ""
 "Field %s in subtable %s requested, but it is not in the table definition"
 msgstr ""
+"Das Feld %s in der Detailtabelle %s wurde angefordert, ist jedoch nicht in "
+"der Tabellendefinition enthalten"
 
 #: zzbrick_xhr/configs.inc.php:52 zzbrick_xhr/dependencies.inc.php:52
 #: zzbrick_xhr/zzform.inc.php:57
 msgid "Field %s requested, but it is not in the table definition"
 msgstr ""
+"Das Feld %s wurde angefordert, ist jedoch nicht in der Tabellendefinition "
+"enthalten"
 
 # Record form: Validation, displayed inside form
 #: zzbrick_xhr/configs.inc.php:77 zzbrick_xhr/configs.inc.php:83
@@ -510,20 +516,20 @@ msgstr "Kein Eintrag gefunden."
 
 #: zzbrick_xhr/dependencies.inc.php:65 zzbrick_xhr/zzform.inc.php:32
 msgid "Malformed values: (%s)"
-msgstr ""
+msgstr "Fehlerhafte Werte: (%s)"
 
 #: zzbrick_xhr/zzform.inc.php:76
 msgid "No SQL query was found. Values: %s"
-msgstr ""
+msgstr "Es wurde keine SQL-Abfrage gefunden. Werte: %s"
 
 #: zzform/_functions.inc.php:326
 msgid "Deletion of IDs %s impossible."
-msgstr ""
+msgstr "Das Löschen von IDs %s ist nicht möglich."
 
 #: zzform/_functions.inc.php:341 zzform/_functions.inc.php:398
 #: zzform/_functions.inc.php:460
 msgid "Reason"
-msgstr ""
+msgstr "Grund"
 
 #: zzform/_functions.inc.php:366
 msgid "Unable to insert record into table %s."
@@ -541,11 +547,11 @@ msgstr "Angabe im Feld <strong>%s</strong> fehlt."
 
 #: zzform/action.inc.php:339
 msgid "Detail record could not be updated"
-msgstr ""
+msgstr "Der Detaildatensatz konnte nicht aktualisiert werden"
 
 #: zzform/action.inc.php:365 zzform/action.inc.php:386
 msgid "Detail record could not be deleted"
-msgstr ""
+msgstr "Der Detaildatensatz konnte nicht gelöscht werden"
 
 # Record form: Validation, displayed above form
 #: zzform/action.inc.php:682
@@ -584,7 +590,7 @@ msgstr ""
 
 #: zzform/action.inc.php:2298
 msgid "unkown"
-msgstr ""
+msgstr "unbekannt"
 
 # Record form: Validation, displayed above form
 #: zzform/action.inc.php:2304
@@ -766,7 +772,7 @@ msgstr "Diese Probleme sind aufgetreten:"
 
 #: zzform/errorhandling.inc.php:118
 msgid "An error occured."
-msgstr ""
+msgstr "Es ist ein Fehler aufgetreten."
 
 # Error handling
 #: zzform/errorhandling.inc.php:173 zzform/errorhandling.inc.php:176
@@ -801,7 +807,7 @@ msgid " – You sent: %s data."
 msgstr " – Sie haben %s Daten gesendet."
 
 # Modules: Export
-#: zzform/export.inc.php:42
+#: zzform/export.inc.php:39
 msgid ""
 "Please don’t mess with the URL parameters. <code>%s</code> is not allowed "
 "here."
@@ -809,16 +815,15 @@ msgstr ""
 "Bitte ändern Sie nicht eigenhändig die URL-Parameter. <code>%s</code> ist "
 "hier nicht erlaubt."
 
-#: zzform/export.inc.php:195
-msgid ""
-"Standard %s export support is not supported. Please use a custom script."
+#: zzform/export.inc.php:208
+msgid "A file is missing for `%s` export. Please create a script at `%s`."
 msgstr ""
-"Der Standard-%s-Export wird nicht unterstützt. Bitte verwenden Sie ein "
-"eigenes Skript."
+"Für den Export `%s` fehlt eine Datei. Bitte erstellen Sie ein Skript unter "
+"`%s`."
 
-#: zzform/export.inc.php:445
-msgid "The required %s export function <code>%s()</code> does not exist."
-msgstr "Die erforderliche %s-Exportfunktion <code>%s()</code> existiert nicht."
+#: zzform/export.inc.php:220
+msgid "A function is missing for `%s` export in the script at `%s`."
+msgstr "Im Skript `%s` fehlt eine Funktion für den Export unter `%s`."
 
 # List view: Filter
 #: zzform/filter.inc.php:142
@@ -855,11 +860,11 @@ msgstr "Der Wert ist nur bei der Bearbeitung sichtbar."
 
 #: zzform/functions.inc.php:327
 msgid "Adding value %s in field %s is forbidden here"
-msgstr ""
+msgstr "Das Hinzufügen des Werts %s in Feld %s ist hier nicht zulässig"
 
 #: zzform/functions.inc.php:1066
 msgid "Only one field may be defined as `id`!"
-msgstr ""
+msgstr "Es darf nur ein Feld als `id` definiert werden!"
 
 # Record form: Validation, displayed inside form
 #: zzform/functions.inc.php:2279
@@ -897,7 +902,7 @@ msgstr "W"
 
 #: zzform/geo.inc.php:72
 msgid "Development error. Orientation %s is not valid."
-msgstr ""
+msgstr "Entwicklungsfehler. Die Ausrichtung %s ist ungültig."
 
 # Modules: Geo
 #: zzform/geo.inc.php:88
@@ -925,19 +930,19 @@ msgstr "Nur die letzte Zahl darf ein Komma enthalten (oder einen Punkt)."
 
 #: zzform/geo.inc.php:140
 msgid "%s is too small. Seconds must be 0 or greater."
-msgstr ""
+msgstr "%s ist zu klein. Der Wert für Sekunden muss 0 oder größer sein."
 
 #: zzform/geo.inc.php:142
 msgid "%s is too small. Minutes must be 0 or greater."
-msgstr ""
+msgstr "%s ist zu klein. Der Wert für Minuten muss 0 oder größer sein."
 
 #: zzform/geo.inc.php:147
 msgid "%s is too large. Seconds must be less than 60."
-msgstr ""
+msgstr "%s ist zu groß. Der Wert für Sekunden muss kleiner als 60 sein."
 
 #: zzform/geo.inc.php:149
 msgid "%s is too large. Minutes must be less than 60."
-msgstr ""
+msgstr "%s ist zu groß. Der Wert für Minuten muss kleiner als 60 sein."
 
 # Modules: Geo
 #: zzform/geo.inc.php:158
@@ -974,49 +979,49 @@ msgid "- unknown -"
 msgstr "- unbekannt -"
 
 # List view: bottom
-#: zzform/list.inc.php:1580
+#: zzform/list.inc.php:1578
 msgid "%d record total"
 msgid_plural "%d records total"
 msgstr[0] "%d Eintrag gesamt"
 msgstr[1] "%d Einträge gesamt"
 
 # List view: bottom
-#: zzform/list.inc.php:1619
+#: zzform/list.inc.php:1617
 msgid "First page"
 msgstr "Erste Seite"
 
 # List view: bottom
-#: zzform/list.inc.php:1629
+#: zzform/list.inc.php:1627
 msgid "Previous page"
 msgstr "Vorige Seite"
 
 # List view: bottom
-#: zzform/list.inc.php:1636
+#: zzform/list.inc.php:1634
 msgid "All records on one page"
 msgstr "Alle Einträge auf einer Seite"
 
 # List view: bottom
-#: zzform/list.inc.php:1714
+#: zzform/list.inc.php:1712
 msgid "Next page"
 msgstr "Nächste Seite"
 
 # List view: bottom
-#: zzform/list.inc.php:1720
+#: zzform/list.inc.php:1718
 msgid "Last page"
 msgstr "Letzte Seite"
 
 # List view: Table head
-#: zzform/list.inc.php:1886
+#: zzform/list.inc.php:1884
 msgid "descending"
 msgstr "absteigend"
 
 # List view: Table head
-#: zzform/list.inc.php:1888
+#: zzform/list.inc.php:1886
 msgid "ascending"
 msgstr "aufsteigend"
 
 # List view: Table head
-#: zzform/list.inc.php:1892
+#: zzform/list.inc.php:1890
 msgid "Order by"
 msgstr "Sortiere nach"
 
@@ -1032,17 +1037,17 @@ msgstr "Anzeigen"
 
 # Number of records as shown in page TITLE
 # Page elements
-#: zzform/output.inc.php:399
+#: zzform/output.inc.php:396
 msgid "records"
 msgstr "Einträge"
 
 # Page elements
-#: zzform/output.inc.php:405
+#: zzform/output.inc.php:402
 msgid "page"
 msgstr "Seite"
 
 # Page elements: Heading
-#: zzform/output.inc.php:441
+#: zzform/output.inc.php:438
 msgid "Search"
 msgstr "Suche"
 
@@ -1159,7 +1164,7 @@ msgid ""
 "it."
 msgstr ""
 "Der Eintrag konnte nicht gelöscht werden, da mit ihm weitere Daten verknüpft "
-"sind:"
+"sind."
 
 #: zzform/record.inc.php:148
 msgid ""
@@ -1230,12 +1235,12 @@ msgid "Date and time"
 msgstr "Datum und Uhrzeit"
 
 # Record form: File upload
-#: zzform/record.inc.php:4087
+#: zzform/record.inc.php:4090
 msgid "File upload is currently impossible."
 msgstr "Ein Dateiupload ist zur Zeit nicht möglich."
 
 # Error handling
-#: zzform/record.inc.php:4088
+#: zzform/record.inc.php:4091
 msgid ""
 "An error occured. We are working on the solution of this problem. Sorry for "
 "your inconvenience. Please try again later."
@@ -1246,38 +1251,38 @@ msgstr ""
 
 # no value available for display, should be abbreviated
 # Record form: field output
-#: zzform/record.inc.php:4200
+#: zzform/record.inc.php:4203
 msgid "<abbr title=\"Not available\">N/A</abbr>"
 msgstr "<abbr title=\"keine Angabe\">k.&nbsp;A.</abbr>"
 
 # Backend: Development
-#: zzform/record.inc.php:4245
+#: zzform/record.inc.php:4248
 msgid "Script configuration error. No display field set."
 msgstr "Script configuration error. No display field set."
 
 # Record form: field output
-#: zzform/record.inc.php:4258
+#: zzform/record.inc.php:4261
 msgid "calculated field"
 msgstr "berechnetes Feld"
 
 # Record form: identifier, hidden etc.
-#: zzform/record.inc.php:4341
+#: zzform/record.inc.php:4344
 msgid "Would be changed on update"
 msgstr "Würde bei Aktualisierung geändert"
 
 # e. g. Add Address, Add Phone Number ...
 # Record form: Detail record
-#: zzform/record.inc.php:4417
+#: zzform/record.inc.php:4420
 msgid "Add %s"
 msgstr "%s ergänzen"
 
 # Record form: Detail record
-#: zzform/record.inc.php:4426
+#: zzform/record.inc.php:4429
 msgid "Remove"
 msgstr "Entfernen"
 
 # Record form: Detail record
-#: zzform/record.inc.php:4430
+#: zzform/record.inc.php:4433
 msgid "Remove %s"
 msgstr "%s entfernen"
 
@@ -1292,7 +1297,7 @@ msgstr ""
 
 #: zzform/upload.inc.php:408
 msgid "unknown"
-msgstr ""
+msgstr "unbekannt"
 
 # Record form: File upload
 #: zzform/upload.inc.php:409 zzform/upload.inc.php:1744
@@ -1381,7 +1386,7 @@ msgstr ""
 
 #: zzform/upload.inc.php:2861
 msgid "No user"
-msgstr ""
+msgstr "Kein Benutzer"
 
 # Record form: File upload
 #: zzform/upload.inc.php:2897

@@ -101,3 +101,5 @@
 2026-07-04-1	code_regex	zzform_(insert|update|delete)\([^)]*['"]msg['"]	use `'_msg'` in settings instead of `'msg'`	zzform/zzform/_functions.inc.php
 2026-07-19-1	code	['explanation_vars']	use `['explanation'] = ['Text with %s', ['values' => [$value]]]` @see wrap_text()
 2026-07-21-1	code	['explanation'] = '%%%	translate this text via wrap_text() upfront
+2026-07-22-1	filename	zzform/export-pdf.inc.php	new folder `zzform_export` with one function per file
+2026-07-22-2	filename	zzform/export-zip.inc.php	new folder `zzform_export` with one function per file

@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzform module\n"
-"POT-Creation-Date: 2026-07-21 16:54+0000\n"
+"POT-Creation-Date: 2026-07-22 06:08+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -161,7 +161,7 @@ msgstr ""
 
 # List view: Filter
 #: templates/zzform-list-filter.template.txt:25
-#: zzform/list.inc.php:1634
+#: zzform/list.inc.php:1632
 msgid "all"
 msgstr ""
 
@@ -787,16 +787,16 @@ msgid " – You sent: %s data."
 msgstr ""
 
 # Modules: Export
-#: zzform/export.inc.php:42
+#: zzform/export.inc.php:39
 msgid "Please don’t mess with the URL parameters. <code>%s</code> is not allowed here."
 msgstr ""
 
-#: zzform/export.inc.php:195
-msgid "Standard %s export support is not supported. Please use a custom script."
+#: zzform/export.inc.php:208
+msgid "A file is missing for `%s` export. Please create a script at `%s`."
 msgstr ""
 
-#: zzform/export.inc.php:445
-msgid "The required %s export function <code>%s()</code> does not exist."
+#: zzform/export.inc.php:220
+msgid "A function is missing for `%s` export in the script at `%s`."
 msgstr ""
 
 # List view: Filter
@@ -940,49 +940,49 @@ msgid "- unknown -"
 msgstr ""
 
 # List view: bottom
-#: zzform/list.inc.php:1580
+#: zzform/list.inc.php:1578
 msgid "%d record total"
 msgid_plural "%d records total"
 msgstr[] ""
 msgstr[] ""
 
 # List view: bottom
-#: zzform/list.inc.php:1619
+#: zzform/list.inc.php:1617
 msgid "First page"
 msgstr ""
 
 # List view: bottom
-#: zzform/list.inc.php:1629
+#: zzform/list.inc.php:1627
 msgid "Previous page"
 msgstr ""
 
 # List view: bottom
-#: zzform/list.inc.php:1636
+#: zzform/list.inc.php:1634
 msgid "All records on one page"
 msgstr ""
 
 # List view: bottom
-#: zzform/list.inc.php:1714
+#: zzform/list.inc.php:1712
 msgid "Next page"
 msgstr ""
 
 # List view: bottom
-#: zzform/list.inc.php:1720
+#: zzform/list.inc.php:1718
 msgid "Last page"
 msgstr ""
 
 # List view: Table head
-#: zzform/list.inc.php:1886
+#: zzform/list.inc.php:1884
 msgid "descending"
 msgstr ""
 
 # List view: Table head
-#: zzform/list.inc.php:1888
+#: zzform/list.inc.php:1886
 msgid "ascending"
 msgstr ""
 
 # List view: Table head
-#: zzform/list.inc.php:1892
+#: zzform/list.inc.php:1890
 msgid "Order by"
 msgstr ""
 
@@ -998,17 +998,17 @@ msgstr ""
 
 # Number of records as shown in page TITLE
 # Page elements
-#: zzform/output.inc.php:399
+#: zzform/output.inc.php:396
 msgid "records"
 msgstr ""
 
 # Page elements
-#: zzform/output.inc.php:405
+#: zzform/output.inc.php:402
 msgid "page"
 msgstr ""
 
 # Page elements: Heading
-#: zzform/output.inc.php:441
+#: zzform/output.inc.php:438
 msgid "Search"
 msgstr ""
 

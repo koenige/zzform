@@ -11,7 +11,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzform\n"
-"POT-Creation-Date: 2026-07-21 13:32+0000\n"
+"POT-Creation-Date: 2026-07-22 06:08+0000\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Gustaf Mossakowski <gustaf@koenige.org>\n"
 "Language-Team: \n"
@@ -164,7 +164,7 @@ msgid "expand"
 msgstr ""
 
 # List view: Filter
-#: templates/zzform-list-filter.template.txt:25 zzform/list.inc.php:1634
+#: templates/zzform-list-filter.template.txt:25 zzform/list.inc.php:1632
 msgid "all"
 msgstr "Wszystkie"
 
@@ -772,19 +772,18 @@ msgid " – You sent: %s data."
 msgstr " – Wysłałeś: %s danych."
 
 # Modules: Export
-#: zzform/export.inc.php:42
+#: zzform/export.inc.php:39
 msgid ""
 "Please don’t mess with the URL parameters. <code>%s</code> is not allowed "
 "here."
 msgstr ""
 
-#: zzform/export.inc.php:195
-msgid ""
-"Standard %s export support is not supported. Please use a custom script."
+#: zzform/export.inc.php:208
+msgid "A file is missing for `%s` export. Please create a script at `%s`."
 msgstr ""
 
-#: zzform/export.inc.php:445
-msgid "The required %s export function <code>%s()</code> does not exist."
+#: zzform/export.inc.php:220
+msgid "A function is missing for `%s` export in the script at `%s`."
 msgstr ""
 
 # List view: Filter
@@ -931,7 +930,7 @@ msgid "- unknown -"
 msgstr "- nieznany -"
 
 # List view: bottom
-#: zzform/list.inc.php:1580
+#: zzform/list.inc.php:1578
 msgid "%d record total"
 msgid_plural "%d records total"
 msgstr[0] "Łącznie %d rekord"
@@ -939,42 +938,42 @@ msgstr[1] "Łącznie %d rekordy"
 msgstr[2] "Łącznie %d rekordów"
 
 # List view: bottom
-#: zzform/list.inc.php:1619
+#: zzform/list.inc.php:1617
 msgid "First page"
 msgstr "Pierwsza strona"
 
 # List view: bottom
-#: zzform/list.inc.php:1629
+#: zzform/list.inc.php:1627
 msgid "Previous page"
 msgstr "Poprzednia strona"
 
 # List view: bottom
-#: zzform/list.inc.php:1636
+#: zzform/list.inc.php:1634
 msgid "All records on one page"
 msgstr "Wszystkie rekordy na jednej stronie"
 
 # List view: bottom
-#: zzform/list.inc.php:1714
+#: zzform/list.inc.php:1712
 msgid "Next page"
 msgstr "Następna strona"
 
 # List view: bottom
-#: zzform/list.inc.php:1720
+#: zzform/list.inc.php:1718
 msgid "Last page"
 msgstr "Ostatnia strona"
 
 # List view: Table head
-#: zzform/list.inc.php:1886
+#: zzform/list.inc.php:1884
 msgid "descending"
 msgstr "Malejąco"
 
 # List view: Table head
-#: zzform/list.inc.php:1888
+#: zzform/list.inc.php:1886
 msgid "ascending"
 msgstr "Rosnąco"
 
 # List view: Table head
-#: zzform/list.inc.php:1892
+#: zzform/list.inc.php:1890
 msgid "Order by"
 msgstr "Sortuj według"
 
@@ -990,17 +989,17 @@ msgstr "Pokaż"
 
 # Number of records as shown in page TITLE
 # Page elements
-#: zzform/output.inc.php:399
+#: zzform/output.inc.php:396
 msgid "records"
 msgstr "Wpisy"
 
 # Page elements
-#: zzform/output.inc.php:405
+#: zzform/output.inc.php:402
 msgid "page"
 msgstr "strona"
 
 # Page elements: Heading
-#: zzform/output.inc.php:441
+#: zzform/output.inc.php:438
 msgid "Search"
 msgstr "Wyszukiwanie"
 
@@ -1187,12 +1186,12 @@ msgid "Date and time"
 msgstr ""
 
 # Record form: File upload
-#: zzform/record.inc.php:4087
+#: zzform/record.inc.php:4090
 msgid "File upload is currently impossible."
 msgstr ""
 
 # Error handling
-#: zzform/record.inc.php:4088
+#: zzform/record.inc.php:4091
 msgid ""
 "An error occured. We are working on the solution of this problem. Sorry for "
 "your inconvenience. Please try again later."
@@ -1200,38 +1199,38 @@ msgstr ""
 
 # no value available for display, should be abbreviated
 # Record form: field output
-#: zzform/record.inc.php:4200
+#: zzform/record.inc.php:4203
 msgid "<abbr title=\"Not available\">N/A</abbr>"
 msgstr "Niedostępne"
 
 # Backend: Development
-#: zzform/record.inc.php:4245
+#: zzform/record.inc.php:4248
 msgid "Script configuration error. No display field set."
 msgstr "Błąd konfiguracji skryptu. Nie zestaw pole wyświetlacza."
 
 # Record form: field output
-#: zzform/record.inc.php:4258
+#: zzform/record.inc.php:4261
 msgid "calculated field"
 msgstr "Pole wyliczone"
 
 # Record form: identifier, hidden etc.
-#: zzform/record.inc.php:4341
+#: zzform/record.inc.php:4344
 msgid "Would be changed on update"
 msgstr "Zmiany na aktualizację"
 
 # e. g. Add Address, Add Phone Number ...
 # Record form: Detail record
-#: zzform/record.inc.php:4417
+#: zzform/record.inc.php:4420
 msgid "Add %s"
 msgstr "Dodaj %s"
 
 # Record form: Detail record
-#: zzform/record.inc.php:4426
+#: zzform/record.inc.php:4429
 msgid "Remove"
 msgstr "Usuń"
 
 # Record form: Detail record
-#: zzform/record.inc.php:4430
+#: zzform/record.inc.php:4433
 msgid "Remove %s"
 msgstr "Usunąć %s"
 
