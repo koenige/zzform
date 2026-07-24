@@ -77,6 +77,21 @@ function zz_extract_table_fields($content, $relative_path, &$entries) {
 		}
 	}
 
+	// enum_title replaces enum for display labels on the same field
+	$pattern = '/'.zz_extract_fields_prefix().'\[\'enum_title\'\]'
+		. '(\[\]|\[\'[^\']*\'\]|\["[^"]*"\])?\s*=\s*/';
+	if (preg_match_all($pattern, $content, $matches, PREG_OFFSET_CAPTURE)) {
+		foreach ($matches[0] as $index => $match) {
+			$value_offset = $match[1] + strlen($match[0]);
+			$array_suffix = $matches[2][$index][0];
+			$is_array_push = ($array_suffix === '[]');
+			zz_extract_assignment_value(
+				$content, $value_offset, $relative_path, $pot, 'enum_title',
+				$is_array_push, $entries
+			);
+		}
+	}
+
 	// $zz['key'] = 'value';
 	foreach ($zz_keys as $key) {
 		$pattern = '/\$zz\[\'' . preg_quote($key, '/') . '\'\]\s*=\s*/';
@@ -108,8 +123,8 @@ function zz_extract_table_fields($content, $relative_path, &$entries) {
 function zz_extract_enum_skip_indices($content) {
 	$skip = [];
 	$patterns = [
-		'/'.zz_extract_fields_prefix().'\[\'enum_title\'\]/',
-		'/'.zz_extract_fields_prefix().'\[\'enum_tsv\'\]/',
+		'/'.zz_extract_fields_prefix().'\[\'enum_title\'\]\s*=\s*/',
+		'/'.zz_extract_fields_prefix().'\[\'enum_tsv\'\]\s*=\s*/',
 	];
 	foreach ($patterns as $pattern) {
 		if (!preg_match_all($pattern, $content, $matches)) continue;
