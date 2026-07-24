@@ -45,15 +45,16 @@ function zz_extract_table_fields($content, $relative_path, &$entries) {
 	$zz_keys = zz_extract_translatable_zz_keys();
 	$enum_skip = zz_extract_enum_skip_indices($content);
 
-	// $zz['fields'][n]['key'] = 'value';
+	// $zz['fields'][n]['key'] = 'value';  n = number or $no (form scripts)
+	// $zz['fields'][n]['fields'][sub]['key'] = 'value';
 	// $zz['fields'][n]['key'][] = 'value';
 	// $zz['fields'][n]['key']['subkey'] = 'value';
 	foreach ($field_keys as $key) {
 		if ($key === 'enum') {
-			$pattern = '/\$zz\[\'fields\'\]\[(\d+)\]\[\'enum\'\]'
+			$pattern = '/'.zz_extract_fields_prefix().'\[\'enum\'\]'
 				. '(\[\]|\[\'[^\']*\'\]|\["[^"]*"\])?\s*=\s*/';
 		} else {
-			$pattern = '/\$zz\[\'fields\'\]\[\d+\]\[\''
+			$pattern = '/'.zz_extract_fields_prefix().'\[\''
 				. preg_quote($key, '/')
 				. '\'\](\[\]|\[\'[^\']*\'\]|\["[^"]*"\])?\s*=\s*/';
 		}
@@ -64,7 +65,7 @@ function zz_extract_table_fields($content, $relative_path, &$entries) {
 				if (isset($enum_skip[$matches[1][$index][0]])) continue;
 				$array_suffix = $matches[2][$index][0];
 			} else {
-				$array_suffix = $matches[1][$index][0];
+				$array_suffix = $matches[2][$index][0];
 			}
 
 			$value_offset = $match[1] + strlen($match[0]);
@@ -107,8 +108,8 @@ function zz_extract_table_fields($content, $relative_path, &$entries) {
 function zz_extract_enum_skip_indices($content) {
 	$skip = [];
 	$patterns = [
-		'/\$zz\[\'fields\'\]\[(\d+)\]\[\'enum_title\'\]/',
-		'/\$zz\[\'fields\'\]\[(\d+)\]\[\'enum_tsv\'\]/',
+		'/'.zz_extract_fields_prefix().'\[\'enum_title\'\]/',
+		'/'.zz_extract_fields_prefix().'\[\'enum_tsv\'\]/',
 	];
 	foreach ($patterns as $pattern) {
 		if (!preg_match_all($pattern, $content, $matches)) continue;
@@ -132,7 +133,7 @@ function zz_extract_implicit_titles($content, $relative_path, $pot, &$entries) {
 	// collect field indices that have an explicit title
 	$has_title = [];
 	if (preg_match_all(
-		'/\$zz\[\'fields\'\]\[(\d+)\]\[\'title\'\]/',
+		'/'.zz_extract_fields_prefix().'\[\'title\'\]/',
 		$content, $matches
 	)) {
 		$has_title = array_flip($matches[1]);
@@ -140,7 +141,7 @@ function zz_extract_implicit_titles($content, $relative_path, $pot, &$entries) {
 
 	// collect field_name assignments
 	if (!preg_match_all(
-		'/\$zz\[\'fields\'\]\[(\d+)\]\[\'field_name\'\]\s*=\s*(\'(?:[^\'\\\\]|\\\\.)*\'|"(?:[^"\\\\]|\\\\.)*")/',
+		'/'.zz_extract_fields_prefix().'\[\'field_name\'\]\s*=\s*(\'(?:[^\'\\\\]|\\\\.)*\'|"(?:[^"\\\\]|\\\\.)*")/',
 		$content, $matches, PREG_OFFSET_CAPTURE
 	)) return;
 
@@ -427,4 +428,17 @@ function zz_extract_cfg_translate_keys($content) {
 		}
 	}
 	return $keys;
+}
+
+/**
+ * Regex fragment for $zz['fields'][…] with optional subtable path
+ *
+ * Matches numeric indices (table definitions) and loop variables such as $no
+ * (form scripts). Optional ['fields'][n] covers subtable field assignments.
+ * Capture group 1: field index (digits or variable name including $).
+ *
+ * @return string
+ */
+function zz_extract_fields_prefix() {
+	return '\$zz\[\'fields\'\]\[((\d+|\$\w+))\](?:\[\'fields\'\]\[\d+\])?';
 }
