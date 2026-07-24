@@ -440,5 +440,5 @@ function zz_extract_cfg_translate_keys($content) {
  * @return string
  */
 function zz_extract_fields_prefix() {
-	return '\$zz\[\'fields\'\]\[((\d+|\$\w+))\](?:\[\'fields\'\]\[\d+\])?';
+	return '\$zz\[\'fields\'\]\[(\d+|\$\w+)\](?:\[\'fields\'\]\[\d+\])?';
 }
