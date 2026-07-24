@@ -1040,8 +1040,11 @@ function zz_field_title($field) {
  */
 function zz_field_title_extract($field_name) {
 	$title = ucfirst($field_name);
-	$title = str_replace('_ID', ' ', $title);
-	$title = str_replace('_id', ' ', $title);
+	if (str_ends_with($title, '_ID')) {
+		$title = substr($title, 0, -3);
+	} elseif (str_ends_with($title, '_id')) {
+		$title = substr($title, 0, -3);
+	}
 	$title = str_replace('_', ' ', $title);
 	return rtrim($title);
 }
