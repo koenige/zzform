@@ -11,7 +11,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzform\n"
-"POT-Creation-Date: 2026-07-27 05:00+0000\n"
+"POT-Creation-Date: 2026-07-27 08:25+0000\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Gustaf Mossakowski <gustaf@koenige.org>\n"
 "Language-Team: \n"
@@ -276,7 +276,7 @@ msgstr "Neu …"
 
 # Link to edit a new value for detail record via dropdown
 # Record form
-#: templates/zzform-record-field.template.txt:18 zzform/record.inc.php:1959
+#: templates/zzform-record-field.template.txt:18 zzform/record.inc.php:1948
 msgid "Edit …"
 msgstr "Bearbeiten …"
 
@@ -299,13 +299,13 @@ msgstr "Hochgeladene Datei:"
 
 # Record form: File upload
 #: templates/zzform-record-field-file.template.txt:43
-#: zzform/errorhandling.inc.php:420 zzform/upload.inc.php:1753
+#: zzform/errorhandling.inc.php:430 zzform/upload.inc.php:1753
 msgid "Maximum allowed filesize is %s."
 msgstr "Maximal erlaubte Dateigröße %s."
 
 # radio buttons, first entry
 # Record form: Select
-#: templates/zzform-record-radio.template.txt:27 zzform/record.inc.php:3387
+#: templates/zzform-record-radio.template.txt:27 zzform/record.inc.php:3376
 msgid "No selection"
 msgstr "Keine Auswahl"
 
@@ -334,12 +334,12 @@ msgid "Possible value: %s"
 msgstr "Möglicher Wert: %s"
 
 # Record form: Select
-#: templates/zzform-record-select.template.txt:17 zzform/record.inc.php:1006
+#: templates/zzform-record-select.template.txt:17 zzform/record.inc.php:995
 msgid "No selection possible."
 msgstr "Keine Auswahl möglich."
 
 # Record form: field output
-#: templates/zzform-record-select.template.txt:25 zzform/record.inc.php:1743
+#: templates/zzform-record-select.template.txt:25 zzform/record.inc.php:1732
 msgid "will be added automatically"
 msgstr "wird automatisch hinzugefügt"
 
@@ -534,64 +534,64 @@ msgid "Reason"
 msgstr "Grund"
 
 # Record form: Detail record
-#: zzform/action.inc.php:125
+#: zzform/action.inc.php:127
 msgid "Minimum of records for table `%s` was not met (%d)."
 msgstr "Im Feld `%s` sind mehr Daten erforderlich (min. Anzahl: %d)."
 
 # Record form: Validation, displayed above form
-#: zzform/action.inc.php:129 zzform/preparation.inc.php:1535
+#: zzform/action.inc.php:131 zzform/preparation.inc.php:1535
 msgid "Value missing in field <strong>%s</strong>."
 msgstr "Angabe im Feld <strong>%s</strong> fehlt."
 
-#: zzform/action.inc.php:339
+#: zzform/action.inc.php:341
 msgid "Detail record could not be updated"
 msgstr "Der Detaildatensatz konnte nicht aktualisiert werden"
 
-#: zzform/action.inc.php:365 zzform/action.inc.php:386
+#: zzform/action.inc.php:367 zzform/action.inc.php:388
 msgid "Detail record could not be deleted"
 msgstr "Der Detaildatensatz konnte nicht gelöscht werden"
 
 # Record form: Validation, displayed above form
-#: zzform/action.inc.php:682
+#: zzform/action.inc.php:684
 msgid "There was a problem with the detail record."
 msgstr "Teileintrag konnte nicht gespeichert werden."
 
-#: zzform/action.inc.php:1889 zzform/action.inc.php:1907
+#: zzform/action.inc.php:1891 zzform/action.inc.php:1909
 msgid "The number %d is too high. Maximum value is %d."
 msgstr "Die Zahl %d ist zu hoch. Der maximale Wert ist %d."
 
 # Record form: Change password
-#: zzform/action.inc.php:1955
+#: zzform/action.inc.php:1957
 msgid "Please enter your current password and twice your new password."
 msgstr ""
 "Bitte geben Sie Ihr aktuelles Passwort und zweimal das neue Passwort ein."
 
 # Record form: Validation, displayed inside form
-#: zzform/action.inc.php:2229
+#: zzform/action.inc.php:2231
 msgid "Text is too long (max. %d characters, %d submitted)."
 msgstr "Text ist zu lang (max. %d Zeichen, %d eingegeben)."
 
 # Record form: Validation, displayed inside form
-#: zzform/action.inc.php:2241
+#: zzform/action.inc.php:2243
 msgid "Text is too short (min. %d characters, %d submitted)."
 msgstr "Text ist zu kurz (min. %d Zeichen, %d eingegeben)."
 
-#: zzform/action.inc.php:2265
+#: zzform/action.inc.php:2267
 msgid "Array <em>“%s”</em> does not match pattern <em>“%s”</em>"
 msgstr "Die Liste <em>„%s“</em> stimmt nicht mit Muster <em>„%s“</em> überein"
 
-#: zzform/action.inc.php:2272
+#: zzform/action.inc.php:2274
 msgid "Value <em>“%s”</em> does not match pattern <em>“%s”</em>"
 msgstr ""
 "Der Wert <em>„%s“</em> stimmt nicht mit dem Muster <em>„%s“</em> überein "
 "<em></em>"
 
-#: zzform/action.inc.php:2298
+#: zzform/action.inc.php:2300
 msgid "unkown"
 msgstr "unbekannt"
 
 # Record form: Validation, displayed above form
-#: zzform/action.inc.php:2304
+#: zzform/action.inc.php:2306
 msgid ""
 "Value in field <em>“%s”</em> must not be identical to field <em>“%s”</em>."
 msgstr ""
@@ -599,39 +599,39 @@ msgstr ""
 "identisch sein."
 
 # Record form: Validation, displayed above form
-#: zzform/action.inc.php:2606
+#: zzform/action.inc.php:2608
 msgid "String <em>“%s”</em> is not allowed"
 msgstr "Die Zeichenfolge <em>»%s«</em> ist nicht erlaubt"
 
 # Record form: Validation, displayed above form
-#: zzform/action.inc.php:2628
+#: zzform/action.inc.php:2630
 msgid "Value “%s” needs to be greater than “%s”."
 msgstr "Der Wert „%s“ muss größer als „%s“ sein."
 
 # Record form: Validation, displayed above form
-#: zzform/action.inc.php:2630
+#: zzform/action.inc.php:2632
 msgid "Value “%s” needs to be greater than or equal to “%s”."
 msgstr "Der Wert „%s“ muss größer oder gleich „%s“ sein."
 
 # Record form: Validation, displayed above form
-#: zzform/action.inc.php:2632
+#: zzform/action.inc.php:2634
 msgid "Value “%s” needs to be smaller than “%s”."
 msgstr "Der Wert „%s“ muss kleiner als „%s“ sein."
 
 # Record form: Validation, displayed above form
-#: zzform/action.inc.php:2634
+#: zzform/action.inc.php:2636
 msgid "Value “%s” needs to be smaller than or equal to “%s”."
 msgstr "Der Wert „%s“ muss kleiner oder gleich „%s“ sein."
 
 # Record form: Change password
-#: zzform/action.inc.php:2659
+#: zzform/action.inc.php:2661
 msgid "New passwords do not match. Please try again."
 msgstr ""
 "Die Eingaben für das neue Passwort unterscheiden sich. Bitte versuchen Sie "
 "es nocheinmal."
 
 # Record form: Change password
-#: zzform/action.inc.php:2668
+#: zzform/action.inc.php:2670
 msgid ""
 "New and old password are identical. Please choose a different new password."
 msgstr ""
@@ -639,7 +639,7 @@ msgstr ""
 "Passwort aus."
 
 # Record form: Change password
-#: zzform/action.inc.php:2678
+#: zzform/action.inc.php:2680
 msgid ""
 "Your current password is different from what you entered. Please try again."
 msgstr ""
@@ -647,14 +647,14 @@ msgstr ""
 "versuchen Sie es nocheinmal."
 
 # Record form: Change password
-#: zzform/action.inc.php:2691
+#: zzform/action.inc.php:2693
 msgid "Your new password could not be saved. Please try a different one."
 msgstr ""
 "Ihr neues Passwort konnte nicht gespeichert werden. Bitte versuchen Sie es "
 "mit einem anderen."
 
 # Record form: Validation, displayed above form
-#: zzform/action.inc.php:2752 zzform/database.inc.php:505
+#: zzform/action.inc.php:2754 zzform/database.inc.php:505
 msgid ""
 "Duplicate entry in this table. Please check whether the record you were "
 "about to enter already exists or you’ll have to change the values you "
@@ -664,7 +664,7 @@ msgstr ""
 "gewünschte Eintrag bereits existiert oder ob Sie Ihren Eintrag ändern können."
 
 # Record form: Validation of Database Integrity, displayed above form
-#: zzform/action.inc.php:2799
+#: zzform/action.inc.php:2802
 msgid "No records in relation table `%s`. Please fill in records."
 msgstr ""
 "Keine Einträge in Tabelle `%s`. Bitte füllen Sie diese Tabelle mit Werten."
@@ -768,41 +768,43 @@ msgstr "Zurück zum letzten Formular"
 msgid "These problems occured:"
 msgstr "Diese Probleme sind aufgetreten:"
 
-#: zzform/errorhandling.inc.php:118
-msgid "An error occured."
-msgstr "Es ist ein Fehler aufgetreten."
+# Error handling
+#: zzform/errorhandling.inc.php:122 zzform/record.inc.php:4080
+msgid ""
+"An error occured. We are working on the solution of this problem. Sorry for "
+"your inconvenience. Please try again later."
+msgstr ""
+"Ein Fehler ist aufgetreten. Wir arbeiten an der Lösung des Problems. Bitte "
+"entschuldigen Sie die Unannehmlichkeiten. Versuchen Sie es bitte später "
+"nocheinmal."
 
 # Error handling
-#: zzform/errorhandling.inc.php:173 zzform/errorhandling.inc.php:176
-#: zzform/record.inc.php:130
+#: zzform/errorhandling.inc.php:176 zzform/errorhandling.inc.php:179
+#: zzform/record.inc.php:129 zzform/record.inc.php:134
 msgid "Attention!"
 msgstr "Achtung!"
 
 # Backend: Development, Error mail
-#: zzform/errorhandling.inc.php:189
+#: zzform/errorhandling.inc.php:192
 msgid "The following error(s) occured in project %s:"
 msgstr "Folgende(r) Fehler sind im Projekt %s aufgetaucht:"
 
 # Backend: Development, Error mail
-#: zzform/errorhandling.inc.php:198
+#: zzform/errorhandling.inc.php:201
 msgid "Database access error"
 msgstr "Fehler bei Datenbankzugriff"
 
 # Record form: File upload
-#: zzform/errorhandling.inc.php:418
+#: zzform/errorhandling.inc.php:429
 msgid "Transfer failed. Probably you sent a file that was too large."
 msgstr ""
 "Übertragung fehlgeschlagen. Vermutlich haben Sie eine Datei gesendet, die zu "
 "groß war."
 
-#: zzform/errorhandling.inc.php:419
-msgid "<br>"
-msgstr ""
-
 # Record form: File upload
-#: zzform/errorhandling.inc.php:421
-msgid " – You sent: %s data."
-msgstr " – Sie haben %s Daten gesendet."
+#: zzform/errorhandling.inc.php:431
+msgid "– You sent: %s data."
+msgstr "– Sie haben %s Daten gesendet."
 
 # Modules: Export
 #: zzform/export.inc.php:39
@@ -1156,7 +1158,7 @@ msgid "A record with the ID %d does not exist."
 msgstr "Es existiert kein Eintrag unter der ID %d."
 
 # Record form: Validation of Database Integrity, displayed above form
-#: zzform/record.inc.php:147
+#: zzform/record.inc.php:137
 msgid ""
 "This record could not be deleted because it has other data associated with "
 "it."
@@ -1164,127 +1166,111 @@ msgstr ""
 "Der Eintrag konnte nicht gelöscht werden, da mit ihm weitere Daten verknüpft "
 "sind."
 
-#: zzform/record.inc.php:148
-msgid ""
-"\n"
-"%s"
-msgstr ""
-
 # Record form: Heading
-#: zzform/record.inc.php:166
+#: zzform/record.inc.php:155
 msgid "Show a record"
 msgstr "Eintrag anzeigen"
 
 # Record form: Revision
-#: zzform/record.inc.php:597
+#: zzform/record.inc.php:586
 msgid "Old value: %s"
 msgstr "Alter Wert: %s"
 
 # Record form: Revision
-#: zzform/record.inc.php:598
+#: zzform/record.inc.php:587
 msgid "– empty –"
 msgstr "– leer –"
 
 # Record form: Select
-#: zzform/record.inc.php:1006
+#: zzform/record.inc.php:995
 msgid "No source defined"
 msgstr "Keine Quelle angegeben"
 
 # select/deselect checkboxes
 # Record form: Select
-#: zzform/record.inc.php:1720
+#: zzform/record.inc.php:1709
 msgid "Select all"
 msgstr "Alle auswählen"
 
 # select/deselect checkboxes
 # Record form: Select
-#: zzform/record.inc.php:1721
+#: zzform/record.inc.php:1710
 msgid "Deselect all"
 msgstr "Auswahl entfernen"
 
 # Record form: identifier, hidden etc.
-#: zzform/record.inc.php:1816
+#: zzform/record.inc.php:1805
 msgid "Record for <strong>%s</strong> does not exist. (ID: %s)"
 msgstr "Eintrag für <strong>%s</strong> existiert nicht. (ID: %s)"
 
 # Record form: foreign record
-#: zzform/record.inc.php:1951
+#: zzform/record.inc.php:1940
 msgid "No data available."
 msgstr "Keine Daten vorhanden."
 
 # Record form: foreign record
-#: zzform/record.inc.php:1956
+#: zzform/record.inc.php:1945
 msgid "No entry possible. First save this record."
 msgstr "Kein Eintrag möglich. Bitte speichern Sie zuerst den Eintrag."
 
 # Record form: Change password
-#: zzform/record.inc.php:1974
+#: zzform/record.inc.php:1963
 msgid "hidden"
 msgstr "versteckt"
 
 # Record form: Date field
-#: zzform/record.inc.php:2295
+#: zzform/record.inc.php:2284
 msgid "Date"
 msgstr "Datum"
 
 # Record form: Datetime field
-#: zzform/record.inc.php:2321
+#: zzform/record.inc.php:2310
 msgid "Date and time"
 msgstr "Datum und Uhrzeit"
 
-#: zzform/record.inc.php:2577
+#: zzform/record.inc.php:2566
 msgid "Malformed request, ID for a set needs to be numeric"
 msgstr ""
 
 # Record form: File upload
-#: zzform/record.inc.php:4090
+#: zzform/record.inc.php:4079
 msgid "File upload is currently impossible."
 msgstr "Ein Dateiupload ist zur Zeit nicht möglich."
 
-# Error handling
-#: zzform/record.inc.php:4091
-msgid ""
-"An error occured. We are working on the solution of this problem. Sorry for "
-"your inconvenience. Please try again later."
-msgstr ""
-"Ein Fehler ist aufgetreten. Wir arbeiten an der Lösung des Problems. Bitte "
-"entschuldigen Sie die Unannehmlichkeiten. Versuchen Sie es bitte später "
-"nocheinmal."
-
 # no value available for display, should be abbreviated
 # Record form: field output
-#: zzform/record.inc.php:4203
+#: zzform/record.inc.php:4191
 msgid "<abbr title=\"Not available\">N/A</abbr>"
 msgstr "<abbr title=\"keine Angabe\">k.&nbsp;A.</abbr>"
 
 # Backend: Development
-#: zzform/record.inc.php:4248
+#: zzform/record.inc.php:4236
 msgid "Script configuration error. No display field set."
 msgstr "Script configuration error. No display field set."
 
 # Record form: field output
-#: zzform/record.inc.php:4261
+#: zzform/record.inc.php:4249
 msgid "calculated field"
 msgstr "berechnetes Feld"
 
 # Record form: identifier, hidden etc.
-#: zzform/record.inc.php:4344
+#: zzform/record.inc.php:4332
 msgid "Would be changed on update"
 msgstr "Würde bei Aktualisierung geändert"
 
 # e. g. Add Address, Add Phone Number ...
 # Record form: Detail record
-#: zzform/record.inc.php:4420
+#: zzform/record.inc.php:4408
 msgid "Add %s"
 msgstr "%s ergänzen"
 
 # Record form: Detail record
-#: zzform/record.inc.php:4429
+#: zzform/record.inc.php:4417
 msgid "Remove"
 msgstr "Entfernen"
 
 # Record form: Detail record
-#: zzform/record.inc.php:4433
+#: zzform/record.inc.php:4421
 msgid "Remove %s"
 msgstr "%s entfernen"
 

@@ -125,30 +125,19 @@ function zz_record($ops, $record, $zz_tab, $zz_conditions) {
 				wrap_static('zzform_page', 'status', 404);
 			}
 		}
-	} elseif (!empty($zz_tab[0]['integrity']['_msg_values'])) {
-		// check for '_msg', 'updates' might contain values
+	} elseif (!empty($zz_tab[0]['integrity']['missing'])) {
 		$record['formhead'] = wrap_text('Attention!');
-		if (!empty($zz_tab[0]['integrity']['msg_no_list'])) {
-			zz_error_log([
-				'_msg' => $zz_tab[0]['integrity']['_msg'],
-				'_msg_values' => $zz_tab[0]['integrity']['_msg_values']
-			]);
-		} else {
-			if (isset($zz_tab[0]['integrity']['_msg_values'])) {
-				$tmp_error_msg = sprintf(
-					"<ul>\n<li>%s</li>\n</ul>\n",
-					implode("</li>\n<li>", $zz_tab[0]['integrity']['_msg_values'])
-				);
-			} else {
-				$tmp_error_msg = '';
-			}
-			zz_error_log([
-				'_msg' => [
-					'This record could not be deleted because it has other data associated with it.',
-					$zz_tab[0]['integrity']['_msg'], "\n%s"],
-				'_msg_values' => [$tmp_error_msg]
-			]);
-		}
+		zz_error_log([
+			'text' => $zz_tab[0]['integrity']['missing']
+		]);
+	} elseif (!empty($zz_tab[0]['integrity']['blocking'])) {
+		$record['formhead'] = wrap_text('Attention!');
+		zz_error_log([
+			'text' => wrap_text(
+				'This record could not be deleted because it has other data associated with it.',
+				['suffix' => $zz_tab[0]['integrity']['blocking']]
+			)
+		]);
 	} elseif (in_array($ops['mode'], $record_form) OR 
 		(in_array($ops['mode'], ['show']) AND !$action_before_redirect)) {
 	//	mode = add | edit | delete: show form

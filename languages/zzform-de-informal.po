@@ -777,8 +777,8 @@ msgstr ""
 
 # Record form: File upload
 #: zzform/errorhandling.inc.php:421
-msgid " – You sent: %s data."
-msgstr " – Du hast %s Daten gesendet."
+msgid "– You sent: %s data."
+msgstr "– Du hast %s Daten gesendet."
 
 # Modules: Export
 #: zzform/export.inc.php:42

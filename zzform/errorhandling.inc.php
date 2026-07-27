@@ -425,16 +425,11 @@ function zz_trigger_error_too_big() {
 	
 	if (empty($zz_conf['int']['post_too_big'])) return true;
 	zz_error_log([
-		'_msg' => [
-			'Transfer failed. Probably you sent a file that was too large.',
-			'<br>',
-			'Maximum allowed filesize is %s.',
-			' – You sent: %s data.'
-		],
-		'_msg_values' => [
-			wrap_bytes(zz_upload_max_filesize()),
-			wrap_bytes($_SERVER['CONTENT_LENGTH'])
-		],
+		'text' => wrap_text([
+			['Transfer failed. Probably you sent a file that was too large.', ['suffix' => '<br>']],
+			['Maximum allowed filesize is %s.', ['values' => wrap_bytes(zz_upload_max_filesize())]],
+			['– You sent: %s data.', ['values' => wrap_bytes($_SERVER['CONTENT_LENGTH'])]]
+		]),
 		'level' => E_USER_NOTICE
 	]);
 	return false;

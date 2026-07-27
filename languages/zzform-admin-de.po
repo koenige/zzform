@@ -11,7 +11,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzform module\n"
-"POT-Creation-Date: 2026-07-27 05:00+0000\n"
+"POT-Creation-Date: 2026-07-27 08:25+0000\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Gustaf Mossakowski <gustaf@koenige.org>\n"
 "Language-Team: \n"
@@ -3222,41 +3222,41 @@ msgstr ""
 msgid "Unable to update data in table %s."
 msgstr ""
 
-#: zzform/action.inc.php:528
+#: zzform/action.inc.php:530
 msgid "Update of timestamp failed (ID %d), query: %s"
 msgstr ""
 
-#: zzform/action.inc.php:620
+#: zzform/action.inc.php:622
 msgid "Update without existing record? Record: %s"
 msgstr ""
 
-#: zzform/action.inc.php:684
+#: zzform/action.inc.php:686
 msgid "Query: %s"
 msgstr ""
 
-#: zzform/action.inc.php:821
+#: zzform/action.inc.php:823
 msgid "Hook function %s was not found. Continuing without hook."
 msgstr ""
 
-#: zzform/action.inc.php:845
+#: zzform/action.inc.php:847
 msgid ""
 "Function for hook (%s) tries to set record_replace. Will not be evaluated at "
 "this point."
 msgstr ""
 
-#: zzform/action.inc.php:1496
+#: zzform/action.inc.php:1498
 msgid "Folder cannot be renamed."
 msgstr ""
 
-#: zzform/action.inc.php:1502
+#: zzform/action.inc.php:1504
 msgid "There is already a folder by that name."
 msgstr ""
 
-#: zzform/action.inc.php:2679
+#: zzform/action.inc.php:2681
 msgid "(Encryption: %s, existing hash: %s, entered hash: %s)"
 msgstr ""
 
-#: zzform/action.inc.php:3163
+#: zzform/action.inc.php:3167
 msgid "Field has no maximum integer value (is it an integer?): %s.%s.%s"
 msgstr ""
 
@@ -3470,41 +3470,41 @@ msgstr ""
 msgid "No ID %s found (Query: %s)."
 msgstr ""
 
-#: zzform/record.inc.php:2449
+#: zzform/record.inc.php:2438
 msgid ""
 "For a subtable with a form_display = `set`, there needs to be a field with a "
 "field type `select`."
 msgstr ""
 
-#: zzform/record.inc.php:2580
+#: zzform/record.inc.php:2569
 msgid "Found a value selected that is set to non-selectable (table %s, ID %d)"
 msgstr ""
 
-#: zzform/record.inc.php:2626
+#: zzform/record.inc.php:2615
 msgid ""
 "For a subtable with form_display = `key_value`, a field with `subtable_key` "
 "= true is required."
 msgstr ""
 
-#: zzform/record.inc.php:2634
+#: zzform/record.inc.php:2623
 msgid ""
 "For a subtable with form_display = `key_value`, a field with "
 "`subtable_value` = true is required."
 msgstr ""
 
-#: zzform/record.inc.php:3300
+#: zzform/record.inc.php:3289
 msgid "Subtree with ID %s does not exist."
 msgstr ""
 
-#: zzform/record.inc.php:3439
+#: zzform/record.inc.php:3428
 msgid "`%s` is not a folder. Check `[\"set_folder\"]` definition."
 msgstr ""
 
-#: zzform/record.inc.php:3684
+#: zzform/record.inc.php:3673
 msgid "Mismatch of no. of enum translations in field “%s”"
 msgstr ""
 
-#: zzform/record.inc.php:4094
+#: zzform/record.inc.php:4082
 msgid "Configuration error. Missing upload_image details."
 msgstr ""
 

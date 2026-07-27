@@ -91,7 +91,9 @@ function zz_action($ops, $zz_tab, $validation, $zz_record) {
 				return zz_return([$ops, $zz_tab, $validation]);
 			// if something was returned, validation failed because there 
 			// probably are records
-			if (is_array($zz_tab[0]['integrity']) AND $zz_tab[0]['integrity']['_msg_values']) {
+			if (!empty($zz_tab[0]['integrity']['missing'])) {
+				$validation = false;
+			} elseif (!empty($zz_tab[0]['integrity']['blocking'])) {
 				$validation = false;
 			} elseif ($zz_record['upload_form']) {
 				zz_integrity_check_files($dependent_ids);
@@ -2790,21 +2792,22 @@ function zz_integrity_relations() {
  *
  * @param array $deletable_ids
  * @param array $relations
- * @return mixed bool false: deletion of record possible, integrity will remain
- *		array: '_msg' (error message), '_msg_values' (optional, names of tables
- *		which have a relation to the current record)
+ * @return array empty: deletion of record possible, integrity will remain
+ *		array: 'missing' (error message if missing), 'blocking' (error HTML with names
+ *		of tables which have a relation to the current record)
  */
 function zz_integrity_check($deletable_ids, $relations) {
 	if (!$relations) {
-		$response['_msg'] = 'No records in relation table `%s`. Please fill in records.';
-		$response['_msg_values'] = [wrap_sql_table('zzform_relations')];
-		$response['msg_no_list'] = true;
+		$response['missing'] = wrap_text(
+			'No records in relation table `%s`. Please fill in records.',
+			['values' => [wrap_sql_table('zzform_relations')]]
+		);
 		return $response;
 	}
 
 	$response = [];
-	$response['_msg_values'] = [];
 	$response['updates'] = [];
+	$blocking = [];
 	foreach ($deletable_ids as $master_db => $tables) {
 		foreach ($tables as $master_table => $fields) {
 			if (!isset($relations[$master_db][$master_table])) {
@@ -2836,27 +2839,28 @@ function zz_integrity_check($deletable_ids, $relations) {
 							'ids' => $remaining_ids,
 							'field' => $field
 						];
-					} elseif (!array_key_exists($field['detail_table'], $response['_msg_values'])) {
+					} elseif (!array_key_exists($field['detail_table'], $blocking)) {
 						// there are still IDs which cannot be deleted
 						// check which record they belong to
 						// only get unique values
-						$response['_msg_values'][$field['detail_table']]
-							= zz_nice_tablenames($field['detail_table']).sprintf(' (%s)', wrap_number(count($detail_ids)));
+						$blocking[$field['detail_table']] = [
+							'table' => zz_nice_tablenames($field['detail_table']),
+							'count' => count($detail_ids)
+						];
 					}
 				}
 			}
 		}
 	}
-	if ($response['_msg_values'] OR $response['updates']) {
-		if ($response['_msg_values']) {
+	if ($blocking OR $response['updates']) {
+		if ($blocking) {
 			// we still have detail records
-			$response['_msg_values'] = array_values($response['_msg_values']);
-			$response['_msg'] = '';
+			$response['blocking'] = wrap_template('zzform-integrity-blocking', array_values($blocking));
 		}
 		return $response;
 	} else {
 		// everything is okay
-		return false;
+		return [];
 	}
 }
 
