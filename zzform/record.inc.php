@@ -2574,7 +2574,7 @@ function zz_field_subtable_set($subtable, $display, $my_tab) {
 				
 				];
 			} elseif (!empty($set['rec_id']) AND !wrap_is_int($set['rec_id'])) {
-				wrap_quit(400, 'Malformed request, ID for a set needs to be numeric');
+				wrap_quit(400, wrap_text('Malformed request, ID for a set needs to be numeric'));
 			} else {
 				zz_error_log([
 					'_msg_dev' => 'Found a value selected that is set to non-selectable (table %s, ID %d)',
@@ -4088,9 +4088,8 @@ function zz_field_file($field, $display, $record, $record_saved, $images, $mode,
 			zz_error_log([
 				'_msg' => [
 					'File upload is currently impossible.',
-					'An error occured. We are working on the '
-					.'solution of this problem. Sorry for your '
-					.'inconvenience. Please try again later.'],
+					'An error occured. We are working on the solution of this problem. Sorry for your inconvenience. Please try again later.'
+				],
 				'_msg_dev' => 'Configuration error. Missing upload_image details.',
 				'level' => E_USER_WARNING
 			]);

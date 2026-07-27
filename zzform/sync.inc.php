@@ -38,15 +38,17 @@ function zz_sync($setting) {
 	$setting['logfile'] = sprintf($setting['logfile'], $setting['package'], $setting['identifier']);
 
 	if (isset($_GET['deletable'])) {
-		if (!$setting['deletable']) wrap_quit(404, 'Deletions are not possible for this synchronization.');
+		if (!$setting['deletable']) wrap_quit(404, wrap_text('Deletions are not possible for this synchronization.'));
 		return zz_sync_deletable($setting);
 	}
 
 	switch ($setting['type']) {
 	case 'csv':
 		if (!file_exists($setting['csv_source']))
-			wrap_quit(503, wrap_text('Import: File %s does not exist. '
-				.'Please set a different filename.', ['values' => $setting['csv_source']]));
+			wrap_quit(503, wrap_text(
+				'Import: File %s does not exist. Please set a different filename.',
+				['values' => $setting['csv_source']]
+			));
 		list($raw, $i) = zz_sync_csv($setting);
 		if ($i === $setting['end']) $refresh = true;
 		break;

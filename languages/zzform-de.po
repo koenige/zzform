@@ -11,7 +11,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzform\n"
-"POT-Creation-Date: 2026-07-22 06:08+0000\n"
+"POT-Creation-Date: 2026-07-27 05:00+0000\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Gustaf Mossakowski <gustaf@koenige.org>\n"
 "Language-Team: \n"
@@ -455,8 +455,7 @@ msgid "Created"
 msgstr "Erstellt"
 
 # Record form: Revision
-#: zzbrick_tables/revisions.php:53 zzform/_functions.inc.php:384
-#: zzform/_functions.inc.php:398 zzform/_functions.inc.php:460
+#: zzbrick_tables/revisions.php:53
 msgid "Data"
 msgstr "Daten"
 
@@ -504,7 +503,7 @@ msgstr ""
 # Record form: Validation, displayed inside form
 #: zzbrick_xhr/configs.inc.php:77 zzbrick_xhr/configs.inc.php:83
 #: zzbrick_xhr/zzform.inc.php:137 zzbrick_xhr/zzform.inc.php:143
-#: zzform/functions.inc.php:2341
+#: zzform/functions.inc.php:2344
 msgid "Please enter more characters."
 msgstr "Bitte geben Sie mehr Buchstaben ein."
 
@@ -526,14 +525,13 @@ msgstr "Es wurde keine SQL-Abfrage gefunden. Werte: %s"
 msgid "Deletion of IDs %s impossible."
 msgstr "Das Löschen von IDs %s ist nicht möglich."
 
-#: zzform/_functions.inc.php:341 zzform/_functions.inc.php:398
-#: zzform/_functions.inc.php:460
-msgid "Reason"
-msgstr "Grund"
-
 #: zzform/_functions.inc.php:366
 msgid "Unable to insert record into table %s."
 msgstr "Eintragung in Tabelle %s nicht möglich."
+
+#: zzform/_functions.inc.php:398 zzform/_functions.inc.php:460
+msgid "Reason"
+msgstr "Grund"
 
 # Record form: Detail record
 #: zzform/action.inc.php:125
@@ -862,17 +860,17 @@ msgstr "Der Wert ist nur bei der Bearbeitung sichtbar."
 msgid "Adding value %s in field %s is forbidden here"
 msgstr "Das Hinzufügen des Werts %s in Feld %s ist hier nicht zulässig"
 
-#: zzform/functions.inc.php:1066
+#: zzform/functions.inc.php:1069
 msgid "Only one field may be defined as `id`!"
 msgstr "Es darf nur ein Feld als `id` definiert werden!"
 
 # Record form: Validation, displayed inside form
-#: zzform/functions.inc.php:2279
+#: zzform/functions.inc.php:2282
 msgid "No entry found. Try less characters."
 msgstr "Keinen Eintrag gefunden. Versuchen Sie es mit weniger Zeichen."
 
 # Record form: Validation, displayed inside form
-#: zzform/functions.inc.php:2295 zzform/functions.inc.php:2315
+#: zzform/functions.inc.php:2298 zzform/functions.inc.php:2318
 msgid "Please make a different selection."
 msgstr "Bitte treffen Sie eine andere Auswahl."
 
@@ -1234,6 +1232,10 @@ msgstr "Datum"
 msgid "Date and time"
 msgstr "Datum und Uhrzeit"
 
+#: zzform/record.inc.php:2577
+msgid "Malformed request, ID for a set needs to be numeric"
+msgstr ""
+
 # Record form: File upload
 #: zzform/record.inc.php:4090
 msgid "File upload is currently impossible."
@@ -1407,6 +1409,6 @@ msgstr ""
 "Sie wurden automatisch ausgeloggt, Ihre Änderungen wurden daher noch nicht "
 "gespeichert. Bitte schicken Sie das Formular erneut ab."
 
-#: zzwrap/extract.inc.php:362
+#: zzwrap/extract.inc.php:378
 msgid "translatable key \"%s\" uses wrap_text()"
 msgstr ""

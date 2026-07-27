@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzform module\n"
-"POT-Creation-Date: 2026-07-22 06:08+0000\n"
+"POT-Creation-Date: 2026-07-27 05:16+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -448,9 +448,6 @@ msgstr ""
 
 # Record form: Revision
 #: zzbrick_tables/revisions.php:53
-#: zzform/_functions.inc.php:384
-#: zzform/_functions.inc.php:398
-#: zzform/_functions.inc.php:460
 msgid "Data"
 msgstr ""
 
@@ -498,7 +495,7 @@ msgstr ""
 #: zzbrick_xhr/configs.inc.php:83
 #: zzbrick_xhr/zzform.inc.php:137
 #: zzbrick_xhr/zzform.inc.php:143
-#: zzform/functions.inc.php:2341
+#: zzform/functions.inc.php:2344
 msgid "Please enter more characters."
 msgstr ""
 
@@ -523,14 +520,13 @@ msgstr ""
 msgid "Deletion of IDs %s impossible."
 msgstr ""
 
-#: zzform/_functions.inc.php:341
+#: zzform/_functions.inc.php:366
+msgid "Unable to insert record into table %s."
+msgstr ""
+
 #: zzform/_functions.inc.php:398
 #: zzform/_functions.inc.php:460
 msgid "Reason"
-msgstr ""
-
-#: zzform/_functions.inc.php:366
-msgid "Unable to insert record into table %s."
 msgstr ""
 
 # Record form: Detail record
@@ -751,8 +747,10 @@ msgstr ""
 msgid "These problems occured:"
 msgstr ""
 
-#: zzform/errorhandling.inc.php:118
-msgid "An error occured."
+# Error handling
+#: zzform/errorhandling.inc.php:119
+#: zzform/record.inc.php:4091
+msgid "An error occured. We are working on the solution of this problem. Sorry for your inconvenience. Please try again later."
 msgstr ""
 
 # Error handling
@@ -833,18 +831,18 @@ msgstr ""
 msgid "Adding value %s in field %s is forbidden here"
 msgstr ""
 
-#: zzform/functions.inc.php:1066
+#: zzform/functions.inc.php:1069
 msgid "Only one field may be defined as `id`!"
 msgstr ""
 
 # Record form: Validation, displayed inside form
-#: zzform/functions.inc.php:2279
+#: zzform/functions.inc.php:2282
 msgid "No entry found. Try less characters."
 msgstr ""
 
 # Record form: Validation, displayed inside form
-#: zzform/functions.inc.php:2295
-#: zzform/functions.inc.php:2315
+#: zzform/functions.inc.php:2298
+#: zzform/functions.inc.php:2318
 msgid "Please make a different selection."
 msgstr ""
 
@@ -1190,50 +1188,49 @@ msgstr ""
 msgid "Date and time"
 msgstr ""
 
+#: zzform/record.inc.php:2577
+msgid "Malformed request, ID for a set needs to be numeric"
+msgstr ""
+
 # Record form: File upload
 #: zzform/record.inc.php:4090
 msgid "File upload is currently impossible."
 msgstr ""
 
-# Error handling
-#: zzform/record.inc.php:4091
-msgid "An error occured. We are working on the solution of this problem. Sorry for your inconvenience. Please try again later."
-msgstr ""
-
 # no value available for display, should be abbreviated
 # Record form: field output
-#: zzform/record.inc.php:4203
+#: zzform/record.inc.php:4202
 msgid "<abbr title=\"Not available\">N/A</abbr>"
 msgstr ""
 
 # Backend: Development
-#: zzform/record.inc.php:4248
+#: zzform/record.inc.php:4247
 msgid "Script configuration error. No display field set."
 msgstr ""
 
 # Record form: field output
-#: zzform/record.inc.php:4261
+#: zzform/record.inc.php:4260
 msgid "calculated field"
 msgstr ""
 
 # Record form: identifier, hidden etc.
-#: zzform/record.inc.php:4344
+#: zzform/record.inc.php:4343
 msgid "Would be changed on update"
 msgstr ""
 
 # e. g. Add Address, Add Phone Number ...
 # Record form: Detail record
-#: zzform/record.inc.php:4420
+#: zzform/record.inc.php:4419
 msgid "Add %s"
 msgstr ""
 
 # Record form: Detail record
-#: zzform/record.inc.php:4429
+#: zzform/record.inc.php:4428
 msgid "Remove"
 msgstr ""
 
 # Record form: Detail record
-#: zzform/record.inc.php:4433
+#: zzform/record.inc.php:4432
 msgid "Remove %s"
 msgstr ""
 
@@ -1352,6 +1349,6 @@ msgstr ""
 msgid "You had been logged out automatically. Therefore, your changes were not yet saved. Please submit the form again."
 msgstr ""
 
-#: zzwrap/extract.inc.php:362
+#: zzwrap/extract.inc.php:378
 msgid "translatable key \"%s\" uses wrap_text()"
 msgstr ""

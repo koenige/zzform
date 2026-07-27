@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzform module\n"
-"POT-Creation-Date: 2026-07-22 06:08+0000\n"
+"POT-Creation-Date: 2026-07-27 05:16+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -2996,34 +2996,34 @@ msgid "zzform field definition incorrect, field has neither field_name nor title
 msgstr ""
 
 # Record form: Heading
-#: zzform/functions.inc.php:1567
+#: zzform/functions.inc.php:1570
 msgid "Configuration does not allow this mode: %s"
 msgstr ""
 
 # Record form: Heading
-#: zzform/functions.inc.php:1577
+#: zzform/functions.inc.php:1580
 msgid "Configuration does not allow this action: %s"
 msgstr ""
 
 # Record form: Validation, displayed above form
-#: zzform/functions.inc.php:1817
+#: zzform/functions.inc.php:1820
 msgid "Creation of directory %s failed: Parent directory is not writable."
 msgstr ""
 
 # Record form: Validation, displayed above form
-#: zzform/functions.inc.php:1831
+#: zzform/functions.inc.php:1834
 msgid "Creation of directory %s failed."
 msgstr ""
 
-#: zzform/functions.inc.php:2130
+#: zzform/functions.inc.php:2133
 msgid "It is not possible to depend on different fields in a single subtable (%s). Second field is ignored."
 msgstr ""
 
-#: zzform/functions.inc.php:2354
+#: zzform/functions.inc.php:2357
 msgid "Multiple records matching (maybe set \"ids\" for zzform_multi?): value %s in field %s. <br>SQL: %s"
 msgstr ""
 
-#: zzform/functions.inc.php:2359
+#: zzform/functions.inc.php:2362
 msgid "No entry found: value %s in field %s. <br>SQL: %s"
 msgstr ""
 
@@ -3156,7 +3156,7 @@ msgstr ""
 msgid "Mismatch of no. of enum translations in field “%s”"
 msgstr ""
 
-#: zzform/record.inc.php:4094
+#: zzform/record.inc.php:4093
 msgid "Configuration error. Missing upload_image details."
 msgstr ""
 
@@ -3188,47 +3188,51 @@ msgstr ""
 msgid "Unable to find hash for token %s"
 msgstr ""
 
-#: zzform/sync.inc.php:48
-msgid "Import: File %s does not exist. "
+#: zzform/sync.inc.php:41
+msgid "Deletions are not possible for this synchronization."
 msgstr ""
 
-#: zzform/sync.inc.php:169
+#: zzform/sync.inc.php:49
+msgid "Import: File %s does not exist. Please set a different filename."
+msgstr ""
+
+#: zzform/sync.inc.php:171
 msgid "Please set an import filename via $setting[\"csv_filename\"]."
 msgstr ""
 
-#: zzform/sync.inc.php:181
+#: zzform/sync.inc.php:183
 msgid "Please set an import type via <code>$setting[\"type\"]</code>. Possible types are: %s"
 msgstr ""
 
-#: zzform/sync.inc.php:187
+#: zzform/sync.inc.php:189
 msgid "Please define a query for the existing records in the database with -- %s_existing --."
 msgstr ""
 
-#: zzform/sync.inc.php:191
+#: zzform/sync.inc.php:193
 msgid "Please set which fields should be imported in `fields`."
 msgstr ""
 
-#: zzform/sync.inc.php:193
+#: zzform/sync.inc.php:195
 msgid "Please tell us the name of the form script in `form_script`."
 msgstr ""
 
-#: zzform/sync.inc.php:259
+#: zzform/sync.inc.php:261
 msgid "Please set one or more fields as unique key fields in `csv_key`."
 msgstr ""
 
-#: zzform/sync.inc.php:300
+#: zzform/sync.inc.php:302
 msgid "New record has not enough values for the key. (%d expected, record looks as follows: %s)"
 msgstr ""
 
-#: zzform/sync.inc.php:374
+#: zzform/sync.inc.php:376
 msgid "Could not fetch data from %s"
 msgstr ""
 
-#: zzform/sync.inc.php:556
+#: zzform/sync.inc.php:558
 msgid "not set"
 msgstr ""
 
-#: zzform/sync.inc.php:856
+#: zzform/sync.inc.php:858
 msgid "Field %s is missing in table definition."
 msgstr ""
 

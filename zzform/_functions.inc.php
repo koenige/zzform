@@ -338,7 +338,7 @@ function zzform_delete($table, $ids, $error_type = E_USER_NOTICE, $settings = []
 				'Unable to delete ID %s from table %s.',
 				[
 					'values' => [$id, $def['table']],
-					'data' => [wrap_text('Reason') => $ops['error']],
+					'data' => ['Reason' => $ops['error']],
 					'intro' => $def['msg']
 				]
 			], $error_type, $def['error_settings']);
@@ -381,7 +381,7 @@ function zzform_insert($table, $data, $error_type = E_USER_NOTICE, $settings = [
 				'Forbidden to insert data into table %s: Value %s is not allowed for field %s.',
 				[
 					'values' => [$def['table'], $data[$field_name], $field_name],
-					'data' => [wrap_text('Data') => $data],
+					'data' => ['Data' => $data],
 					'intro' => $def['msg']
 				]
 			], $error_type, $def['error_settings']);
@@ -395,7 +395,7 @@ function zzform_insert($table, $data, $error_type = E_USER_NOTICE, $settings = [
 			'Unable to insert data into table %s.',
 			[
 				'values' => [$def['table']],
-				'data' => [wrap_text('Data') => $data, wrap_text('Reason') => $ops['error']],
+				'data' => ['Data' => $data, wrap_text('Reason') => $ops['error']],
 				'intro' => $def['msg']
 			]
 		], $error_type, $def['error_settings']);
@@ -457,7 +457,7 @@ function zzform_update($table, $data, $error_type = E_USER_NOTICE, $settings = [
 			'Unable to update data in table %s.',
 			[
 				'values' => [$def['table']],
-				'data' => [wrap_text('Data') => $data, wrap_text('Reason') => $ops['error']],
+				'data' => ['Data' => $data, wrap_text('Reason') => $ops['error']],
 				'intro' => $def['msg']
 			],
 		], $error_type, $def['error_settings']);

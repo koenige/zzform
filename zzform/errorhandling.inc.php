@@ -115,9 +115,9 @@ function zz_error() {
 
 		switch ($error['level']) {
 		case E_USER_ERROR:
-			if (!$error['_msg']) $user[$key] .= wrap_text('An error occured.'
-				.' We are working on the solution of this problem. '
-				.'Sorry for your inconvenience. Please try again later.');
+			if (!$error['_msg']) $user[$key] .= wrap_text(
+				'An error occured. We are working on the solution of this problem. Sorry for your inconvenience. Please try again later.'
+			);
 			$level = 'error';
 			// get out of this function immediately:
 			$return = 'exit';
