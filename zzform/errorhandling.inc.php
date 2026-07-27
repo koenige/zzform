@@ -57,7 +57,7 @@ function zz_error() {
 			wrap_static('zzform_page', 'status', $error['status']);
 
 		// initialize and translate error messages
-		if (!empty($error['_msg'])) {
+		if (empty($error['text']) AND !empty($error['_msg'])) {
 			// allow '_msg' to be an array to translate each sentence individually
 			if (!is_array($error['_msg'])) $error['_msg'] = [$error['_msg']];
 			foreach ($error['_msg'] as $index => $msg) {
@@ -84,38 +84,41 @@ function zz_error() {
 				}
 				$error['_msg'] = implode(' ', $mymsg);
 			}
-		} else {
-			$error['_msg'] = '';
-		}
-		if (!empty($error['_msg_values'])) {
-			// flatten _msg_values because _msg is concatenated already
-			$args = [];
-			foreach ($error['_msg_values'] as $arg) {
-				if (is_array($arg)) $args = array_merge($args, $arg);
-				else $args[] = $arg;
+			if (!empty($error['_msg_values'])) {
+				// flatten _msg_values because _msg is concatenated already
+				$args = [];
+				foreach ($error['_msg_values'] as $arg) {
+					if (is_array($arg)) $args = array_merge($args, $arg);
+					else $args[] = $arg;
+				}
+				$error['_msg'] = vsprintf($error['_msg'], $args);
 			}
-			$error['_msg'] = vsprintf($error['_msg'], $args);
 		}
+		$user_message = $error['text'] ?? $error['_msg'] ?? '';
+
 		// @todo think about translating dev messages for administrators
 		// in a centrally set (not user defined) language
-		$error['_msg_dev'] = $error['_msg_dev'] ?? '';
-		if (is_array($error['_msg_dev'])) $error['_msg_dev'] = implode(' ', $error['_msg_dev']);
-		$error['_msg_dev'] = trim($error['_msg_dev']);
-		if (!empty($error['_msg_dev_values'])) {
-			$error['_msg_dev'] = vsprintf($error['_msg_dev'], $error['_msg_dev_values']);
+		if (empty($error['text_dev'])) {
+			$error['_msg_dev'] = $error['_msg_dev'] ?? '';
+			if (is_array($error['_msg_dev'])) $error['_msg_dev'] = implode(' ', $error['_msg_dev']);
+			$error['_msg_dev'] = trim($error['_msg_dev']);
+			if (!empty($error['_msg_dev_values'])) {
+				$error['_msg_dev'] = vsprintf($error['_msg_dev'], $error['_msg_dev_values']);
+			}
 		}
+		$dev_message = $error['text_dev'] ?? $error['_msg_dev'] ?? '';
 
 		$user[$key] = false;
 		$admin[$key] = false;
 
 		if (!empty($error['db_errno'])) {
-			$error['_msg'] = zz_db_error($error['db_errno'])
-				.($error['_msg'] ? '<br>'.$error['_msg'] : '');
+			$user_message = zz_db_error($error['db_errno'])
+				.($user_message ? '<br>'.$user_message : '');
 		}
 
 		switch ($error['level']) {
 		case E_USER_ERROR:
-			if (!$error['_msg']) $user[$key] .= wrap_text(
+			if (!$user_message) $user[$key] .= wrap_text(
 				'An error occured. We are working on the solution of this problem. Sorry for your inconvenience. Please try again later.'
 			);
 			$level = 'error';
@@ -134,11 +137,11 @@ function zz_error() {
 		}
 
 		// User output
-		$user[$key] .= $error['_msg'];
+		$user[$key] .= $user_message;
 
 		// Admin output
-		if ($error['_msg_dev']) 
-			$admin[$key] .= $error['_msg_dev'].'<br>';
+		if ($dev_message)
+			$admin[$key] .= $dev_message.'<br>';
 		if (!empty($error['db_msg'])) 
 			$admin[$key] .= $error['db_msg'].':<br>';
 		if (!empty($error['query'])) {
@@ -147,10 +150,10 @@ function zz_error() {
 			$error['log_post_data'] = false;
 			$admin[$key] .= preg_replace("/\s+/", " ", $error['query']).'<br>';
 		}
-		if ($admin[$key] AND $error['_msg'])
-			$admin[$key] = $error['_msg'].'<br>'.$admin[$key];
+		if ($admin[$key] AND $user_message)
+			$admin[$key] = $user_message.'<br>'.$admin[$key];
 		elseif (!$admin[$key])
-			$admin[$key] = $error['_msg'];
+			$admin[$key] = $user_message;
 
 		// Convert admin message to plain text for logging and mailing
 		$log = zz_error_html_to_plain($admin[$key]);
@@ -244,11 +247,15 @@ function zz_error_html_to_plain($message) {
  *
  * @param array $msg
  *		array for each error:
- * 		mixed '_msg' message(s) that always will be sent back to browser
+ * 		mixed '_msg' message(s) translated in zz_error() via wrap_text()
  *		array '_msg_values' vsprintf arguments for _msg
+ * 		string 'text' pre-translated user message (from wrap_text()); not
+ * 			processed again; takes precedence over `_msg`
  * 		string '_msg_dev' message that will be sent to browser, log and mail, 
- * 			depending on settings
+ * 			depending on settings; translated in zz_error()
  *		array '_msg_dev_values' vsprintf arguments for _msg_dev
+ * 		string 'text_dev' pre-translated admin message; not processed again;
+ * 			takes precedence over `_msg_dev`
  * 		int 'level' for error level: currently implemented:
  * 			- E_USER_ERROR: critical error, action could not be finished,
  *				unrecoverable error
@@ -383,6 +390,10 @@ function zz_error_multi($errors) {
 
 	$logged_errors = zz_error_log();
 	foreach ($logged_errors as $index => $error) {
+		if (!empty($error['text_dev'])) {
+			$errors[] = $error['text_dev'];
+			continue;
+		}
 		if (empty($error['_msg_dev'])) continue;
 		if (!empty($error['_msg_dev_values'])) {
 			$error['_msg_dev'] = vsprintf($error['_msg_dev'], $error['_msg_dev_values']);
