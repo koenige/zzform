@@ -741,6 +741,16 @@ function zz_prepare_fields($fields, $db_table, $multiple_times = false, $mode = 
 		if (!isset($fields[$no]['explanation'])) {
 			$fields[$no]['explanation'] = '';
 		}
+		if (!$multiple_times AND !empty($fields[$no]['help'])) {
+			$help = brick(['helplink', $fields[$no]['help']]);
+			if ($help) {
+				$help = str_replace(['<p ', '</p>'], ['<span ', '</span>'], trim($help));
+				if ($fields[$no]['explanation']) $fields[$no]['explanation'] .= '<br>';
+				$fields[$no]['explanation'] .= $help;
+			}
+			unset($fields[$no]['help']);
+		}
+
 		if (!$multiple_times) {
 			if (!empty($fields[$no]['sql'])) // replace whitespace with space
 				$fields[$no]['sql'] = preg_replace("/\s+/", " ", $fields[$no]['sql']);

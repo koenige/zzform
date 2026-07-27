@@ -11,7 +11,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzform\n"
-"POT-Creation-Date: 2026-07-27 08:25+0000\n"
+"POT-Creation-Date: 2026-07-27 13:43+0000\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Gustaf Mossakowski <gustaf@koenige.org>\n"
 "Language-Team: \n"
@@ -503,7 +503,7 @@ msgstr ""
 # Record form: Validation, displayed inside form
 #: zzbrick_xhr/configs.inc.php:77 zzbrick_xhr/configs.inc.php:83
 #: zzbrick_xhr/zzform.inc.php:137 zzbrick_xhr/zzform.inc.php:143
-#: zzform/functions.inc.php:2344
+#: zzform/functions.inc.php:2354
 msgid "Please enter more characters."
 msgstr "Bitte geben Sie mehr Buchstaben ein."
 
@@ -862,17 +862,17 @@ msgstr "Der Wert ist nur bei der Bearbeitung sichtbar."
 msgid "Adding value %s in field %s is forbidden here"
 msgstr "Das Hinzufügen des Werts %s in Feld %s ist hier nicht zulässig"
 
-#: zzform/functions.inc.php:1069
+#: zzform/functions.inc.php:1079
 msgid "Only one field may be defined as `id`!"
 msgstr "Es darf nur ein Feld als `id` definiert werden!"
 
 # Record form: Validation, displayed inside form
-#: zzform/functions.inc.php:2282
+#: zzform/functions.inc.php:2292
 msgid "No entry found. Try less characters."
 msgstr "Keinen Eintrag gefunden. Versuchen Sie es mit weniger Zeichen."
 
 # Record form: Validation, displayed inside form
-#: zzform/functions.inc.php:2298 zzform/functions.inc.php:2318
+#: zzform/functions.inc.php:2308 zzform/functions.inc.php:2328
 msgid "Please make a different selection."
 msgstr "Bitte treffen Sie eine andere Auswahl."
 

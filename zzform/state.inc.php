@@ -144,7 +144,7 @@ function zz_state_definition($zz = []) {
 	// the definition of the database table(s)
 	$uninteresting_zz_keys = [
 		'title', 'explanation', 'explanation_top', 'subtitle', 'list', 'access',
-		'explanation_insert', 'export', 'details', 'footer', 'page', 'setting'
+		'explanation_insert', 'export', 'details', 'footer', 'page', 'setting', 'help'
 	];
 	foreach ($uninteresting_zz_keys as $key) unset($zz[$key]);
 	foreach ($zz['fields'] as $no => &$field) {
