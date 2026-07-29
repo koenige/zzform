@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzform module\n"
-"POT-Creation-Date: 2026-07-27 13:43+0000\n"
+"POT-Creation-Date: 2026-07-29 15:28+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -495,7 +495,7 @@ msgstr ""
 #: zzbrick_xhr/configs.inc.php:83
 #: zzbrick_xhr/zzform.inc.php:137
 #: zzbrick_xhr/zzform.inc.php:143
-#: zzform/functions.inc.php:2354
+#: zzform/functions.inc.php:2381
 msgid "Please enter more characters."
 msgstr ""
 
@@ -828,18 +828,18 @@ msgstr ""
 msgid "Adding value %s in field %s is forbidden here"
 msgstr ""
 
-#: zzform/functions.inc.php:1079
+#: zzform/functions.inc.php:1106
 msgid "Only one field may be defined as `id`!"
 msgstr ""
 
 # Record form: Validation, displayed inside form
-#: zzform/functions.inc.php:2292
+#: zzform/functions.inc.php:2319
 msgid "No entry found. Try less characters."
 msgstr ""
 
 # Record form: Validation, displayed inside form
-#: zzform/functions.inc.php:2308
-#: zzform/functions.inc.php:2328
+#: zzform/functions.inc.php:2335
+#: zzform/functions.inc.php:2355
 msgid "Please make a different selection."
 msgstr ""
 
@@ -1342,6 +1342,6 @@ msgstr ""
 msgid "You had been logged out automatically. Therefore, your changes were not yet saved. Please submit the form again."
 msgstr ""
 
-#: zzwrap/extract.inc.php:378
+#: zzwrap/extract.inc.php:382
 msgid "translatable key \"%s\" uses wrap_text()"
 msgstr ""

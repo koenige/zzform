@@ -741,6 +741,13 @@ function zz_prepare_fields($fields, $db_table, $multiple_times = false, $mode = 
 		if (!isset($fields[$no]['explanation'])) {
 			$fields[$no]['explanation'] = '';
 		}
+		if (!$multiple_times
+			AND ($fields[$no]['type'] ?? '') === 'parameter'
+			AND empty($fields[$no]['help'])
+		) {
+			$parameter_help = zz_prepare_fields_parameter_help($db_table);
+			if ($parameter_help) $fields[$no]['help'] = $parameter_help;
+		}
 		if (!$multiple_times AND !empty($fields[$no]['help'])) {
 			$help = brick(['helplink', $fields[$no]['help']]);
 			if ($help) {
@@ -919,6 +926,31 @@ function zz_prepare_fields($fields, $db_table, $multiple_times = false, $mode = 
 	}
 	$defs[$hash] = $fields;
 	return zz_return($fields);
+}
+
+/**
+ * help path for a parameter field: {package}/{table}-parameters
+ *
+ * @param string $db_table db_name.table
+ * @return string|null
+ */
+function zz_prepare_fields_parameter_help($db_table) {
+	if (!wrap_path('default_help', [], ['testing' => 1])) return null;
+
+	$db_table = explode('.', $db_table);
+	$table = $db_table[1] ?? $db_table[0];
+	$table = wrap_db_prefix_remove($table);
+	if (wrap_setting('db_prefix') AND str_starts_with($table, wrap_setting('db_prefix')))
+		$table = substr($table, strlen(wrap_setting('db_prefix')));
+
+	$files = wrap_collect_files('zzbrick_tables/index.json');
+	$index = [];
+	foreach ($files as $package => $file) {
+		$data = json_decode(file_get_contents($file), true);
+		if (array_key_exists($table, $data))
+			return $package.'/'.$table.'-parameters';
+	}
+	return null;
 }
 
 /**

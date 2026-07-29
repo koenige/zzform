@@ -1,0 +1,65 @@
+{
+    "advanced-search-tips-for-forms": [
+        {
+            "title": "Erweiterte Suche für Formulare",
+            "language": "de",
+            "package": "zzform",
+            "filename": "help/Advanced Search Tips for Forms-de.md",
+            "identifier": "advanced-search-tips-for-forms",
+            "type": "md",
+            "audience": [
+                "editor"
+            ]
+        },
+        {
+            "title": "Advanced Search for Forms",
+            "language": "en",
+            "package": "zzform",
+            "filename": "help/Advanced Search Tips for Forms.md",
+            "identifier": "advanced-search-tips-for-forms",
+            "type": "md",
+            "audience": [
+                "editor"
+            ]
+        }
+    ],
+    "database-structure": [
+        {
+            "title": "Database structure",
+            "language": "en",
+            "package": "zzform",
+            "filename": "help/Database Structure.md",
+            "identifier": "database-structure",
+            "type": "md",
+            "audience": [
+                "programmer"
+            ]
+        }
+    ],
+    "logging-hooks": [
+        {
+            "title": "Logging Hooks",
+            "language": "en",
+            "package": "zzform",
+            "filename": "help/Logging Hooks.md",
+            "identifier": "logging-hooks",
+            "type": "md",
+            "audience": [
+                "programmer"
+            ]
+        }
+    ],
+    "logging": [
+        {
+            "title": "Logging",
+            "language": "en",
+            "package": "zzform",
+            "filename": "help/Logging.md",
+            "identifier": "logging",
+            "type": "md",
+            "audience": [
+                "programmer"
+            ]
+        }
+    ]
+}
