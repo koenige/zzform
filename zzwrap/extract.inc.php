@@ -44,6 +44,7 @@ function zz_extract_table_fields($content, $relative_path, &$entries) {
 	$field_keys = zz_extract_translatable_field_keys();
 	$zz_keys = zz_extract_translatable_zz_keys();
 	$enum_skip = zz_extract_enum_skip_indices($content);
+	$set_skip = zz_extract_enum_skip_indices($content, 'set');
 
 	// $zz['fields'][n]['key'] = 'value';  n = number or $no (form scripts)
 	// $zz['fields'][n]['fields'][sub]['key'] = 'value';
@@ -63,10 +64,10 @@ function zz_extract_table_fields($content, $relative_path, &$entries) {
 		foreach ($matches[0] as $index => $match) {
 			if ($key === 'enum') {
 				if (isset($enum_skip[$matches[1][$index][0]])) continue;
-				$array_suffix = $matches[2][$index][0];
-			} else {
-				$array_suffix = $matches[2][$index][0];
+			} elseif ($key === 'set') {
+				if (isset($set_skip[$matches[1][$index][0]])) continue;
 			}
+			$array_suffix = $matches[2][$index][0];
 
 			$value_offset = $match[1] + strlen($match[0]);
 			$is_array_push = ($array_suffix === '[]');
@@ -77,16 +78,18 @@ function zz_extract_table_fields($content, $relative_path, &$entries) {
 		}
 	}
 
-	// enum_title replaces enum for display labels on the same field
-	$pattern = '/'.zz_extract_fields_prefix().'\[\'enum_title\'\]'
-		. '(\[\]|\[\'[^\']*\'\]|\["[^"]*"\])?\s*=\s*/';
-	if (preg_match_all($pattern, $content, $matches, PREG_OFFSET_CAPTURE)) {
+	// enum_title / set_title replace enum / set for display labels on the same field
+	foreach (['enum_title', 'set_title'] as $title_key) {
+		$pattern = '/'.zz_extract_fields_prefix().'\[\''.$title_key.'\'\]'
+			. '(\[\]|\[\'[^\']*\'\]|\["[^"]*"\])?\s*=\s*/';
+		if (!preg_match_all($pattern, $content, $matches, PREG_OFFSET_CAPTURE)) continue;
+
 		foreach ($matches[0] as $index => $match) {
 			$value_offset = $match[1] + strlen($match[0]);
 			$array_suffix = $matches[2][$index][0];
 			$is_array_push = ($array_suffix === '[]');
 			zz_extract_assignment_value(
-				$content, $value_offset, $relative_path, $pot, 'enum_title',
+				$content, $value_offset, $relative_path, $pot, $title_key,
 				$is_array_push, $entries
 			);
 		}
@@ -111,20 +114,21 @@ function zz_extract_table_fields($content, $relative_path, &$entries) {
 }
 
 /**
- * Field indices whose enum values are not shown (enum_title or enum_tsv)
+ * Field indices whose enum/set values are not shown (…_title or …_tsv)
  *
- * When a field has top-level enum_title, display uses those labels instead of
- * enum values (see zz_field_enum_set()). enum_tsv builds enum at runtime from
- * TSV English strings. Skip extracting enum literals for those fields.
+ * When a field has top-level enum_title or set_title, display uses those labels
+ * instead of enum/set values (see zz_field_enum_set()). enum_tsv / set_tsv build
+ * values at runtime from TSV English strings. Skip extracting literals for those fields.
  *
  * @param string $content file contents with Unix line endings
+ * @param string $base_key 'enum' or 'set'
  * @return array<int, true> field index => true
  */
-function zz_extract_enum_skip_indices($content) {
+function zz_extract_enum_skip_indices($content, $base_key = 'enum') {
 	$skip = [];
 	$patterns = [
-		'/'.zz_extract_fields_prefix().'\[\'enum_title\'\]\s*=\s*/',
-		'/'.zz_extract_fields_prefix().'\[\'enum_tsv\'\]\s*=\s*/',
+		'/'.zz_extract_fields_prefix().'\[\''.$base_key.'_title\'\]\s*=\s*/',
+		'/'.zz_extract_fields_prefix().'\[\''.$base_key.'_tsv\'\]\s*=\s*/',
 	];
 	foreach ($patterns as $pattern) {
 		if (!preg_match_all($pattern, $content, $matches)) continue;
