@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzform module\n"
-"POT-Creation-Date: 2026-07-29 15:28+0000\n"
+"POT-Creation-Date: 2026-07-30 16:10+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -495,7 +495,7 @@ msgstr ""
 #: zzbrick_xhr/configs.inc.php:83
 #: zzbrick_xhr/zzform.inc.php:137
 #: zzbrick_xhr/zzform.inc.php:143
-#: zzform/functions.inc.php:2381
+#: zzform/functions.inc.php:2386
 msgid "Please enter more characters."
 msgstr ""
 
@@ -828,18 +828,18 @@ msgstr ""
 msgid "Adding value %s in field %s is forbidden here"
 msgstr ""
 
-#: zzform/functions.inc.php:1106
+#: zzform/functions.inc.php:1111
 msgid "Only one field may be defined as `id`!"
 msgstr ""
 
 # Record form: Validation, displayed inside form
-#: zzform/functions.inc.php:2319
+#: zzform/functions.inc.php:2324
 msgid "No entry found. Try less characters."
 msgstr ""
 
 # Record form: Validation, displayed inside form
-#: zzform/functions.inc.php:2335
-#: zzform/functions.inc.php:2355
+#: zzform/functions.inc.php:2340
+#: zzform/functions.inc.php:2360
 msgid "Please make a different selection."
 msgstr ""
 
