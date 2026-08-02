@@ -23,6 +23,19 @@
             ]
         }
     ],
+    "forms": [
+        {
+            "title": "Forms",
+            "language": "en",
+            "package": "zzform",
+            "filename": "help/Forms.md",
+            "identifier": "forms",
+            "type": "md",
+            "audience": [
+                "programmer"
+            ]
+        }
+    ],
     "logging-hooks": [
         {
             "title": "Logging Hooks",
