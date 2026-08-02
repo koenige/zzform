@@ -1169,7 +1169,12 @@ function zz_list_field($list, $row, $field, $line, $lastline, $table, $mode) {
 				}
 			} else {
 				$text = $row['value'];
-				if ($text) $text = nl2br(zz_htmltag_escape($text));
+				if ($text AND !empty($field['type_detail']) AND $field['type_detail'] === 'number'
+					AND $mode !== 'export') {
+					$text = zz_number_format($text, $field);
+				} elseif ($text) {
+					$text = nl2br(zz_htmltag_escape($text));
+				}
 			}
 			break;
 		case 'list_function':
@@ -1501,7 +1506,7 @@ function zz_list_group_field_no(&$list, $field, $index) {
  *
  * @param array $field
  * @param array $list
- * @param mixed $value
+ * @param mixed $value numeric value, or amount with currency code ('1234.56 EUR')
  * @param array $group ($rows[$z]['group'])
  * @return array ($list)
  */
@@ -1509,6 +1514,8 @@ function zz_list_sum($field, $list, $value, $group) {
 	if (empty($field['sum'])) return $list;
 	if (empty($field['calculation'])) $field['calculation'] = '';
 	if ($field['calculation'] === 'sql') return $list;
+
+	list($value, $currency) = zz_list_sum_currency($value);
 
 	if (!isset($list['sum'][$field['title']])) {
 		$list['sum'][$field['title']] = 0;
@@ -1519,8 +1526,10 @@ function zz_list_sum($field, $list, $value, $group) {
 		if (!isset($value[2])) $value[2] = 0;
 		$value = 3600 * $value[0] + 60 * $value[1] + $value[2];
 	}
-	if ($value) $list['sum'][$field['title']] += $value;
-	$list['sum_group'] = zz_list_group_sum($group, $list['sum_group'], $field['title'], $value);
+	list($total, ) = zz_list_sum_currency($list['sum'][$field['title']]);
+	if ($value) $total += $value;
+	$list['sum'][$field['title']] = $currency ? $total.' '.$currency : $total;
+	$list['sum_group'] = zz_list_group_sum($group, $list['sum_group'], $field['title'], $value, $currency);
 	return $list;
 }
 
@@ -1532,20 +1541,38 @@ function zz_list_sum($field, $list, $value, $group) {
  * @param string $field_title (for there may be more than one field per row
  *		which we would like to get the sum from)
  * @param double $sum sum to be added
+ * @param string $currency currency code, appended to the sum if set
  * @return array $sum_group
  *		e. g. Architecture = 40; Architecture[income] = 100; 
  *		Architecture[expenses] = 60 etc.
  */
-function zz_list_group_sum($row_group, $sum_group, $field_title, $sum) {
+function zz_list_group_sum($row_group, $sum_group, $field_title, $sum, $currency = '') {
 	$index = '';
 	foreach ($row_group as $my_group) {
 		if ($index) $index .= '['.$my_group.']';
 		else $index = $my_group;
 		if (!isset($sum_group[$index][$field_title])) 
 			$sum_group[$index][$field_title] = 0;
-		if ($sum) $sum_group[$index][$field_title] += $sum;
+		list($total, ) = zz_list_sum_currency($sum_group[$index][$field_title]);
+		if ($sum) $total += $sum;
+		$sum_group[$index][$field_title] = $currency ? $total.' '.$currency : $total;
 	}
 	return $sum_group;
+}
+
+/**
+ * split a value like 'EUR 1234.56' or '1234.56 EUR' into amount and currency code
+ *
+ * @param mixed $value
+ * @return array [amount, currency code or empty string]
+ */
+function zz_list_sum_currency($value) {
+	if (!$value OR !is_string($value)) return [$value, ''];
+	if (preg_match('/^([A-Z]{3})\s+(.+)$/', trim($value), $matches))
+		return [$matches[2], $matches[1]];
+	if (preg_match('/^(.+)\s+([A-Z]{3})$/', trim($value), $matches))
+		return [$matches[1], $matches[2]];
+	return [$value, ''];
 }
 
 /**

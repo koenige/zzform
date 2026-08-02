@@ -794,25 +794,6 @@ function zz_field_format($value, $field) {
 }
 
 /**
- * converts number into currency
- * 
- * @param int $int amount of money
- * @param string $unit currency unit (optional)
- * @return string formatted combination of amount and unit
- */
-function zz_money_format($int, $unit = '') {
-	if (!$int) return false;
-	$int = number_format($int, 2, wrap_setting('decimal_point'), wrap_setting('thousands_separator'));
-	if (!strstr($int, wrap_setting('decimal_point'))) {
-		$int .= wrap_setting('decimal_point').'00';
-	}
-	//$int = str_replace (',00', ',–', $int);
-	if ($unit) $int .= ' '.$unit;
-	$int = str_replace(' ', '&nbsp;', $int);
-	return $int;
-}
-
-/**
  * converts given iso date to d.m.Y or returns date as is if incomplete
  * 
  * @param string $date date to be converted, international date or output of this function
@@ -929,6 +910,7 @@ function zz_hour_format($seconds) {
  * @param array $field
  *		string 'number_type'
  *		string 'geo_format'
+ *		string 'money_format' optional tokens for wrap_money(), e.g. 'symbol'
  * @return string
  */
 function zz_number_format($value, $field) {
@@ -937,7 +919,15 @@ function zz_number_format($value, $field) {
 	
 	switch ($field['number_type']) {
 	case 'currency':
-		$text = zz_money_format($value);
+		if ($value === null || $value === '') return '';
+		$format = [];
+		if (!empty($field['money_format'])) {
+			if (is_array($field['money_format']))
+				$format = $field['money_format'];
+			else
+				$format = preg_split('/\s+/', trim($field['money_format']));
+		}
+		$text = wrap_money($value, ...$format);
 		break;
 	case 'latitude':
 	case 'longitude':
