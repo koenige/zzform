@@ -23,19 +23,6 @@
             ]
         }
     ],
-    "database-structure": [
-        {
-            "title": "Database structure",
-            "language": "en",
-            "package": "zzform",
-            "filename": "help/Database Structure.md",
-            "identifier": "database-structure",
-            "type": "md",
-            "audience": [
-                "programmer"
-            ]
-        }
-    ],
     "logging-hooks": [
         {
             "title": "Logging Hooks",
