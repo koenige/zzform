@@ -924,8 +924,10 @@ function zz_action_change($ops, $zz_tab, $change) {
 	// record? replace values as needed
 	if (!empty($change['record_replace'])) {
 		// replace values
+		$main_record_replaced = false;
 		foreach ($change['record_replace'] as $index => $values) {
 			list($tab, $rec) = explode('-', $planned[$index]['tab-rec']);
+			if (!$tab AND !$rec) $main_record_replaced = true;
 			$zz_tab[$tab][$rec]['POST'] = array_merge($zz_tab[$tab][$rec]['POST'], $values);
 			if (!empty($change['change_info'][$index])) {
 				$zz_tab[$tab][$rec]['change_info'] = $change['change_info'][$index];
@@ -943,8 +945,12 @@ function zz_action_change($ops, $zz_tab, $change) {
 			}
 		}
 		// revalidate, but not if no validation has taken place before
-		if (!array_key_exists('not_validated', $ops))
+		if (!array_key_exists('not_validated', $ops)) {
 			$zz_tab = zz_action_validate($zz_tab, true);
+			// re-validation resets the validation state of the main record,
+			// so check unique keys again with the changed values
+			if ($main_record_replaced) zz_action_unique_check($zz_tab);
+		}
 	}
 	return [$ops, $zz_tab];
 }
@@ -1730,6 +1736,17 @@ function zz_validate($zz_tab, $tab, $rec = 0) {
 	$my_rec['POST-notvalid'] = $my_rec['POST'];
 	$my_rec['last_fields'] = [];
 	$my_rec['extra'] = [];
+
+	// reset validation state; zz_validate() may run more than once,
+	// e. g. re-validation after a hook changed values via record_replace,
+	// and all checks below re-evaluate the current POST values
+	// (upload errors are set before validation in zz_upload_get(), keep them)
+	$my_rec['validation'] = true;
+	foreach ($my_rec['fields'] as $f => $field) {
+		if (($field['type'] ?? '') === 'upload_image') continue;
+		unset($my_rec['fields'][$f]['check_validation']);
+		unset($my_rec['fields'][$f]['validation_error']);
+	}
 
 	foreach ($my_rec['fields'] as $f => $field) {
 	// 	shorthand
