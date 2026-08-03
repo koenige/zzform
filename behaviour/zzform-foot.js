@@ -33,6 +33,7 @@ function zzformRecordForm() {
 	zzformAddDetails();
 	zzformWmdEditor();
 	zzformPopulateEmpty();
+	zzformUnitFromSelect();
 	zzformForm.addEventListener('submit', zzformSubmit);
 }
 
@@ -70,6 +71,53 @@ function zzformPopulateEmptyFromSelect(select) {
 		input.value = value;
 		select.setAttribute(dataAttr, value);
 	}
+}
+
+/**
+ * When a select with data-unit changes, set unit suffixes on target fields from
+ * the selected option's data-unit attribute.
+ */
+function zzformUnitFromSelect() {
+	var selects = zzformForm.querySelectorAll('select[data-unit]');
+	for (var i = 0; i < selects.length; i++) {
+		selects[i].addEventListener('change', function(e) {
+			zzformSetUnitsFromSelect(e.target);
+		});
+		zzformSetUnitsFromSelect(selects[i]);
+	}
+}
+
+function zzformSetUnitsFromSelect(select) {
+	var targets = select.getAttribute('data-unit');
+	if (!targets) return;
+	targets = targets.split(',');
+	var option = select.options[select.selectedIndex];
+	var unit = option && option.getAttribute('data-unit');
+	for (var i = 0; i < targets.length; i++) {
+		var fieldName = targets[i].trim();
+		if (!fieldName) continue;
+		zzformSetFieldUnit(fieldName, unit);
+	}
+}
+
+function zzformSetFieldUnit(fieldName, unit) {
+	var input = zzformForm.querySelector(
+		'input[name="' + fieldName + '"], textarea[name="' + fieldName + '"], ' +
+		'input[name$="[' + fieldName + ']"], textarea[name$="[' + fieldName + ']"]'
+	);
+	if (!input) return;
+	var unitSpan = input.nextElementSibling;
+	if (!unitSpan || !unitSpan.classList.contains('zz-unit')) {
+		var container = input.closest('.zz-appended-field') || input.parentNode;
+		if (!container) return;
+		unitSpan = container.querySelector('.zz-unit');
+	}
+	if (!unitSpan) {
+		unitSpan = document.createElement('span');
+		unitSpan.className = 'zz-unit';
+		input.parentNode.insertBefore(unitSpan, input.nextSibling);
+	}
+	unitSpan.innerHTML = unit ? '\u00a0' + unit : '';
 }
 
 /**

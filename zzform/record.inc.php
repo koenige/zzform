@@ -2875,6 +2875,11 @@ function zz_field_select($field, $record, $lines) {
 	if (!empty($field['data']['default'])) {
 		$element['data-default'] = $field['data']['default'];
 	}
+	if (!empty($field['data']['unit'])) {
+		$unit_fields = $field['data']['unit'];
+		if (!is_array($unit_fields)) $unit_fields = [$unit_fields];
+		$element['data-unit'] = implode(',', $unit_fields);
+	}
 	$data = [
 		'select_attributes' => zz_record_element($element, 'attributes')
 	];
