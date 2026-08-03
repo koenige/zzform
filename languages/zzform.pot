@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzform module\n"
-"POT-Creation-Date: 2026-08-03 01:12+0000\n"
+"POT-Creation-Date: 2026-08-03 08:30+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -16,27 +16,27 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: behaviour/zzform-foot.js:562
+#: behaviour/zzform-foot.js:610
 msgid "Bytes"
 msgstr ""
 
-#: behaviour/zzform-foot.js:562
+#: behaviour/zzform-foot.js:610
 msgid "Total:"
 msgstr ""
 
-#: behaviour/zzform-foot.js:562
+#: behaviour/zzform-foot.js:610
 msgid "Uploaded:"
 msgstr ""
 
-#: behaviour/zzform-foot.js:565
+#: behaviour/zzform-foot.js:613
 msgid "% uploaded … please wait"
 msgstr ""
 
-#: behaviour/zzform-foot.js:572
+#: behaviour/zzform-foot.js:620
 msgid "Upload Failed"
 msgstr ""
 
-#: behaviour/zzform-foot.js:579
+#: behaviour/zzform-foot.js:627
 msgid "Upload Aborted"
 msgstr ""
 
@@ -254,13 +254,13 @@ msgstr ""
 
 # Link to add a new value for detail record via dropdown
 # Record form
-#: templates/zzform-record-field.template.txt:17
+#: templates/zzform-record-field.template.txt:19
 msgid "New …"
 msgstr ""
 
 # Link to edit a new value for detail record via dropdown
 # Record form
-#: templates/zzform-record-field.template.txt:18
+#: templates/zzform-record-field.template.txt:20
 #: zzform/record.inc.php:1948
 msgid "Edit …"
 msgstr ""
@@ -293,7 +293,7 @@ msgstr ""
 # radio buttons, first entry
 # Record form: Select
 #: templates/zzform-record-radio.template.txt:27
-#: zzform/record.inc.php:3376
+#: zzform/record.inc.php:3381
 msgid "No selection"
 msgstr ""
 
@@ -749,7 +749,7 @@ msgstr ""
 
 # Error handling
 #: zzform/errorhandling.inc.php:122
-#: zzform/record.inc.php:4080
+#: zzform/record.inc.php:4085
 msgid "An error occured. We are working on the solution of this problem. Sorry for your inconvenience. Please try again later."
 msgstr ""
 
@@ -1186,44 +1186,44 @@ msgid "Malformed request, ID for a set needs to be numeric"
 msgstr ""
 
 # Record form: File upload
-#: zzform/record.inc.php:4079
+#: zzform/record.inc.php:4084
 msgid "File upload is currently impossible."
 msgstr ""
 
 # no value available for display, should be abbreviated
 # Record form: field output
-#: zzform/record.inc.php:4191
+#: zzform/record.inc.php:4196
 msgid "<abbr title=\"Not available\">N/A</abbr>"
 msgstr ""
 
 # Backend: Development
-#: zzform/record.inc.php:4236
+#: zzform/record.inc.php:4241
 msgid "Script configuration error. No display field set."
 msgstr ""
 
 # Record form: field output
-#: zzform/record.inc.php:4249
+#: zzform/record.inc.php:4254
 msgid "calculated field"
 msgstr ""
 
 # Record form: identifier, hidden etc.
-#: zzform/record.inc.php:4332
+#: zzform/record.inc.php:4337
 msgid "Would be changed on update"
 msgstr ""
 
 # e. g. Add Address, Add Phone Number ...
 # Record form: Detail record
-#: zzform/record.inc.php:4408
+#: zzform/record.inc.php:4413
 msgid "Add %s"
 msgstr ""
 
 # Record form: Detail record
-#: zzform/record.inc.php:4417
+#: zzform/record.inc.php:4422
 msgid "Remove"
 msgstr ""
 
 # Record form: Detail record
-#: zzform/record.inc.php:4421
+#: zzform/record.inc.php:4426
 msgid "Remove %s"
 msgstr ""
 
