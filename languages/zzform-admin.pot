@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzform module\n"
-"POT-Creation-Date: 2026-08-03 08:30+0000\n"
+"POT-Creation-Date: 2026-08-04 09:34+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -2943,19 +2943,19 @@ msgstr ""
 msgid "Function for hook (%s) tries to set record_replace. Will not be evaluated at this point."
 msgstr ""
 
-#: zzform/action.inc.php:1498
+#: zzform/action.inc.php:1504
 msgid "Folder cannot be renamed."
 msgstr ""
 
-#: zzform/action.inc.php:1504
+#: zzform/action.inc.php:1510
 msgid "There is already a folder by that name."
 msgstr ""
 
-#: zzform/action.inc.php:2681
+#: zzform/action.inc.php:2698
 msgid "(Encryption: %s, existing hash: %s, entered hash: %s)"
 msgstr ""
 
-#: zzform/action.inc.php:3167
+#: zzform/action.inc.php:3184
 msgid "Field has no maximum integer value (is it an integer?): %s.%s.%s"
 msgstr ""
 
