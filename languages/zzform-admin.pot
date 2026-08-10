@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzform module\n"
-"POT-Creation-Date: 2026-08-04 09:34+0000\n"
+"POT-Creation-Date: 2026-08-10 22:47+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -517,190 +517,186 @@ msgid "Log database changes?"
 msgstr ""
 
 #: configuration/settings.cfg:333
-msgid "Use field _logging.record_id (turning off is @deprecated)"
-msgstr ""
-
-#: configuration/settings.cfg:338
 msgid "Time in months to keep logging data in the database before archiving it"
 msgstr ""
 
-#: configuration/settings.cfg:343
+#: configuration/settings.cfg:338
 msgid "Maximum number of lines that are read from logging table"
 msgstr ""
 
-#: configuration/settings.cfg:348
+#: configuration/settings.cfg:343
 msgid "Maximum entries in select/option, if bigger than sub-select"
 msgstr ""
 
-#: configuration/settings.cfg:353
+#: configuration/settings.cfg:348
 msgid "Maximum length of values in select"
 msgstr ""
 
-#: configuration/settings.cfg:358
+#: configuration/settings.cfg:353
 msgid "List of fields to ignore when comparing two records while merging (last_update = for all tables, addresses.last_update = just for table addresses)"
 msgstr ""
 
-#: configuration/settings.cfg:363
+#: configuration/settings.cfg:358
 msgid "Max no. of detail records to add in a record form"
 msgstr ""
 
-#: configuration/settings.cfg:368
+#: configuration/settings.cfg:363
 msgid "Min no. of detail records to add in a record form"
 msgstr ""
 
-#: configuration/settings.cfg:373
+#: configuration/settings.cfg:368
 msgid "List of table name aliases used for better readability if a table name is displayed, e. g. if a record cannot be deleted because of database constraints"
 msgstr ""
 
-#: configuration/settings.cfg:377
+#: configuration/settings.cfg:372
 msgid "Packagecss is not used, therefore include zzform.css via zzform"
 msgstr ""
 
-#: configuration/settings.cfg:381
+#: configuration/settings.cfg:376
 msgid "Default value for rating fields, if `max` is not set"
 msgstr ""
 
-#: configuration/settings.cfg:386
+#: configuration/settings.cfg:381
 msgid "Symbol used for rating fields"
 msgstr ""
 
-#: configuration/settings.cfg:390
+#: configuration/settings.cfg:385
 msgid "Text that is displayed on link back to referring page"
 msgstr ""
 
-#: configuration/settings.cfg:395
+#: configuration/settings.cfg:390
 msgid "If more content than that inside #zzform should be replaced, use this DIV element with this ID instead."
 msgstr ""
 
-#: configuration/settings.cfg:399
+#: configuration/settings.cfg:394
 msgid "List with mappings of table to query strings with placeholder for results of query for editing revisions"
 msgstr ""
 
-#: configuration/settings.cfg:403
+#: configuration/settings.cfg:398
 msgid "List with mappings of table to query for editing revisions"
 msgstr ""
 
-#: configuration/settings.cfg:407
+#: configuration/settings.cfg:402
 msgid "List with mappings of table to URL for editing revisions"
 msgstr ""
 
-#: configuration/settings.cfg:411
+#: configuration/settings.cfg:406
 msgid "Allow to search, where to show search form"
 msgstr ""
 
-#: configuration/settings.cfg:419
+#: configuration/settings.cfg:414
 msgid "Always show a search form, even if there are no records"
 msgstr ""
 
-#: configuration/settings.cfg:423
+#: configuration/settings.cfg:418
 msgid "Secret key to protect public `zzhash`-hashes"
 msgstr ""
 
-#: configuration/settings.cfg:429
+#: configuration/settings.cfg:424
 msgid "Show list of records below record that is edited/deleted/added"
 msgstr ""
 
-#: configuration/settings.cfg:434
+#: configuration/settings.cfg:429
 msgid "Max no. of records where `deletable` query is used directly, otherwise a temporary table will be created"
 msgstr ""
 
-#: configuration/settings.cfg:439
+#: configuration/settings.cfg:434
 msgid "Separator between parts of page title"
 msgstr ""
 
-#: configuration/settings.cfg:443
+#: configuration/settings.cfg:438
 msgid "Create thumbnails in zzform as background process?"
 msgstr ""
 
-#: configuration/settings.cfg:448
+#: configuration/settings.cfg:443
 msgid "If it is not allowed to check the standard directories for binary executables, enter the path to the directory"
 msgstr ""
 
-#: configuration/settings.cfg:453
+#: configuration/settings.cfg:448
 msgid "Paths on server to upload binaries (e. g. imagemagick)"
 msgstr ""
 
-#: configuration/settings.cfg:464
+#: configuration/settings.cfg:459
 msgid "Paths for each individual binary used in upload"
 msgstr ""
 
-#: configuration/settings.cfg:469
+#: configuration/settings.cfg:464
 msgid "Use the system's PATH environment variable instead of checking specific paths; needed when open_basedir restrictions prevent direct path access"
 msgstr ""
 
-#: configuration/settings.cfg:474
+#: configuration/settings.cfg:469
 msgid "Option per binary to get verbose version information"
 msgstr ""
 
-#: configuration/settings.cfg:483
+#: configuration/settings.cfg:478
 msgid "In case there are problems renaming files from one mount to another, activate to copy file and then delete old file"
 msgstr ""
 
-#: configuration/settings.cfg:487
+#: configuration/settings.cfg:482
 msgid "Options to use always with all ImageMagick’s convert calls, e. g. for using a different temporary folder"
 msgstr ""
 
-#: configuration/settings.cfg:490
+#: configuration/settings.cfg:485
 msgid "Options to use with all ImageMagick’s convert calls, only if no custom options per filetype are defined"
 msgstr ""
 
-#: configuration/settings.cfg:494
+#: configuration/settings.cfg:489
 msgid "Log system() upload commands for debugging"
 msgstr ""
 
-#: configuration/settings.cfg:498
+#: configuration/settings.cfg:493
 msgid "Maximum file size in bytes that can be uploaded"
 msgstr ""
 
-#: configuration/settings.cfg:502
+#: configuration/settings.cfg:497
 msgid "Unwanted mimetypes and their replacements"
 msgstr ""
 
-#: configuration/settings.cfg:509
+#: configuration/settings.cfg:504
 msgid "Paths which indicate that a file is on a mounted file system; instead of rename, copy/unlink is used"
 msgstr ""
 
-#: configuration/settings.cfg:516
+#: configuration/settings.cfg:511
 msgid "Use `exiftool` to get information about file"
 msgstr ""
 
-#: configuration/settings.cfg:520
+#: configuration/settings.cfg:515
 msgid "Use `file` to get information about file"
 msgstr ""
 
-#: configuration/settings.cfg:525
+#: configuration/settings.cfg:520
 msgid "Use `ghostscript` to get information about file"
 msgstr ""
 
-#: configuration/settings.cfg:530
+#: configuration/settings.cfg:525
 msgid "Use `identify` to get information about file"
 msgstr ""
 
-#: configuration/settings.cfg:535
+#: configuration/settings.cfg:530
 msgid "Use `pdfinfo` to get information about file"
 msgstr ""
 
-#: configuration/settings.cfg:539
+#: configuration/settings.cfg:534
 msgid "Use Upndown WYSYWIG Editor for Markdown"
 msgstr ""
 
-#: configuration/settings.cfg:543
+#: configuration/settings.cfg:538
 msgid "Keep query string for internal zzform URL, e. g. if a form is used to set a password integrated in another page that is only identified by an existing query string"
 msgstr ""
 
-#: configuration/settings.cfg:547
+#: configuration/settings.cfg:542
 msgid "Extensions for images that the browser can display natively"
 msgstr ""
 
-#: configuration/settings.cfg:555
+#: configuration/settings.cfg:550
 msgid "Use Pagedown Editor (old: WMD) for Markdown"
 msgstr ""
 
-#: configuration/settings.cfg:560
+#: configuration/settings.cfg:555
 msgid "Possible language(s) for Pagedown Editor for Markdown"
 msgstr ""
 
-#: configuration/settings.cfg:572
+#: configuration/settings.cfg:567
 msgid "Use XHR for select fields; needs vxJS library"
 msgstr ""
 
@@ -2979,19 +2975,19 @@ msgstr ""
 msgid "Could not copy translation for table %s ID %d"
 msgstr ""
 
-#: zzform/database.inc.php:105
+#: zzform/database.inc.php:118
 msgid "Unable to evaluate regular expression for logging hook %s (Error: %s)"
 msgstr ""
 
-#: zzform/database.inc.php:284
+#: zzform/database.inc.php:297
 msgid "Statement not supported: %s"
 msgstr ""
 
-#: zzform/database.inc.php:320
+#: zzform/database.inc.php:333
 msgid "MySQL reports a problem."
 msgstr ""
 
-#: zzform/database.inc.php:651
+#: zzform/database.inc.php:664
 msgid "Field %s not found in table %s."
 msgstr ""
 

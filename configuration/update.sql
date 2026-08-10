@@ -22,3 +22,4 @@
 /* 2026-03-10-1 */	DELETE FROM _settings WHERE setting_key = 'zzform_sync_path';
 /* 2026-03-10-2 */	DELETE FROM _settings WHERE setting_key = 'zzform_sync_server_path';
 /* 2026-03-11-1 */	UPDATE webpages SET content = REPLACE(content, '%%% request thumbnails ', '%%% make thumbnails ') WHERE content LIKE '%\%\%\% request thumbnails %';
+/* 2026-08-11-1 */	DELETE FROM _settings WHERE setting_key = 'zzform_logging_id';
