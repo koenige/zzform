@@ -54,21 +54,22 @@ function zz_db_log($sql, $user = '', $record_id = false) {
 		$statement = wrap_sql_statement($sql);
 		$check_sql = trim(substr($sql, strlen($statement)));
 		$check_sql = explode(' ', $check_sql);
-		$db_table = zz_db_table($check_sql[0]);
-		if ($db_table['db_name'] !== wrap_setting('db_name'))
-			$logging_table = $db_table['db_name'].'.'.$logging_table;
+		$target = zz_db_table($check_sql[0]);
+		if ($target['db_name'] !== wrap_setting('db_name'))
+			$logging_table = $target['db_name'].'.'.$logging_table;
 	}
+	$log_db_table = wrap_db_log_table($sql);
 	if (is_array($record_id)) $record_id = NULL;
 	if (wrap_setting('zzform_logging_id') AND $record_id) {
 		$log_sql = sprintf(
-			'INSERT INTO %s (query, user, record_id) VALUES (_binary "%s", "%s", %d)',
-			$logging_table, wrap_db_escape($sql), $user, $record_id
+			'INSERT INTO %s (query, db_table, user, record_id) VALUES (_binary "%s", %s, "%s", %d)',
+			$logging_table, wrap_db_escape($sql), $log_db_table ? '"'.wrap_db_escape($log_db_table).'"' : 'NULL', $user, $record_id
 		);
 	} else {
 		// without record_id, only for backwards compatibility
 		$log_sql = sprintf(
-			'INSERT INTO %s (query, user) VALUES (_binary "%s", "%s")',
-			$logging_table, wrap_db_escape($sql), $user
+			'INSERT INTO %s (query, db_table, user) VALUES (_binary "%s", %s, "%s")',
+			$logging_table, wrap_db_escape($sql), $log_db_table ? '"'.wrap_db_escape($log_db_table).'"' : 'NULL', $user
 		);
 	}
 	$result = mysqli_query(wrap_db_connection(), $log_sql);
