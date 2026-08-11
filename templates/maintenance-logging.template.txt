@@ -20,6 +20,7 @@
 %%% text Upload SQL log %%%&nbsp; <input type="file" name="sqlfile">&nbsp; <input type="submit" value="%%% text Upload %%%">
 <input type="hidden" name="loggingadd" value="1">
 </form></li>
+<li><a href="?loggingdbtable">%%% text Fill logging table names %%%</a></li>
 %%% if setting local_access %%%
 %%% if path zzform_sync_server %%%
 <li><form method="POST" action="" enctype="multipart/form-data"><input type="submit" name="serversync_development" value="%%% text Synchronize local and remote server %%%"></form></li>
