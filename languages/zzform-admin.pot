@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzform module\n"
-"POT-Creation-Date: 2026-08-16 08:35+0000\n"
+"POT-Creation-Date: 2026-08-16 09:15+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -577,134 +577,138 @@ msgid "If more content than that inside #zzform should be replaced, use this DIV
 msgstr ""
 
 #: configuration/settings.cfg:404
-msgid "List with mappings of table to query strings with placeholder for results of query for editing revisions"
+msgid "zzform field overrides on reverse-relation side; merged into zzform when context_if[context][reverse_relation]=1"
 msgstr ""
 
 #: configuration/settings.cfg:408
-msgid "List with mappings of table to query for editing revisions"
+msgid "List with mappings of table to query strings with placeholder for results of query for editing revisions"
 msgstr ""
 
 #: configuration/settings.cfg:412
-msgid "List with mappings of table to URL for editing revisions"
+msgid "List with mappings of table to query for editing revisions"
 msgstr ""
 
 #: configuration/settings.cfg:416
+msgid "List with mappings of table to URL for editing revisions"
+msgstr ""
+
+#: configuration/settings.cfg:420
 msgid "Allow to search, where to show search form"
 msgstr ""
 
-#: configuration/settings.cfg:424
+#: configuration/settings.cfg:428
 msgid "Always show a search form, even if there are no records"
 msgstr ""
 
-#: configuration/settings.cfg:428
+#: configuration/settings.cfg:432
 msgid "Secret key to protect public `zzhash`-hashes"
 msgstr ""
 
-#: configuration/settings.cfg:434
+#: configuration/settings.cfg:438
 msgid "Show list of records below record that is edited/deleted/added"
 msgstr ""
 
-#: configuration/settings.cfg:439
+#: configuration/settings.cfg:443
 msgid "Max no. of records where `deletable` query is used directly, otherwise a temporary table will be created"
 msgstr ""
 
-#: configuration/settings.cfg:444
+#: configuration/settings.cfg:448
 msgid "Separator between parts of page title"
 msgstr ""
 
-#: configuration/settings.cfg:448
+#: configuration/settings.cfg:452
 msgid "Create thumbnails in zzform as background process?"
 msgstr ""
 
-#: configuration/settings.cfg:453
+#: configuration/settings.cfg:457
 msgid "If it is not allowed to check the standard directories for binary executables, enter the path to the directory"
 msgstr ""
 
-#: configuration/settings.cfg:458
+#: configuration/settings.cfg:462
 msgid "Paths on server to upload binaries (e. g. imagemagick)"
 msgstr ""
 
-#: configuration/settings.cfg:469
+#: configuration/settings.cfg:473
 msgid "Paths for each individual binary used in upload"
 msgstr ""
 
-#: configuration/settings.cfg:474
+#: configuration/settings.cfg:478
 msgid "Use the system's PATH environment variable instead of checking specific paths; needed when open_basedir restrictions prevent direct path access"
 msgstr ""
 
-#: configuration/settings.cfg:479
+#: configuration/settings.cfg:483
 msgid "Option per binary to get verbose version information"
 msgstr ""
 
-#: configuration/settings.cfg:488
+#: configuration/settings.cfg:492
 msgid "In case there are problems renaming files from one mount to another, activate to copy file and then delete old file"
 msgstr ""
 
-#: configuration/settings.cfg:492
+#: configuration/settings.cfg:496
 msgid "Options to use always with all ImageMagick’s convert calls, e. g. for using a different temporary folder"
 msgstr ""
 
-#: configuration/settings.cfg:495
+#: configuration/settings.cfg:499
 msgid "Options to use with all ImageMagick’s convert calls, only if no custom options per filetype are defined"
 msgstr ""
 
-#: configuration/settings.cfg:499
+#: configuration/settings.cfg:503
 msgid "Log system() upload commands for debugging"
 msgstr ""
 
-#: configuration/settings.cfg:503
+#: configuration/settings.cfg:507
 msgid "Maximum file size in bytes that can be uploaded"
 msgstr ""
 
-#: configuration/settings.cfg:507
+#: configuration/settings.cfg:511
 msgid "Unwanted mimetypes and their replacements"
 msgstr ""
 
-#: configuration/settings.cfg:514
+#: configuration/settings.cfg:518
 msgid "Paths which indicate that a file is on a mounted file system; instead of rename, copy/unlink is used"
 msgstr ""
 
-#: configuration/settings.cfg:521
+#: configuration/settings.cfg:525
 msgid "Use `exiftool` to get information about file"
 msgstr ""
 
-#: configuration/settings.cfg:525
+#: configuration/settings.cfg:529
 msgid "Use `file` to get information about file"
 msgstr ""
 
-#: configuration/settings.cfg:530
+#: configuration/settings.cfg:534
 msgid "Use `ghostscript` to get information about file"
 msgstr ""
 
-#: configuration/settings.cfg:535
+#: configuration/settings.cfg:539
 msgid "Use `identify` to get information about file"
 msgstr ""
 
-#: configuration/settings.cfg:540
+#: configuration/settings.cfg:544
 msgid "Use `pdfinfo` to get information about file"
 msgstr ""
 
-#: configuration/settings.cfg:544
+#: configuration/settings.cfg:548
 msgid "Use Upndown WYSYWIG Editor for Markdown"
 msgstr ""
 
-#: configuration/settings.cfg:548
+#: configuration/settings.cfg:552
 msgid "Keep query string for internal zzform URL, e. g. if a form is used to set a password integrated in another page that is only identified by an existing query string"
 msgstr ""
 
-#: configuration/settings.cfg:552
+#: configuration/settings.cfg:556
 msgid "Extensions for images that the browser can display natively"
 msgstr ""
 
-#: configuration/settings.cfg:560
+#: configuration/settings.cfg:564
 msgid "Use Pagedown Editor (old: WMD) for Markdown"
 msgstr ""
 
-#: configuration/settings.cfg:565
+#: configuration/settings.cfg:569
 msgid "Possible language(s) for Pagedown Editor for Markdown"
 msgstr ""
 
-#: configuration/settings.cfg:577
+#: configuration/settings.cfg:581
 msgid "Use XHR for select fields; needs vxJS library"
 msgstr ""
 
