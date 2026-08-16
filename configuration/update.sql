@@ -23,3 +23,5 @@
 /* 2026-03-10-2 */	DELETE FROM _settings WHERE setting_key = 'zzform_sync_server_path';
 /* 2026-03-11-1 */	UPDATE webpages SET content = REPLACE(content, '%%% request thumbnails ', '%%% make thumbnails ') WHERE content LIKE '%\%\%\% request thumbnails %';
 /* 2026-08-11-1 */	DELETE FROM _settings WHERE setting_key = 'zzform_logging_id';
+/* 2026-08-16-4 */	UPDATE categories SET parameters = REPLACE(parameters, '&zzform_def[', '&zzform[') WHERE parameters LIKE '%&zzform_def[%';
+/* 2026-08-16-5 */	UPDATE categories SET parameters = REPLACE(parameters, '[zzform_def][', '[zzform][') WHERE parameters LIKE '%[zzform_def][%';

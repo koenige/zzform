@@ -2455,14 +2455,14 @@ function zz_validate_read_parameters($field, $my_rec) {
 	if (!$parameters) return $field;
 
 	parse_str($parameters, $parsed);
-	if (empty($parsed['zzform_def']) || !is_array($parsed['zzform_def'])) return $field;
+	if (empty($parsed['zzform']) || !is_array($parsed['zzform'])) return $field;
 
 	foreach ($field['merge_parameters'] as $key) {
-		if (!array_key_exists($key, $parsed['zzform_def'])) continue;
-		if (is_array($parsed['zzform_def'][$key]) && !empty($field[$key]) && is_array($field[$key])) {
-			$field[$key] = wrap_array_merge($field[$key], $parsed['zzform_def'][$key]);
+		if (!array_key_exists($key, $parsed['zzform'])) continue;
+		if (is_array($parsed['zzform'][$key]) && !empty($field[$key]) && is_array($field[$key])) {
+			$field[$key] = wrap_array_merge($field[$key], $parsed['zzform'][$key]);
 		} else {
-			$field[$key] = $parsed['zzform_def'][$key];
+			$field[$key] = $parsed['zzform'][$key];
 		}
 	}
 	return $field;

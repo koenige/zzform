@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzform module\n"
-"POT-Creation-Date: 2026-08-12 19:58+0000\n"
+"POT-Creation-Date: 2026-08-16 08:11+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -321,131 +321,131 @@ msgid "No. of records shown per run; if testing=1, no. will be multiplied by 10"
 msgstr ""
 
 #: configuration/settings.cfg:49
+msgid "Properties merged from category onto zzform fields"
+msgstr ""
+
+#: configuration/settings.cfg:55
 msgid "If set, show SVG icons from the theme/icons folder in list/record mode links"
 msgstr ""
 
-#: configuration/settings.cfg:54
+#: configuration/settings.cfg:60
 msgid "If set (with zzform_action_icons), visually hide mode link text; labels stay in the markup for screen readers; `title` on links gives a tooltip"
 msgstr ""
 
-#: configuration/settings.cfg:58
+#: configuration/settings.cfg:64
 msgid "Action parameters in zzform, 'review' is for internal use only"
 msgstr ""
 
-#: configuration/settings.cfg:68
+#: configuration/settings.cfg:74
 msgid "Mode parameters in zzform"
 msgstr ""
 
-#: configuration/settings.cfg:81
+#: configuration/settings.cfg:87
 msgid "Set HTML attribute `autofocus` to first input field/first input field of this type"
 msgstr ""
 
-#: configuration/settings.cfg:98
+#: configuration/settings.cfg:104
 msgid "Backup uploaded files that were updated, deleted, etc."
 msgstr ""
 
-#: configuration/settings.cfg:103
+#: configuration/settings.cfg:109
 msgid "Directory where zzform can put files for backup"
 msgstr ""
 
-#: configuration/settings.cfg:109
+#: configuration/settings.cfg:115
 msgid "Secret key which forms a hash that allows to continue without solving captcha again"
 msgstr ""
 
-#: configuration/settings.cfg:114
+#: configuration/settings.cfg:120
 msgid "Timeframe in minutes during which the zzform_captcha_key is valid"
 msgstr ""
 
-#: configuration/settings.cfg:119
+#: configuration/settings.cfg:125
 msgid "Check referential integrity while performing database operations"
 msgstr ""
 
-#: configuration/settings.cfg:124
+#: configuration/settings.cfg:130
 msgid "Include CSS file with colours for zzform forms and tables"
 msgstr ""
 
-#: configuration/settings.cfg:129
+#: configuration/settings.cfg:135
 msgid "List of field names that are not copied with copy function"
 msgstr ""
 
-#: configuration/settings.cfg:137
+#: configuration/settings.cfg:143
 msgid "CSS background-color for list view, should be equal to body"
 msgstr ""
 
-#: configuration/settings.cfg:142
+#: configuration/settings.cfg:148
 msgid "CSS background-color for error messages"
 msgstr ""
 
-#: configuration/settings.cfg:147
+#: configuration/settings.cfg:153
 msgid "CSS background-color for td and th cells matching WHERE condition"
 msgstr ""
 
-#: configuration/settings.cfg:152
+#: configuration/settings.cfg:158
 msgid "CSS background-color for record view"
 msgstr ""
 
-#: configuration/settings.cfg:157
+#: configuration/settings.cfg:163
 msgid "CSS background-color for record view, footer"
 msgstr ""
 
-#: configuration/settings.cfg:162
+#: configuration/settings.cfg:168
 msgid "CSS background-color for record view, subtable"
 msgstr ""
 
-#: configuration/settings.cfg:167
+#: configuration/settings.cfg:173
 msgid "CSS background-color for list view, even rows"
 msgstr ""
 
-#: configuration/settings.cfg:172
+#: configuration/settings.cfg:178
 msgid "CSS background-color for list view, uneven rows"
 msgstr ""
 
-#: configuration/settings.cfg:177
+#: configuration/settings.cfg:183
 msgid "CSS background-color for list view, order by column header"
 msgstr ""
 
-#: configuration/settings.cfg:182
+#: configuration/settings.cfg:188
 msgid "CSS border-color for list view"
 msgstr ""
 
-#: configuration/settings.cfg:187
+#: configuration/settings.cfg:193
 msgid "CSS border-color for list view, foot"
 msgstr ""
 
-#: configuration/settings.cfg:192
+#: configuration/settings.cfg:198
 msgid "CSS border-color for pages links"
 msgstr ""
 
-#: configuration/settings.cfg:197
+#: configuration/settings.cfg:203
 msgid "CSS text color for error messages"
 msgstr ""
 
-#: configuration/settings.cfg:202
+#: configuration/settings.cfg:208
 msgid "CSS text color in page navigation below list view"
 msgstr ""
 
-#: configuration/settings.cfg:207
+#: configuration/settings.cfg:213
 msgid "Rounding dates to last or next n minutes"
 msgstr ""
 
-#: configuration/settings.cfg:212
+#: configuration/settings.cfg:218
 msgid "Add elapsed time per function call to debug log"
 msgstr ""
 
-#: configuration/settings.cfg:216
+#: configuration/settings.cfg:222
 msgid "Activate debugging for uploads"
 msgstr ""
 
-#: configuration/settings.cfg:220
+#: configuration/settings.cfg:226
 msgid "If not using a table to display a record, add class for rows here for JS"
 msgstr ""
 
-#: configuration/settings.cfg:223
+#: configuration/settings.cfg:229
 msgid "Supported formats for exporting data"
-msgstr ""
-
-#: configuration/settings.cfg:232
-msgid "Properties merged from category onto zzform fields"
 msgstr ""
 
 #: configuration/settings.cfg:238
@@ -2383,7 +2383,7 @@ msgid "Select field (or field[column]) whose SQL row supplies a query string mer
 msgstr ""
 
 #: configuration/zz-fields.cfg:991
-msgid "Keys to take from that query string, marked with `zzform_def[…]`, and merge onto this field definition"
+msgid "Keys to take from that query string, marked with `zzform[…]`, and merge onto this field definition"
 msgstr ""
 
 #: configuration/zz-fields.cfg:996
