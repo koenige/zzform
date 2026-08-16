@@ -25,3 +25,4 @@
 /* 2026-08-11-1 */	DELETE FROM _settings WHERE setting_key = 'zzform_logging_id';
 /* 2026-08-16-4 */	UPDATE categories SET parameters = REPLACE(parameters, '&zzform_def[', '&zzform[') WHERE parameters LIKE '%&zzform_def[%';
 /* 2026-08-16-5 */	UPDATE categories SET parameters = REPLACE(parameters, '[zzform_def][', '[zzform][') WHERE parameters LIKE '%[zzform_def][%';
+/* 2026-08-16-7 */	UPDATE categories SET parameters = REGEXP_REPLACE(parameters, '&if\\[([^&\\]]+)\\]\\[zzform\\]\\[', '&zzform_if[\\1][', 1, 0) WHERE parameters LIKE '%&if[%' AND parameters LIKE '%[zzform][%';
