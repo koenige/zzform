@@ -27,3 +27,4 @@
 /* 2026-08-16-5 */	UPDATE categories SET parameters = REPLACE(parameters, '[zzform_def][', '[zzform][') WHERE parameters LIKE '%[zzform_def][%';
 /* 2026-08-16-7 */	UPDATE categories SET parameters = REGEXP_REPLACE(parameters, '&if\\[([^&\\]]+)\\]\\[zzform\\]\\[', '&zzform_if[\\1][', 1, 0) WHERE parameters LIKE '%&if[%' AND parameters LIKE '%[zzform][%';
 /* 2026-08-16-9 */	UPDATE categories SET parameters = REGEXP_REPLACE(parameters, '&reversed\\[zzform\\]\\[', '&zzform_reversed[', 1, 0) WHERE parameters LIKE '%&reversed[%' AND parameters LIKE '%[zzform][%';
+/* 2026-08-16-12 */	UPDATE categories SET parameters = REPLACE(parameters, '&identifier[', '&zzform[identifier][') WHERE parameters LIKE '%&identifier[%';

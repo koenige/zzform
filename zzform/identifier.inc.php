@@ -195,7 +195,7 @@ function zz_identifier_cut($str, $max_length) {
 }
 
 /**
- * read configuration parameters from a field
+ * read zzform[identifier][…] from category parameters (via identifier[parameters] field)
  *
  * @param array $vars
  * @param string $parameters
@@ -203,8 +203,8 @@ function zz_identifier_cut($str, $max_length) {
  */
 function zz_identifier_configuration($vars, $parameters) {
 	parse_str($parameters, $parameters);
-	if (empty($parameters['identifier'])) return $vars;
-	foreach ($parameters['identifier'] as $key => $value) {
+	if (empty($parameters['zzform']['identifier'])) return $vars;
+	foreach ($parameters['zzform']['identifier'] as $key => $value) {
 		$vars[$key] = wrap_setting_parse($value);
 		$vars[$key] = wrap_setting_list($vars[$key]);
 	}
