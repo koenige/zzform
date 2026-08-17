@@ -104,3 +104,4 @@
 2026-07-22-1	filename	zzform/export-pdf.inc.php	new folder `zzform_export` with one function per file
 2026-07-22-2	filename	zzform/export-zip.inc.php	new folder `zzform_export` with one function per file
 2026-08-02-1	code	zz_money_format	use wrap_money() via number_type currency, or wrap_money() directly
+2026-08-16-1	code	['identifier']['parameters']	remove, use `read_parameters` + field name without parameters; ['merge_parameters'] = ['identifier', 'fields'] and remove field from `fields` list

@@ -41,6 +41,7 @@ function zz_identifier_prepare($my_rec, $db_table, $post, $no) {
 		if ($var === '[TRANSLATION_DUMMY]') $values[$key] = '';
 
 	// read additional configuration from parameters
+	// @deprecated, use read_parameters, merge_parameters instead
 	$conf_fields = $conf['fields'];
 	if (!empty($conf['parameters']) AND !empty($values[$conf['parameters']])) {
 		$conf = zz_identifier_configuration($conf, $values[$conf['parameters']]);
@@ -49,6 +50,7 @@ function zz_identifier_prepare($my_rec, $db_table, $post, $no) {
 		if ($conf_fields !== $conf['fields'])
 			$values = zz_identifier_values($conf, $my_rec, $post);
 	}
+	// @deprecated codeblock ends
 	$field['idf_values'] = $values;
 
 	zz_identifier_defaults($conf);
@@ -195,14 +197,18 @@ function zz_identifier_cut($str, $max_length) {
 }
 
 /**
- * read zzform[identifier][…] from category parameters (via identifier[parameters] field)
+ * read zzform[identifier][…] and zzform[fields] from category parameters (via identifier[parameters] field)
  *
  * @param array $vars
  * @param string $parameters
  * @return array
+ * @deprecated
  */
 function zz_identifier_configuration($vars, $parameters) {
 	parse_str($parameters, $parameters);
+	if (!empty($parameters['zzform']['fields'])) {
+		$vars['fields'] = wrap_setting_list(wrap_setting_parse($parameters['zzform']['fields']));
+	}
 	if (empty($parameters['zzform']['identifier'])) return $vars;
 	foreach ($parameters['zzform']['identifier'] as $key => $value) {
 		$vars[$key] = wrap_setting_parse($value);

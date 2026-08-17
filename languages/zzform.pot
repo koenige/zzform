@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzform module\n"
-"POT-Creation-Date: 2026-08-12 04:24+0000\n"
+"POT-Creation-Date: 2026-08-16 18:57+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -592,58 +592,58 @@ msgid "Value in field <em>“%s”</em> must not be identical to field <em>“%s
 msgstr ""
 
 # Record form: Validation, displayed above form
-#: zzform/action.inc.php:2627
+#: zzform/action.inc.php:2631
 msgid "String <em>“%s”</em> is not allowed"
 msgstr ""
 
 # Record form: Validation, displayed above form
-#: zzform/action.inc.php:2649
+#: zzform/action.inc.php:2653
 msgid "Value “%s” needs to be greater than “%s”."
 msgstr ""
 
 # Record form: Validation, displayed above form
-#: zzform/action.inc.php:2651
+#: zzform/action.inc.php:2655
 msgid "Value “%s” needs to be greater than or equal to “%s”."
 msgstr ""
 
 # Record form: Validation, displayed above form
-#: zzform/action.inc.php:2653
+#: zzform/action.inc.php:2657
 msgid "Value “%s” needs to be smaller than “%s”."
 msgstr ""
 
 # Record form: Validation, displayed above form
-#: zzform/action.inc.php:2655
+#: zzform/action.inc.php:2659
 msgid "Value “%s” needs to be smaller than or equal to “%s”."
 msgstr ""
 
 # Record form: Change password
-#: zzform/action.inc.php:2680
+#: zzform/action.inc.php:2684
 msgid "New passwords do not match. Please try again."
 msgstr ""
 
 # Record form: Change password
-#: zzform/action.inc.php:2689
+#: zzform/action.inc.php:2693
 msgid "New and old password are identical. Please choose a different new password."
 msgstr ""
 
 # Record form: Change password
-#: zzform/action.inc.php:2699
+#: zzform/action.inc.php:2703
 msgid "Your current password is different from what you entered. Please try again."
 msgstr ""
 
 # Record form: Change password
-#: zzform/action.inc.php:2712
+#: zzform/action.inc.php:2716
 msgid "Your new password could not be saved. Please try a different one."
 msgstr ""
 
 # Record form: Validation, displayed above form
-#: zzform/action.inc.php:2773
+#: zzform/action.inc.php:2777
 #: zzform/database.inc.php:518
 msgid "Duplicate entry in this table. Please check whether the record you were about to enter already exists or you’ll have to change the values you entered."
 msgstr ""
 
 # Record form: Validation of Database Integrity, displayed above form
-#: zzform/action.inc.php:2821
+#: zzform/action.inc.php:2825
 msgid "No records in relation table `%s`. Please fill in records."
 msgstr ""
 

@@ -2459,6 +2459,10 @@ function zz_validate_read_parameters($field, $my_rec) {
 
 	foreach ($field['merge_parameters'] as $key) {
 		if (!array_key_exists($key, $parsed['zzform'])) continue;
+		if ($key === 'fields') {
+			$field['fields'] = wrap_setting_list(wrap_setting_parse($parsed['zzform']['fields']));
+			continue;
+		}
 		if (is_array($parsed['zzform'][$key]) && !empty($field[$key]) && is_array($field[$key])) {
 			$field[$key] = wrap_array_merge($field[$key], $parsed['zzform'][$key]);
 		} else {
