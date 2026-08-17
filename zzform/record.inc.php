@@ -4220,8 +4220,11 @@ function zz_field_display($field, $record, $record_saved) {
 			$value = $record_saved[$field['field_name']];
 		}
 		if (!$value) return '';
+		
+		if (zz_get_fieldtype($field) === 'parameter')
+			return zz_parameter_format($value);
 
-		if (!empty($field['display_title']) && in_array($value, 
+		if (!empty($field['display_title']) && in_array($value,
 			array_keys($field['display_title'])))
 			$value = $field['display_title'][$value];
 		if (!empty($field['translate_field_value']))

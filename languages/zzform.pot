@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzform module\n"
-"POT-Creation-Date: 2026-08-16 18:57+0000\n"
+"POT-Creation-Date: 2026-08-17 07:07+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -161,7 +161,7 @@ msgstr ""
 
 # List view: Filter
 #: templates/zzform-list-filter.template.txt:25
-#: zzform/list.inc.php:1659
+#: zzform/list.inc.php:1661
 msgid "all"
 msgstr ""
 
@@ -935,49 +935,49 @@ msgid "- unknown -"
 msgstr ""
 
 # List view: bottom
-#: zzform/list.inc.php:1605
+#: zzform/list.inc.php:1607
 msgid "%d record total"
 msgid_plural "%d records total"
 msgstr[] ""
 msgstr[] ""
 
 # List view: bottom
-#: zzform/list.inc.php:1644
+#: zzform/list.inc.php:1646
 msgid "First page"
 msgstr ""
 
 # List view: bottom
-#: zzform/list.inc.php:1654
+#: zzform/list.inc.php:1656
 msgid "Previous page"
 msgstr ""
 
 # List view: bottom
-#: zzform/list.inc.php:1661
+#: zzform/list.inc.php:1663
 msgid "All records on one page"
 msgstr ""
 
 # List view: bottom
-#: zzform/list.inc.php:1739
+#: zzform/list.inc.php:1741
 msgid "Next page"
 msgstr ""
 
 # List view: bottom
-#: zzform/list.inc.php:1745
+#: zzform/list.inc.php:1747
 msgid "Last page"
 msgstr ""
 
 # List view: Table head
-#: zzform/list.inc.php:1911
+#: zzform/list.inc.php:1913
 msgid "descending"
 msgstr ""
 
 # List view: Table head
-#: zzform/list.inc.php:1913
+#: zzform/list.inc.php:1915
 msgid "ascending"
 msgstr ""
 
 # List view: Table head
-#: zzform/list.inc.php:1917
+#: zzform/list.inc.php:1919
 msgid "Order by"
 msgstr ""
 
@@ -1197,33 +1197,33 @@ msgid "<abbr title=\"Not available\">N/A</abbr>"
 msgstr ""
 
 # Backend: Development
-#: zzform/record.inc.php:4241
+#: zzform/record.inc.php:4244
 msgid "Script configuration error. No display field set."
 msgstr ""
 
 # Record form: field output
-#: zzform/record.inc.php:4254
+#: zzform/record.inc.php:4257
 msgid "calculated field"
 msgstr ""
 
 # Record form: identifier, hidden etc.
-#: zzform/record.inc.php:4337
+#: zzform/record.inc.php:4340
 msgid "Would be changed on update"
 msgstr ""
 
 # e. g. Add Address, Add Phone Number ...
 # Record form: Detail record
-#: zzform/record.inc.php:4413
+#: zzform/record.inc.php:4416
 msgid "Add %s"
 msgstr ""
 
 # Record form: Detail record
-#: zzform/record.inc.php:4422
+#: zzform/record.inc.php:4425
 msgid "Remove"
 msgstr ""
 
 # Record form: Detail record
-#: zzform/record.inc.php:4426
+#: zzform/record.inc.php:4429
 msgid "Remove %s"
 msgstr ""
 

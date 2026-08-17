@@ -1169,7 +1169,9 @@ function zz_list_field($list, $row, $field, $line, $lastline, $table, $mode) {
 				}
 			} else {
 				$text = $row['value'];
-				if ($text AND !empty($field['type_detail']) AND $field['type_detail'] === 'number'
+				if ($text AND zz_get_fieldtype($field) === 'parameter') {
+					$text = zz_parameter_format($text);
+				} elseif ($text AND !empty($field['type_detail']) AND $field['type_detail'] === 'number'
 					AND $mode !== 'export') {
 					$text = zz_number_format($text, $field);
 				} elseif ($text) {
