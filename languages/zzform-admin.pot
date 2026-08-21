@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzform module\n"
-"POT-Creation-Date: 2026-08-21 06:16+0000\n"
+"POT-Creation-Date: 2026-08-21 06:27+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -449,7 +449,7 @@ msgid "Supported formats for exporting data"
 msgstr ""
 
 #: configuration/settings.cfg:240
-msgid "Per-column overrides on inner fields of category-based subtables"
+msgid "Override zzform field properties per field, set via parameters on current table"
 msgstr ""
 
 #: configuration/settings.cfg:248
