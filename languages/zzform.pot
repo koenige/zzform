@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzform module\n"
-"POT-Creation-Date: 2026-08-17 07:07+0000\n"
+"POT-Creation-Date: 2026-08-21 06:16+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -495,7 +495,7 @@ msgstr ""
 #: zzbrick_xhr/configs.inc.php:83
 #: zzbrick_xhr/zzform.inc.php:137
 #: zzbrick_xhr/zzform.inc.php:143
-#: zzform/functions.inc.php:2386
+#: zzform/functions.inc.php:2389
 msgid "Please enter more characters."
 msgstr ""
 
@@ -554,96 +554,96 @@ msgstr ""
 msgid "There was a problem with the detail record."
 msgstr ""
 
-#: zzform/action.inc.php:1908
-#: zzform/action.inc.php:1926
+#: zzform/action.inc.php:1907
+#: zzform/action.inc.php:1925
 msgid "The number %d is too high. Maximum value is %d."
 msgstr ""
 
 # Record form: Change password
-#: zzform/action.inc.php:1974
+#: zzform/action.inc.php:1973
 msgid "Please enter your current password and twice your new password."
 msgstr ""
 
 # Record form: Validation, displayed inside form
-#: zzform/action.inc.php:2248
+#: zzform/action.inc.php:2247
 msgid "Text is too long (max. %d characters, %d submitted)."
 msgstr ""
 
 # Record form: Validation, displayed inside form
-#: zzform/action.inc.php:2260
+#: zzform/action.inc.php:2259
 msgid "Text is too short (min. %d characters, %d submitted)."
 msgstr ""
 
-#: zzform/action.inc.php:2284
+#: zzform/action.inc.php:2283
 msgid "Array <em>“%s”</em> does not match pattern <em>“%s”</em>"
 msgstr ""
 
-#: zzform/action.inc.php:2291
+#: zzform/action.inc.php:2290
 msgid "Value <em>“%s”</em> does not match pattern <em>“%s”</em>"
 msgstr ""
 
-#: zzform/action.inc.php:2317
+#: zzform/action.inc.php:2316
 msgid "unkown"
 msgstr ""
 
 # Record form: Validation, displayed above form
-#: zzform/action.inc.php:2323
+#: zzform/action.inc.php:2322
 msgid "Value in field <em>“%s”</em> must not be identical to field <em>“%s”</em>."
 msgstr ""
 
 # Record form: Validation, displayed above form
-#: zzform/action.inc.php:2631
+#: zzform/action.inc.php:2630
 msgid "String <em>“%s”</em> is not allowed"
 msgstr ""
 
 # Record form: Validation, displayed above form
-#: zzform/action.inc.php:2653
+#: zzform/action.inc.php:2652
 msgid "Value “%s” needs to be greater than “%s”."
 msgstr ""
 
 # Record form: Validation, displayed above form
-#: zzform/action.inc.php:2655
+#: zzform/action.inc.php:2654
 msgid "Value “%s” needs to be greater than or equal to “%s”."
 msgstr ""
 
 # Record form: Validation, displayed above form
-#: zzform/action.inc.php:2657
+#: zzform/action.inc.php:2656
 msgid "Value “%s” needs to be smaller than “%s”."
 msgstr ""
 
 # Record form: Validation, displayed above form
-#: zzform/action.inc.php:2659
+#: zzform/action.inc.php:2658
 msgid "Value “%s” needs to be smaller than or equal to “%s”."
 msgstr ""
 
 # Record form: Change password
-#: zzform/action.inc.php:2684
+#: zzform/action.inc.php:2683
 msgid "New passwords do not match. Please try again."
 msgstr ""
 
 # Record form: Change password
-#: zzform/action.inc.php:2693
+#: zzform/action.inc.php:2692
 msgid "New and old password are identical. Please choose a different new password."
 msgstr ""
 
 # Record form: Change password
-#: zzform/action.inc.php:2703
+#: zzform/action.inc.php:2702
 msgid "Your current password is different from what you entered. Please try again."
 msgstr ""
 
 # Record form: Change password
-#: zzform/action.inc.php:2716
+#: zzform/action.inc.php:2715
 msgid "Your new password could not be saved. Please try a different one."
 msgstr ""
 
 # Record form: Validation, displayed above form
-#: zzform/action.inc.php:2777
+#: zzform/action.inc.php:2776
 #: zzform/database.inc.php:518
 msgid "Duplicate entry in this table. Please check whether the record you were about to enter already exists or you’ll have to change the values you entered."
 msgstr ""
 
 # Record form: Validation of Database Integrity, displayed above form
-#: zzform/action.inc.php:2825
+#: zzform/action.inc.php:2824
 msgid "No records in relation table `%s`. Please fill in records."
 msgstr ""
 
@@ -833,13 +833,13 @@ msgid "Only one field may be defined as `id`!"
 msgstr ""
 
 # Record form: Validation, displayed inside form
-#: zzform/functions.inc.php:2324
+#: zzform/functions.inc.php:2327
 msgid "No entry found. Try less characters."
 msgstr ""
 
 # Record form: Validation, displayed inside form
-#: zzform/functions.inc.php:2340
-#: zzform/functions.inc.php:2360
+#: zzform/functions.inc.php:2343
+#: zzform/functions.inc.php:2363
 msgid "Please make a different selection."
 msgstr ""
 

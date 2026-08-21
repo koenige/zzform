@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzform module\n"
-"POT-Creation-Date: 2026-08-20 12:17+0000\n"
+"POT-Creation-Date: 2026-08-21 06:16+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -2999,11 +2999,11 @@ msgstr ""
 msgid "There is already a folder by that name."
 msgstr ""
 
-#: zzform/action.inc.php:2704
+#: zzform/action.inc.php:2703
 msgid "(Encryption: %s, existing hash: %s, entered hash: %s)"
 msgstr ""
 
-#: zzform/action.inc.php:3190
+#: zzform/action.inc.php:3189
 msgid "Field has no maximum integer value (is it an integer?): %s.%s.%s"
 msgstr ""
 
@@ -3083,11 +3083,11 @@ msgstr ""
 msgid "It is not possible to depend on different fields in a single subtable (%s). Second field is ignored."
 msgstr ""
 
-#: zzform/functions.inc.php:2399
+#: zzform/functions.inc.php:2402
 msgid "Multiple records matching (maybe set \"ids\" for zzform_multi?): value %s in field %s. <br>SQL: %s"
 msgstr ""
 
-#: zzform/functions.inc.php:2404
+#: zzform/functions.inc.php:2407
 msgid "No entry found: value %s in field %s. <br>SQL: %s"
 msgstr ""
 

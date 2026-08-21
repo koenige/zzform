@@ -2200,8 +2200,11 @@ function zz_dependent_field_ids($fields, $tab, $rec) {
 				if (!empty($dependent_field['value']) AND array_key_exists($dependent_field['value'], $record)
 					AND ($record[$dependent_field['value']])) {
 					parse_str($record[$dependent_field['value']], $parameters);
-					if (!empty($parameters['value'])) {
-						$dependent_ids[$unique][$field_no][$index]['set_values'][reset($record)] = $parameters['value'];
+					$target_field_name = $fields[$field_no]['field_name'] ?? '';
+					if (!empty($parameters['zzform_field'][$target_field_name]['value'])) {
+						$dependent_ids[$unique][$field_no][$index]['set_values'][reset($record)] = [
+							$target_field_name => $parameters['zzform_field'][$target_field_name]['value']
+						];
 					}
 				}
 				if (!zz_dependent_selected($record, $dependent_field['if_selected'])) continue;
