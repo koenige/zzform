@@ -635,6 +635,8 @@ function zz_record_rows($zz_tab, $mode, $display, $zz_record, $data = []) {
 				if (!empty($field['title_append'])) {
 					// just for form, change title for all appended fields
 					$out['th']['content'] .= $field['title_append'];
+				} elseif ($data['form_display'] === 'horizontal' AND !empty($field['title_tab'])) {
+					$out['th']['content'] .= $field['title_tab'];
 				} else { 
 					$out['th']['content'] .= $field['title'];
 				}

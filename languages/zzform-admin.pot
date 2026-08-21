@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzform module\n"
-"POT-Creation-Date: 2026-08-21 06:27+0000\n"
+"POT-Creation-Date: 2026-08-21 22:46+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -2030,7 +2030,7 @@ msgid "Instead of automatically generating an identifier, translate this field o
 msgstr ""
 
 #: configuration/zz-fields.cfg:506
-#: configuration/zz-fields.cfg:1148
+#: configuration/zz-fields.cfg:1149
 msgid "List of definitions that are added to table definition if a condition is not true, indexed by key of condition"
 msgstr ""
 
@@ -2459,70 +2459,70 @@ msgid "Short explanatory text shown below the field title in the record form"
 msgstr ""
 
 #: configuration/zz-fields.cfg:1061
-msgid "Title of field in the list view, if it should be different from the record view"
+msgid "Title of field in tabular column headers (list view and horizontal detail tables), if it should be different from the record view"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1066
+#: configuration/zz-fields.cfg:1067
 msgid "Translate the values of this field"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1072
+#: configuration/zz-fields.cfg:1073
 msgid "Trim field content of spaces"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1077
+#: configuration/zz-fields.cfg:1078
 msgid "Type of field"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1122
+#: configuration/zz-fields.cfg:1123
 msgid "Type of field if main type is generic"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1129
+#: configuration/zz-fields.cfg:1130
 msgid "Clean up some typography issues, e. g. quotation marks, spaces, etc."
 msgstr ""
 
-#: configuration/zz-fields.cfg:1133
+#: configuration/zz-fields.cfg:1134
 msgid "Replace two or more spaces in text with one space"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1137
+#: configuration/zz-fields.cfg:1138
 msgid "List of field names that do not need to be shown if first value is already uniquely describing the record"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1142
+#: configuration/zz-fields.cfg:1143
 msgid "Unit shown after a value if it is not empty"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1154
+#: configuration/zz-fields.cfg:1155
 msgid "No. of field that has a file upload that is used as a source for metadata"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1158
+#: configuration/zz-fields.cfg:1159
 msgid "Maximum upload file size for this field; byte suffix allowed (e.g. 2M). Defaults to setting zzform_upload_max_filesize, capped by php.ini upload_max_filesize and post_max_size"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1165
+#: configuration/zz-fields.cfg:1166
 msgid "Key of metadata that is used for the value of this field"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1169
+#: configuration/zz-fields.cfg:1170
 msgid "List of strings that are not allowed to be entered in this field"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1174
+#: configuration/zz-fields.cfg:1175
 msgid "Message to show if validation fails"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1180
+#: configuration/zz-fields.cfg:1181
 msgid "Predefined value for a field"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1183
+#: configuration/zz-fields.cfg:1184
 msgid "Resolve username via WebFinger instead of a URL template (for federated services)"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1188
+#: configuration/zz-fields.cfg:1189
 msgid "Split words in the list view, for better readability"
 msgstr ""
 
@@ -3192,35 +3192,35 @@ msgstr ""
 msgid "No ID %s found (Query: %s)."
 msgstr ""
 
-#: zzform/record.inc.php:2438
+#: zzform/record.inc.php:2440
 msgid "For a subtable with a form_display = `set`, there needs to be a field with a field type `select`."
 msgstr ""
 
-#: zzform/record.inc.php:2569
+#: zzform/record.inc.php:2571
 msgid "Found a value selected that is set to non-selectable (table %s, ID %d)"
 msgstr ""
 
-#: zzform/record.inc.php:2615
+#: zzform/record.inc.php:2617
 msgid "For a subtable with form_display = `key_value`, a field with `subtable_key` = true is required."
 msgstr ""
 
-#: zzform/record.inc.php:2623
+#: zzform/record.inc.php:2625
 msgid "For a subtable with form_display = `key_value`, a field with `subtable_value` = true is required."
 msgstr ""
 
-#: zzform/record.inc.php:3294
+#: zzform/record.inc.php:3296
 msgid "Subtree with ID %s does not exist."
 msgstr ""
 
-#: zzform/record.inc.php:3433
+#: zzform/record.inc.php:3435
 msgid "`%s` is not a folder. Check `[\"set_folder\"]` definition."
 msgstr ""
 
-#: zzform/record.inc.php:3678
+#: zzform/record.inc.php:3680
 msgid "Mismatch of no. of enum translations in field “%s”"
 msgstr ""
 
-#: zzform/record.inc.php:4087
+#: zzform/record.inc.php:4089
 msgid "Configuration error. Missing upload_image details."
 msgstr ""
 

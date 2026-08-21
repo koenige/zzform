@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzform module\n"
-"POT-Creation-Date: 2026-08-21 06:16+0000\n"
+"POT-Creation-Date: 2026-08-21 22:46+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -261,7 +261,7 @@ msgstr ""
 # Link to edit a new value for detail record via dropdown
 # Record form
 #: templates/zzform-record-field.template.txt:20
-#: zzform/record.inc.php:1948
+#: zzform/record.inc.php:1950
 msgid "Edit …"
 msgstr ""
 
@@ -293,7 +293,7 @@ msgstr ""
 # radio buttons, first entry
 # Record form: Select
 #: templates/zzform-record-radio.template.txt:27
-#: zzform/record.inc.php:3381
+#: zzform/record.inc.php:3383
 msgid "No selection"
 msgstr ""
 
@@ -322,13 +322,13 @@ msgstr ""
 
 # Record form: Select
 #: templates/zzform-record-select.template.txt:17
-#: zzform/record.inc.php:995
+#: zzform/record.inc.php:997
 msgid "No selection possible."
 msgstr ""
 
 # Record form: field output
 #: templates/zzform-record-select.template.txt:25
-#: zzform/record.inc.php:1732
+#: zzform/record.inc.php:1734
 msgid "will be added automatically"
 msgstr ""
 
@@ -749,7 +749,7 @@ msgstr ""
 
 # Error handling
 #: zzform/errorhandling.inc.php:122
-#: zzform/record.inc.php:4085
+#: zzform/record.inc.php:4087
 msgid "An error occured. We are working on the solution of this problem. Sorry for your inconvenience. Please try again later."
 msgstr ""
 
@@ -1135,95 +1135,95 @@ msgid "– empty –"
 msgstr ""
 
 # Record form: Select
-#: zzform/record.inc.php:995
+#: zzform/record.inc.php:997
 msgid "No source defined"
 msgstr ""
 
 # select/deselect checkboxes
 # Record form: Select
-#: zzform/record.inc.php:1709
+#: zzform/record.inc.php:1711
 msgid "Select all"
 msgstr ""
 
 # select/deselect checkboxes
 # Record form: Select
-#: zzform/record.inc.php:1710
+#: zzform/record.inc.php:1712
 msgid "Deselect all"
 msgstr ""
 
 # Record form: identifier, hidden etc.
-#: zzform/record.inc.php:1805
+#: zzform/record.inc.php:1807
 msgid "Record for <strong>%s</strong> does not exist. (ID: %s)"
 msgstr ""
 
 # Record form: foreign record
-#: zzform/record.inc.php:1940
+#: zzform/record.inc.php:1942
 msgid "No data available."
 msgstr ""
 
 # Record form: foreign record
-#: zzform/record.inc.php:1945
+#: zzform/record.inc.php:1947
 msgid "No entry possible. First save this record."
 msgstr ""
 
 # Record form: Change password
-#: zzform/record.inc.php:1963
+#: zzform/record.inc.php:1965
 msgid "hidden"
 msgstr ""
 
 # Record form: Date field
-#: zzform/record.inc.php:2284
+#: zzform/record.inc.php:2286
 msgid "Date"
 msgstr ""
 
 # Record form: Datetime field
-#: zzform/record.inc.php:2310
+#: zzform/record.inc.php:2312
 msgid "Date and time"
 msgstr ""
 
-#: zzform/record.inc.php:2566
+#: zzform/record.inc.php:2568
 msgid "Malformed request, ID for a set needs to be numeric"
 msgstr ""
 
 # Record form: File upload
-#: zzform/record.inc.php:4084
+#: zzform/record.inc.php:4086
 msgid "File upload is currently impossible."
 msgstr ""
 
 # no value available for display, should be abbreviated
 # Record form: field output
-#: zzform/record.inc.php:4196
+#: zzform/record.inc.php:4198
 msgid "<abbr title=\"Not available\">N/A</abbr>"
 msgstr ""
 
 # Backend: Development
-#: zzform/record.inc.php:4244
+#: zzform/record.inc.php:4246
 msgid "Script configuration error. No display field set."
 msgstr ""
 
 # Record form: field output
-#: zzform/record.inc.php:4257
+#: zzform/record.inc.php:4259
 msgid "calculated field"
 msgstr ""
 
 # Record form: identifier, hidden etc.
-#: zzform/record.inc.php:4340
+#: zzform/record.inc.php:4342
 msgid "Would be changed on update"
 msgstr ""
 
 # e. g. Add Address, Add Phone Number ...
 # Record form: Detail record
-#: zzform/record.inc.php:4416
+#: zzform/record.inc.php:4418
 msgid "Add %s"
 msgstr ""
 
 # Record form: Detail record
-#: zzform/record.inc.php:4425
+#: zzform/record.inc.php:4427
 msgid "Remove"
 msgstr ""
 
 # Record form: Detail record
-#: zzform/record.inc.php:4429
+#: zzform/record.inc.php:4431
 msgid "Remove %s"
 msgstr ""
 
