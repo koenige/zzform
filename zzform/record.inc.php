@@ -2882,6 +2882,10 @@ function zz_field_select($field, $record, $lines) {
 		if (!is_array($unit_fields)) $unit_fields = [$unit_fields];
 		$element['data-unit'] = implode(',', $unit_fields);
 	}
+	if (!empty($field['data']['explanation'])) {
+		$element['data-explanation'] = $field['data']['explanation'] === true
+			? '1' : $field['data']['explanation'];
+	}
 	$data = [
 		'select_attributes' => zz_record_element($element, 'attributes')
 	];
@@ -2931,6 +2935,18 @@ function zz_field_select($field, $record, $lines) {
 			if (str_starts_with($column, '_data_') AND $val !== '' AND $val !== null) {
 				$attr_name = 'data-'.str_replace('_', '-', substr($column, 6));
 				$option_data[$attr_name] = $val;
+			}
+		}
+		if (!empty($field['option_data']) AND is_array($field['option_data'])) {
+			$key_id = $line[$field['key_field']];
+			foreach ($field['option_data'] as $data_key => $by_id) {
+				if (!is_array($by_id)) continue;
+				if (!isset($by_id[$key_id])) continue;
+				if ($by_id[$key_id] === '' OR $by_id[$key_id] === null) continue;
+				$attr_name = 'data-'.str_replace('_', '-', $data_key);
+				$option_data[$attr_name] = htmlspecialchars(
+					(string) $by_id[$key_id], ENT_QUOTES, 'UTF-8'
+				);
 			}
 		}
 

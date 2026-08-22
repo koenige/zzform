@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzform module\n"
-"POT-Creation-Date: 2026-08-21 22:46+0000\n"
+"POT-Creation-Date: 2026-08-22 09:39+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -16,27 +16,27 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: behaviour/zzform-foot.js:610
+#: behaviour/zzform-foot.js:650
 msgid "Bytes"
 msgstr ""
 
-#: behaviour/zzform-foot.js:610
+#: behaviour/zzform-foot.js:650
 msgid "Total:"
 msgstr ""
 
-#: behaviour/zzform-foot.js:610
+#: behaviour/zzform-foot.js:650
 msgid "Uploaded:"
 msgstr ""
 
-#: behaviour/zzform-foot.js:613
+#: behaviour/zzform-foot.js:653
 msgid "% uploaded … please wait"
 msgstr ""
 
-#: behaviour/zzform-foot.js:620
+#: behaviour/zzform-foot.js:660
 msgid "Upload Failed"
 msgstr ""
 
-#: behaviour/zzform-foot.js:627
+#: behaviour/zzform-foot.js:667
 msgid "Upload Aborted"
 msgstr ""
 
@@ -293,7 +293,7 @@ msgstr ""
 # radio buttons, first entry
 # Record form: Select
 #: templates/zzform-record-radio.template.txt:27
-#: zzform/record.inc.php:3383
+#: zzform/record.inc.php:3399
 msgid "No selection"
 msgstr ""
 
@@ -749,7 +749,7 @@ msgstr ""
 
 # Error handling
 #: zzform/errorhandling.inc.php:122
-#: zzform/record.inc.php:4087
+#: zzform/record.inc.php:4103
 msgid "An error occured. We are working on the solution of this problem. Sorry for your inconvenience. Please try again later."
 msgstr ""
 
@@ -1186,44 +1186,44 @@ msgid "Malformed request, ID for a set needs to be numeric"
 msgstr ""
 
 # Record form: File upload
-#: zzform/record.inc.php:4086
+#: zzform/record.inc.php:4102
 msgid "File upload is currently impossible."
 msgstr ""
 
 # no value available for display, should be abbreviated
 # Record form: field output
-#: zzform/record.inc.php:4198
+#: zzform/record.inc.php:4214
 msgid "<abbr title=\"Not available\">N/A</abbr>"
 msgstr ""
 
 # Backend: Development
-#: zzform/record.inc.php:4246
+#: zzform/record.inc.php:4262
 msgid "Script configuration error. No display field set."
 msgstr ""
 
 # Record form: field output
-#: zzform/record.inc.php:4259
+#: zzform/record.inc.php:4275
 msgid "calculated field"
 msgstr ""
 
 # Record form: identifier, hidden etc.
-#: zzform/record.inc.php:4342
+#: zzform/record.inc.php:4358
 msgid "Would be changed on update"
 msgstr ""
 
 # e. g. Add Address, Add Phone Number ...
 # Record form: Detail record
-#: zzform/record.inc.php:4418
+#: zzform/record.inc.php:4434
 msgid "Add %s"
 msgstr ""
 
 # Record form: Detail record
-#: zzform/record.inc.php:4427
+#: zzform/record.inc.php:4443
 msgid "Remove"
 msgstr ""
 
 # Record form: Detail record
-#: zzform/record.inc.php:4431
+#: zzform/record.inc.php:4447
 msgid "Remove %s"
 msgstr ""
 

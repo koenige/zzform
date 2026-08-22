@@ -34,6 +34,7 @@ function zzformRecordForm() {
 	zzformWmdEditor();
 	zzformPopulateEmpty();
 	zzformUnitFromSelect();
+	zzformExplanationFromSelect();
 	zzformForm.addEventListener('submit', zzformSubmit);
 }
 
@@ -118,6 +119,45 @@ function zzformSetFieldUnit(fieldName, unit) {
 		input.parentNode.insertBefore(unitSpan, input.nextSibling);
 	}
 	unitSpan.innerHTML = unit ? '\u00a0' + unit : '';
+}
+
+/**
+ * When a select with data-explanation changes, show the selected option's
+ * data-explanation as the row hint (lines subrecord or table cell).
+ */
+function zzformExplanationFromSelect() {
+	var selects = zzformForm.querySelectorAll('select[data-explanation]');
+	for (var i = 0; i < selects.length; i++) {
+		selects[i].addEventListener('change', function(e) {
+			zzformSetExplanationFromSelect(e.target);
+		});
+		zzformSetExplanationFromSelect(selects[i]);
+	}
+}
+
+function zzformSetExplanationFromSelect(select) {
+	var option = select.options[select.selectedIndex];
+	var text = (option && option.getAttribute('data-explanation')) || '';
+	var row = select.closest('.subrecord_lines .detailrecord')
+		|| select.closest('td')
+		|| select.closest('tr');
+	if (!row) return;
+	var container = row.querySelector(':scope > div') || row;
+	var p = container.querySelector('p.explanation');
+	if (!text) {
+		if (p) {
+			p.innerHTML = '';
+			p.hidden = true;
+		}
+		return;
+	}
+	if (!p) {
+		p = document.createElement('p');
+		p.className = 'explanation';
+		container.appendChild(p);
+	}
+	p.hidden = false;
+	p.innerHTML = text;
 }
 
 /**
