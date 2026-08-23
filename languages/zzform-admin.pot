@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzform module\n"
-"POT-Creation-Date: 2026-08-22 09:39+0000\n"
+"POT-Creation-Date: 2026-08-23 13:12+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -712,6 +712,10 @@ msgstr ""
 msgid "Possible language(s) for Pagedown Editor for Markdown"
 msgstr ""
 
+#: configuration/settings.cfg:586
+msgid "'maximum characters, longer words are split with zero width in list view'"
+msgstr ""
+
 #: configuration/settings.cfg:591
 msgid "Use XHR for select fields; needs vxJS library"
 msgstr ""
@@ -786,6 +790,10 @@ msgstr ""
 
 #: configuration/sync-settings.cfg:88
 msgid "Query to get all existing records, with fields containing key from source and ID from database table"
+msgstr ""
+
+#: configuration/sync-settings.cfg:93
+msgid "'ORDER BY field for existing query, indexed by table name'"
 msgstr ""
 
 #: configuration/sync-settings.cfg:97
