@@ -11,7 +11,7 @@
 # Variables
 # translate_pot = admin
 #
-<div id="make-thumbnails-app" class="maintenance zz-thumbnails" data-mode="%%% item mode %%%">
+<div class="track-progress maintenance" data-track-mode="drive" data-action="thumbnails">
 <p>%%% text Here, you can create either missing thumbnails, if they were not created on upload. Or you can create completely new thumbnails if you changed the pixel size. %%%</p>
 <p><strong>%%% text Form %%%:</strong> <code>%%% item script %%%</code>
 %%% switch mode %%%
@@ -21,15 +21,15 @@
 <br><strong>%%% text Mode %%%:</strong> %%% text Only missing thumbnails. %%%
 %%% switch - %%%</p>
 
-<p><button type="button" id="make-thumbnails-start" class="button">%%% text Start thumbnail creation %%%</button>
-<button type="button" id="make-thumbnails-stop" class="button" disabled>%%% text Stop %%%</button></p>
+<p><button type="button" data-role="start" class="button">%%% text Start thumbnail creation %%%</button>
+<button type="button" data-role="stop" class="button" disabled>%%% text Stop %%%</button></p>
 
-<div id="make-thumbnails-status" hidden>
-	<p><strong>%%% text Progress %%%:</strong> <span id="make-thumbnails-count">0 / 0</span></p>
-	<progress id="make-thumbnails-progress" max="1" value="0">0%</progress>
+<div data-role="status" hidden>
+	<p><strong>%%% text Progress %%%:</strong> <span data-role="count">0 / 0</span></p>
+	<progress data-role="progress" max="1" value="0">0%</progress>
 </div>
 
-<p id="make-thumbnails-summary" hidden></p>
-<ul id="make-thumbnails-log"></ul>
+<p data-role="summary" hidden></p>
+<ul data-role="log"></ul>
 </div>
-%%% script zzform/make-thumbnails.js %%%
+%%% script default/track-progress.js %%%

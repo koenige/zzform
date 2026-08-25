@@ -16,30 +16,6 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: behaviour/make-thumbnails.js:82
-msgid "Response has no `json` key."
-msgstr ""
-
-#: behaviour/make-thumbnails.js:86
-msgid "`json` value is not valid JSON."
-msgstr ""
-
-#: behaviour/make-thumbnails.js:90
-msgid "`json` value is not an object."
-msgstr ""
-
-#: behaviour/make-thumbnails.js:94
-msgid "Invalid JSON."
-msgstr ""
-
-#: behaviour/make-thumbnails.js:116
-msgid "Init failed."
-msgstr ""
-
-#: behaviour/make-thumbnails.js:140
-msgid "Step failed."
-msgstr ""
-
 #: configuration/ops.cfg:13
 msgid "Breadcrumb title for current page"
 msgstr ""
