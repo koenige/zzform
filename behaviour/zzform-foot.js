@@ -276,31 +276,48 @@ function zzformMoreTexts() {
 		downArrow.onclick = function(event) {
 			event.preventDefault();
 			event.stopPropagation();
-			var moretext = this.closest('.moretext');
-			var downArrow = moretext.querySelector('.zzform-arrow-down');
-			var upArrow = moretext.querySelector('.zzform-arrow-up');
-			
-			// Expand
-			moretext.className = "moretext";
-			downArrow.style.display = 'none';
-			upArrow.style.display = 'inline';
+			zzformMoreTextExpand(this.closest('.moretext'));
 		};
 		
 		upArrow.onclick = function(event) {
 			event.preventDefault();
 			event.stopPropagation();
-			var moretext = this.closest('.moretext');
-			var downArrow = moretext.querySelector('.zzform-arrow-down');
-			var upArrow = moretext.querySelector('.zzform-arrow-up');
-			
-			// Collapse
-			moretext.className = "moretext moretext_hidden";
-			downArrow.style.display = 'inline';
-			upArrow.style.display = 'none';
+			zzformMoreTextCollapse(this.closest('.moretext'));
 		};
+
+		// Nested widgets such as wrap_print() can grow after a click.
+		moretexts[i].addEventListener('click', zzformMoreTextOnInnerClick);
 	}
 }
 zzformMoreTexts();
+
+function zzformMoreTextExpand(moretext) {
+	if (!moretext) return;
+	moretext.className = "moretext";
+	var downArrow = moretext.querySelector(':scope > .zzform-arrow-down');
+	var upArrow = moretext.querySelector(':scope > .zzform-arrow-up');
+	if (downArrow) downArrow.style.display = 'none';
+	if (upArrow) upArrow.style.display = 'inline';
+}
+
+function zzformMoreTextCollapse(moretext) {
+	if (!moretext) return;
+	moretext.className = "moretext moretext_hidden";
+	var downArrow = moretext.querySelector(':scope > .zzform-arrow-down');
+	var upArrow = moretext.querySelector(':scope > .zzform-arrow-up');
+	if (downArrow) downArrow.style.display = 'inline';
+	if (upArrow) upArrow.style.display = 'none';
+}
+
+function zzformMoreTextOnInnerClick(event) {
+	if (event.target.closest('.zzform-arrow-down, .zzform-arrow-up')) return;
+	var moretext = this;
+	requestAnimationFrame(function() {
+		if (!moretext.classList.contains('moretext_hidden')) return;
+		if (moretext.scrollHeight <= moretext.clientHeight) return;
+		zzformMoreTextExpand(moretext);
+	});
+}
 
 /**
  * change class name of list elements if multi checkbox is selected

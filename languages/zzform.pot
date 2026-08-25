@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzform module\n"
-"POT-Creation-Date: 2026-08-22 09:39+0000\n"
+"POT-Creation-Date: 2026-08-25 21:12+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -16,27 +16,27 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: behaviour/zzform-foot.js:650
+#: behaviour/zzform-foot.js:667
 msgid "Bytes"
 msgstr ""
 
-#: behaviour/zzform-foot.js:650
+#: behaviour/zzform-foot.js:667
 msgid "Total:"
 msgstr ""
 
-#: behaviour/zzform-foot.js:650
+#: behaviour/zzform-foot.js:667
 msgid "Uploaded:"
 msgstr ""
 
-#: behaviour/zzform-foot.js:653
+#: behaviour/zzform-foot.js:670
 msgid "% uploaded … please wait"
 msgstr ""
 
-#: behaviour/zzform-foot.js:660
+#: behaviour/zzform-foot.js:677
 msgid "Upload Failed"
 msgstr ""
 
-#: behaviour/zzform-foot.js:667
+#: behaviour/zzform-foot.js:684
 msgid "Upload Aborted"
 msgstr ""
 
