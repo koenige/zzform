@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzform module\n"
-"POT-Creation-Date: 2026-08-26 15:47+0000\n"
+"POT-Creation-Date: 2026-08-26 16:34+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -3345,35 +3345,35 @@ msgstr ""
 msgid "Insert: `%s` exists, but is not a file."
 msgstr ""
 
-#: zzform/upload.inc.php:2736
+#: zzform/upload.inc.php:2740
 msgid "zz_rename(): No new filename given."
 msgstr ""
 
-#: zzform/upload.inc.php:2743
+#: zzform/upload.inc.php:2747
 msgid "zz_rename(): File %s does not exist."
 msgstr ""
 
-#: zzform/upload.inc.php:2801
+#: zzform/upload.inc.php:2817
 msgid "Insufficient rights. Directory `%s` is not writable."
 msgstr ""
 
-#: zzform/upload.inc.php:2804
+#: zzform/upload.inc.php:2820
 msgid "Unknown error. Copying of file not successful. <br>From: %s <br>To: %s<br>"
 msgstr ""
 
-#: zzform/upload.inc.php:2830
+#: zzform/upload.inc.php:2862
 msgid "Value for upload_max_filesize from php.ini is smaller than value which is set in the script. The value from php.ini will be used. To upload bigger files, please adjust your configuration settings."
 msgstr ""
 
-#: zzform/upload.inc.php:2969
+#: zzform/upload.inc.php:3001
 msgid "Configuration error on server: command `%s` was not found. Paths tried: %s"
 msgstr ""
 
-#: zzform/upload.inc.php:2988
+#: zzform/upload.inc.php:3020
 msgid "Set `zzform_upload_binary_version_option` for command `%s` to get version information."
 msgstr ""
 
-#: zzform/upload.inc.php:2994
+#: zzform/upload.inc.php:3026
 msgid "Binary command `%s` not found."
 msgstr ""
 

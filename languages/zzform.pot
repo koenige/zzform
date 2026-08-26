@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzform module\n"
-"POT-Creation-Date: 2026-08-25 21:12+0000\n"
+"POT-Creation-Date: 2026-08-26 16:34+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -1319,16 +1319,16 @@ msgid "Could not delete %s."
 msgstr ""
 
 # Record form: File upload
-#: zzform/upload.inc.php:2795
+#: zzform/upload.inc.php:2811
 msgid "File could not be saved. There is a problem with the user rights. We are working on it."
 msgstr ""
 
-#: zzform/upload.inc.php:2861
+#: zzform/upload.inc.php:2893
 msgid "No user"
 msgstr ""
 
 # Record form: File upload
-#: zzform/upload.inc.php:2897
+#: zzform/upload.inc.php:2929
 msgid "Supported filetypes:"
 msgstr ""
 

@@ -2337,10 +2337,13 @@ function zz_upload_insert($source, $dest, $action = '-') {
 		}
 	}
 	if (zz_error_exit()) return false;
+	$mtime = filemtime($source);
+	$atime = fileatime($source);
 	$success = zz_rename($source, $dest, E_USER_ERROR);
 	if (!$success) return false;
 
 	chmod($dest, 0644);
+	zz_upload_preserve_times($dest, $mtime, $atime);
 	if (wrap_setting('debug')) zz_debug('file copied: %'.$source.'% to: %'.$dest.'%');
 	return true;
 }
@@ -2724,6 +2727,7 @@ function zz_upload_file_extension($filename) {
  * renames a file with php rename, only if 'zzform_upload_copy_for_rename' is set
  * copies file and then deletes old file (in case there are problems renaming
  * files from one mount to another)
+ * Destination keeps the source modification and access times.
  *
  * @param string $source old file name
  * @param string $destination new file name
@@ -2749,6 +2753,8 @@ function zz_rename($source, $destination, $fail_error_code = E_USER_NOTICE) {
 
 	// check if destination file is the same on error
 	$source_sha1 = sha1_file($source);
+	$mtime = filemtime($source);
+	$atime = fileatime($source);
 
 	// now we have something to move, make sure destination folder exists
 	zz_create_topfolders(dirname($destination));
@@ -2771,11 +2777,15 @@ function zz_rename($source, $destination, $fail_error_code = E_USER_NOTICE) {
 	if (str_starts_with($source, wrap_setting('cache_dir'))) {
 		// just copy file, leave old file alone (e. g. if copying from cache)
 		$success = copy($source, $destination);
-		if ($success) return true;
+		if ($success) {
+			zz_upload_preserve_times($destination, $mtime, $atime);
+			return true;
+		}
 	} elseif ($copy_unlink_files) {
 		// copy file, this also works in older php versions between partitions.
 		$success = copy($source, $destination);
 		if ($success) {
+			zz_upload_preserve_times($destination, $mtime, $atime);
 			$success = unlink($source);
 			zz_upload_cleanup_files($source, 'remove');
 			if ($success) return true;
@@ -2783,12 +2793,18 @@ function zz_rename($source, $destination, $fail_error_code = E_USER_NOTICE) {
 	} else {
 		$success = rename($source, $destination);
 		zz_upload_cleanup_files($source, 'remove');
-		if ($success) return true;
+		if ($success) {
+			zz_upload_preserve_times($destination, $mtime, $atime);
+			return true;
+		}
 	}
 	// there might be a rename: Operation not permitted error when e. g. moving
 	// files over partitions, but the file might still end up in the correct place
 	// error is caused from chown, chgrp which might not work on destination file system
-	if (file_exists($destination) AND sha1_file($destination) === $source_sha1) return true;
+	if (file_exists($destination) AND sha1_file($destination) === $source_sha1) {
+		zz_upload_preserve_times($destination, $mtime, $atime);
+		return true;
+	}
 
 	// error handling
 	$error = [
@@ -2806,6 +2822,22 @@ function zz_rename($source, $destination, $fail_error_code = E_USER_NOTICE) {
 	}
 	zz_error_log($error);
 	return false;
+}
+
+/**
+ * keep source mtime and atime on a copied or moved file
+ *
+ * @param string $filename
+ * @param int|false $mtime
+ * @param int|false $atime
+ * @return void
+ */
+function zz_upload_preserve_times($filename, $mtime, $atime) {
+	if (!$filename) return;
+	if ($mtime === false) return;
+	if (!file_exists($filename)) return;
+	if ($atime === false) $atime = $mtime;
+	touch($filename, $mtime, $atime);
 }
 
 /**
