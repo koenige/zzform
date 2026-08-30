@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2004-2025 Gustaf Mossakowski
+ * @copyright Copyright © 2004-2026 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -59,6 +59,10 @@ function zz_translate($def, $values) {
  */
 function zz_translate_search($field, $sql_fieldname, $value, $search_equal) {
 	if (!wrap_setting('translate_fields')) return '';
+
+	if (!is_array($field['sql_translate'])) {
+		$field['sql_translate'] = [$field['sql_translate']];
+	}
 
 	// set conditions
 	$tconditions = [];
