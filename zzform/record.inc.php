@@ -408,7 +408,10 @@ function zz_record_tfoot($mode, $zz_record, $zz_conf_record, $zz_tab) {
 		if (!$zz_conf_record['details'] AND !$zz_conf_record['edit']
 			AND $zz_conf_record['cancel_link']) {
 			$output['tfoot_class'] = 'editbutton';
-			$output['cancel_url'] = $cancelurl;
+			if (!$zz_conf_record['no_ok'] AND $cancelurl)
+				$output['cancel_ok'] = $cancelurl;
+			else
+				$output['cancel_url'] = $cancelurl;
 			$output['tfoot'] = true;
 		}			
 	}
