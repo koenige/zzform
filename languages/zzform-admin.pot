@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzform module\n"
-"POT-Creation-Date: 2026-08-26 16:34+0000\n"
+"POT-Creation-Date: 2026-08-31 08:22+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -3127,11 +3127,11 @@ msgstr ""
 msgid "First key of subtitle query needs to be numeric to be translated: %s"
 msgstr ""
 
-#: zzform/output.inc.php:676
+#: zzform/output.inc.php:681
 msgid "Table prefix is incorrect somehow: %s"
 msgstr ""
 
-#: zzform/output.inc.php:773
+#: zzform/output.inc.php:778
 msgid "Preformat function %s does not exist."
 msgstr ""
 

@@ -571,7 +571,12 @@ function zz_field_enum_set($field, $value, $type = 'abbr', $key = false) {
 	}
 	if (!$key) $key = array_search($value, $field[$ft]);
 	// key 0 means first key, so rule out that key was simply not found
-	if ($key === '' OR $key === false) return '';
+	if ($key === '' OR $key === false) {
+		if (!empty($field['enum_textinput'])) {
+			return zz_htmltag_escape($value);
+		}
+		return '';
+	}
 
 	if (!empty($field[$ft.'_title'][$key])) {
 		$text = $field[$ft.'_title'][$key];
