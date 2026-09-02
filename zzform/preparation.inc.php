@@ -489,6 +489,14 @@ function zz_prepare_subrecords($mode, $field, $zz_tab, $tab, $zz_record) {
 	// set general definition for all $my_tab[$rec] (kind of a record template)
 	$rec_tpl = [];
 	$rec_tpl['fields'] = $field['fields'];
+	if (!empty($my_tab['db_name']) AND !empty($my_tab['table'])) {
+		$db_table = $my_tab['db_name'].'.'.$my_tab['table'];
+		foreach ($rec_tpl['fields'] as $field_no => $rec_field) {
+			if (empty($rec_field['field_name'])) continue;
+			if (!empty($rec_field['maxlength'])) continue;
+			zz_db_field_maxlength($rec_tpl['fields'][$field_no], $db_table);
+		}
+	}
 	$rec_tpl['if'] = $field['if'] ?? [];
 	$rec_tpl['unless'] = $field['unless'] ?? [];
 	$rec_tpl['access'] = $my_tab['access'];

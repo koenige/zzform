@@ -834,7 +834,10 @@ function zz_record_rows($zz_tab, $mode, $display, $zz_record, $data = []) {
 			}
 
 			$field['required'] = zz_record_field_required($field, $zz_tab, $data['tab']);
-			$field = zz_record_field_size($field); // size, maxlength
+			$db_table = !empty($zz_tab[$data['tab']]['db_name']) && !empty($zz_tab[$data['tab']]['table'])
+				? $zz_tab[$data['tab']]['db_name'].'.'.$zz_tab[$data['tab']]['table']
+				: ($zz_tab[$data['tab']]['table'] ?? '');
+			$field = zz_record_field_size($field, $db_table); // size, maxlength
 			$field['placeholder'] = zz_record_field_placeholder($field);
 
 			// apply factor only if there is a value in field
@@ -1117,28 +1120,49 @@ function zz_record_field_required($field, $zz_tab, $tab) {
  * set 'size' and 'maxlength' of a field
  *
  * @param array $field
+ * @param string $db_table (optional) db_name.table for maxlength lookup
  * @return array
  */
-function zz_record_field_size($field) {
+function zz_record_field_size($field, $db_table = '') {
+	if (empty($field['maxlength']) AND !empty($field['field_name']) AND $db_table) {
+		zz_db_field_maxlength($field, $db_table);
+	}
 	// field size, maxlength
 	if (!isset($field['size'])) {
-		if (in_array($field['type'], ['number', 'sequence'])) {
+		switch ($field['type']) {
+		case 'number':
+		case 'sequence':
 			$field['size'] = 16;
-		} elseif (in_array($field['type'], ['datetime', 'timestamp'])) {
-			$field['size'] = 18;
-		} else {
+			break;
+		case 'date':
+			$field['size'] = 10;
+			break;
+		case 'datetime':
+		case 'timestamp':
+			$field['size'] = 19;
+			break;
+		case 'time':
+			$field['size'] = 8;
+			break;
+		default:
 			$field['size'] = 32;
 		}
 	}
 	if ($field['type'] === 'ipv4') {
-		$field['size'] = 16;
-		$field['maxlength'] = 16;
+		$field['size'] = 15;
+		$field['maxlength'] = 15;
 	} elseif ($field['type'] === 'time') {
 		$field['size'] = 8;
 	}
-	if ($field['maxlength'] && $field['maxlength'] < $field['size']
+	$maxlength = (int) ($field['maxlength'] ?? 0);
+	if ($maxlength > 0
 		AND (empty($field['number_type']) OR !in_array($field['number_type'], ['latitude', 'longitude']))) {
-		$field['size'] = $field['maxlength'];
+		if ($maxlength < $field['size']) $field['size'] = $maxlength;
+	}
+	if (($field['type'] ?? '') === 'number' AND ($field['number_type'] ?? '') === 'currency'
+		AND empty($field['formatting_spaces']) AND $maxlength > 0) {
+		// size only: room for thousands separators in formatted currency values
+		$field['size'] += (int) floor(max(0, $maxlength - 3) / 3);
 	}
 	if (!empty($field['formatting_spaces'])) {
 		$field['size'] += $field['formatting_spaces'];
@@ -2285,7 +2309,7 @@ function zz_field_date($field, $display, $record) {
 		'name' => $field['f_field_name'],
 		'create_id' => true,
 		'value' => $value,
-		'size' => 12,
+		'size' => $field['size'],
 		'placeholder' => !empty($field['placeholder']) ? trim($field['placeholder']) : wrap_text('Date'),
 		'required' => $field['required'] ? true : false
 	];

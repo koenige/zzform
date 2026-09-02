@@ -403,7 +403,6 @@ function zz_db_table_backticks($db_table) {
  * @return bool
  */
 function zz_db_field_maxlength(&$field, $db_table) {
-	$field['maxlength'] = false;
 	if (!$field['field_name']) return false;
 	// just if it's a field with a field_name
 	// for some field types it makes no sense to check for maxlength
@@ -418,15 +417,15 @@ function zz_db_field_maxlength(&$field, $db_table) {
 
 	$field_def = zz_db_columns($db_table, $field['field_name']);
 	if ($field_def) {
-		preg_match('/\((\d+)\)/s', $field_def['Type'], $my_result);
-		if (isset($my_result[1])) $field['maxlength'] = $my_result[1];
-		else {
+		$typed = explode(' ', strtolower($field_def['Type']));
+		if (str_starts_with($typed[0], 'decimal')) {
+			$field['maxlength'] = zz_db_decimal_length($field_def['Type']);
+		} elseif (preg_match('/\((\d+)\)/s', $field_def['Type'], $my_result)) {
+			$field['maxlength'] = $my_result[1];
+		} elseif (str_ends_with($typed[0], 'int')) {
 			// from MySQL 8.0.19, there are no default lengths for ints
-			$typed = explode(' ', $field_def['Type']);
-			if (str_ends_with($typed[0], 'int')) {
-				$field['maxlength'] = zz_db_int_length($typed);
-				$field['max_int_value'] = $field_def['max_int_value'] ?? NULL;
-			}
+			$field['maxlength'] = zz_db_int_length($typed);
+			$field['max_int_value'] = $field_def['max_int_value'] ?? NULL;
 		}
 	}
 	if (wrap_setting('debug')) zz_debug($type.($field['maxlength'] ? '-'.$field['maxlength'] : ''));
@@ -460,6 +459,23 @@ function zz_db_int_length($typed) {
 		$length = 20; break;
 	}
 	return $length;
+}
+
+/**
+ * display width for DECIMAL(M,D) columns (point and optional sign)
+ *
+ * @param string $type MySQL column type, e.g. decimal(8,2)
+ * @return int
+ */
+function zz_db_decimal_length($type) {
+	if (!str_starts_with(strtolower($type), 'decimal')) return 0;
+	$length = substr($type, strpos($type, '(') + 1, -1);
+	$length = array_map('intval', explode(',', $length));
+	$precision = $length[0] ?? 0;
+	$scale = $length[1] ?? 0;
+	$display = $precision + ($scale > 0 ? 1 : 0);
+	if (!str_contains(strtolower($type), 'unsigned')) $display++;
+	return $display;
 }
 
 /**
@@ -501,8 +517,15 @@ function zz_db_columns($db_table, $field = false) {
 			$columns[$db_table][$index]['max_int_value'] = $max_integers[$fieldtype[1].'_'.$fieldtype[2]];
 		}
 	}
-	if ($field)
-		return $columns[$db_table][$field] ?? [];
+	if ($field) {
+		if (isset($columns[$db_table][$field]))
+			return $columns[$db_table][$field];
+		foreach ($columns[$db_table] as $name => $def) {
+			if (strcasecmp($name, $field) === 0)
+				return $def;
+		}
+		return [];
+	}
 	return $columns[$db_table];
 }
 

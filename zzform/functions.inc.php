@@ -697,8 +697,10 @@ function zz_prepare_fields($fields, $db_table, $multiple_times = false, $mode = 
 	if (wrap_setting('debug')) {
 		zz_debug('start', __FUNCTION__.$multiple_times);
 	}
-	if (!strstr($db_table, '.'))
-		$db_table = sprintf('%s.%s', wrap_setting('db_name'), $db_table);
+	if ($db_table) {
+		$table_def = zz_db_table($db_table);
+		$db_table = $table_def['db_name'].'.'.$table_def['table'];
+	}
 	static $defs = [];
 	$hash = md5(serialize($fields).$db_table.$multiple_times.$mode.$subtable_no);
 	if (!empty($defs[$hash])) return zz_return($defs[$hash]);
@@ -907,7 +909,7 @@ function zz_prepare_fields($fields, $db_table, $multiple_times = false, $mode = 
 		}
 
 		if (in_array($mode, ['add', 'edit', 'revise']) OR in_array($action, ['insert', 'update'])) {
-			if (!isset($fields[$no]['maxlength'])) {
+			if (empty($fields[$no]['maxlength'])) {
 				if (isset($fields[$no]['field_name'])) {
 					// no need to check maxlength in list view only 
 					zz_db_field_maxlength($fields[$no], $db_table);

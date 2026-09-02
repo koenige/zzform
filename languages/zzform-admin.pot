@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzform module\n"
-"POT-Creation-Date: 2026-08-31 08:22+0000\n"
+"POT-Creation-Date: 2026-09-02 11:46+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -3031,7 +3031,7 @@ msgstr ""
 msgid "MySQL reports a problem."
 msgstr ""
 
-#: zzform/database.inc.php:664
+#: zzform/database.inc.php:687
 msgid "Field %s not found in table %s."
 msgstr ""
 
@@ -3047,39 +3047,39 @@ msgstr ""
 msgid "Wrong configuration: The format `%s` of export %s is not in the list of possible formats."
 msgstr ""
 
-#: zzform/functions.inc.php:1067
+#: zzform/functions.inc.php:1069
 msgid "zzform field definition incorrect, field has neither field_name nor title."
 msgstr ""
 
 # Record form: Heading
-#: zzform/functions.inc.php:1612
+#: zzform/functions.inc.php:1614
 msgid "Configuration does not allow this mode: %s"
 msgstr ""
 
 # Record form: Heading
-#: zzform/functions.inc.php:1622
+#: zzform/functions.inc.php:1624
 msgid "Configuration does not allow this action: %s"
 msgstr ""
 
 # Record form: Validation, displayed above form
-#: zzform/functions.inc.php:1862
+#: zzform/functions.inc.php:1864
 msgid "Creation of directory %s failed: Parent directory is not writable."
 msgstr ""
 
 # Record form: Validation, displayed above form
-#: zzform/functions.inc.php:1876
+#: zzform/functions.inc.php:1878
 msgid "Creation of directory %s failed."
 msgstr ""
 
-#: zzform/functions.inc.php:2175
+#: zzform/functions.inc.php:2177
 msgid "It is not possible to depend on different fields in a single subtable (%s). Second field is ignored."
 msgstr ""
 
-#: zzform/functions.inc.php:2402
+#: zzform/functions.inc.php:2404
 msgid "Multiple records matching (maybe set \"ids\" for zzform_multi?): value %s in field %s. <br>SQL: %s"
 msgstr ""
 
-#: zzform/functions.inc.php:2407
+#: zzform/functions.inc.php:2409
 msgid "No entry found: value %s in field %s. <br>SQL: %s"
 msgstr ""
 
@@ -3147,72 +3147,72 @@ msgstr ""
 msgid "Trying to update a non-existent record in table `%s` with ID %d."
 msgstr ""
 
-#: zzform/preparation.inc.php:774
+#: zzform/preparation.inc.php:782
 msgid "Detail record with invalid ID was posted (ID of table_name %s was said to be %s, main record was ID %s)"
 msgstr ""
 
-#: zzform/preparation.inc.php:883
+#: zzform/preparation.inc.php:891
 msgid "Field marked as unique, but value appears more than once in record: %s (SQL %s)"
 msgstr ""
 
-#: zzform/preparation.inc.php:918
+#: zzform/preparation.inc.php:926
 msgid "UNIQUE was set but field %s is not in POST"
 msgstr ""
 
-#: zzform/preparation.inc.php:991
+#: zzform/preparation.inc.php:999
 msgid "Field marked as unique, but could not find corresponding value: %s"
 msgstr ""
 
-#: zzform/preparation.inc.php:1507
+#: zzform/preparation.inc.php:1515
 msgid "Illegal value: %s"
 msgstr ""
 
 # Error handling
-#: zzform/preparation.inc.php:1510
+#: zzform/preparation.inc.php:1518
 msgid "Incorrect value: %s"
 msgstr ""
 
-#: zzform/preparation.inc.php:1552
+#: zzform/preparation.inc.php:1560
 msgid "Validation error, value missing in field `%s`. Error was hidden (table misconfiguration?)."
 msgstr ""
 
-#: zzform/preparation.inc.php:1557
+#: zzform/preparation.inc.php:1565
 msgid "Validation error, image upload missing in field `%s`. Error was hidden (table misconfiguration?)."
 msgstr ""
 
-#: zzform/preparation.inc.php:1606
+#: zzform/preparation.inc.php:1614
 msgid "No ID %s found (Query: %s)."
 msgstr ""
 
-#: zzform/record.inc.php:2440
+#: zzform/record.inc.php:2467
 msgid "For a subtable with a form_display = `set`, there needs to be a field with a field type `select`."
 msgstr ""
 
-#: zzform/record.inc.php:2571
+#: zzform/record.inc.php:2598
 msgid "Found a value selected that is set to non-selectable (table %s, ID %d)"
 msgstr ""
 
-#: zzform/record.inc.php:2617
+#: zzform/record.inc.php:2644
 msgid "For a subtable with form_display = `key_value`, a field with `subtable_key` = true is required."
 msgstr ""
 
-#: zzform/record.inc.php:2625
+#: zzform/record.inc.php:2652
 msgid "For a subtable with form_display = `key_value`, a field with `subtable_value` = true is required."
 msgstr ""
 
-#: zzform/record.inc.php:3312
+#: zzform/record.inc.php:3339
 msgid "Subtree with ID %s does not exist."
 msgstr ""
 
-#: zzform/record.inc.php:3451
+#: zzform/record.inc.php:3478
 msgid "`%s` is not a folder. Check `[\"set_folder\"]` definition."
 msgstr ""
 
-#: zzform/record.inc.php:3696
+#: zzform/record.inc.php:3723
 msgid "Mismatch of no. of enum translations in field “%s”"
 msgstr ""
 
-#: zzform/record.inc.php:4105
+#: zzform/record.inc.php:4132
 msgid "Configuration error. Missing upload_image details."
 msgstr ""
 
