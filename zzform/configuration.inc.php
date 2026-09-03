@@ -36,7 +36,7 @@ function zz_configuration($cfg_key, $ext, $int = []) {
 		$value = zz_configuration_value($key, $def, $ext, $int);
 		if (!$value AND !empty($def['no_auto_init'])) continue;
 		$new_settings = wrap_setting_key($key, $value);
-		$settings = wrap_array_merge($settings, $new_settings, false);
+		$settings = wrap_array_merge($settings, $new_settings, ['overwrite_with_empty' => false]);
 	}
 	// variables in $ext left?
 	zz_configuration_unused($cfg_key, $ext, $settings);
