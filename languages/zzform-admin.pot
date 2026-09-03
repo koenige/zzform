@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzform module\n"
-"POT-Creation-Date: 2026-09-02 11:46+0000\n"
+"POT-Creation-Date: 2026-09-03 09:47+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -2399,7 +2399,7 @@ msgid "Select field (or field[column]) whose SQL row supplies a query string mer
 msgstr ""
 
 #: configuration/zz-fields.cfg:1001
-msgid "Keys from `zzform[…]` on the category to merge onto this field; `fields` replaces the field list, other keys are merged"
+msgid "Keys from `zzform[…]` on the category to merge onto this field; values in setting notation are parsed, lists (like `fields`) replace existing values completely, keyed arrays are merged"
 msgstr ""
 
 #: configuration/zz-fields.cfg:1007
@@ -2991,11 +2991,11 @@ msgstr ""
 msgid "There is already a folder by that name."
 msgstr ""
 
-#: zzform/action.inc.php:2703
+#: zzform/action.inc.php:2720
 msgid "(Encryption: %s, existing hash: %s, entered hash: %s)"
 msgstr ""
 
-#: zzform/action.inc.php:3189
+#: zzform/action.inc.php:3206
 msgid "Field has no maximum integer value (is it an integer?): %s.%s.%s"
 msgstr ""
 

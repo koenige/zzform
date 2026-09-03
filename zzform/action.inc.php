@@ -2458,17 +2458,34 @@ function zz_validate_read_parameters($field, $my_rec) {
 
 	foreach ($field['merge_parameters'] as $key) {
 		if (!array_key_exists($key, $parsed['zzform'])) continue;
-		if ($key === 'fields') {
-			$field['fields'] = wrap_setting_list(wrap_setting_parse($parsed['zzform']['fields']));
-			continue;
-		}
-		if (is_array($parsed['zzform'][$key]) && !empty($field[$key]) && is_array($field[$key])) {
-			$field[$key] = wrap_array_merge($field[$key], $parsed['zzform'][$key]);
+		$value = zz_read_parameters_value($parsed['zzform'][$key]);
+		if (is_array($value) && !array_is_list($value)
+			&& !empty($field[$key]) && is_array($field[$key])) {
+			$field[$key] = wrap_array_merge($field[$key], $value, ['replace_lists' => true]);
 		} else {
-			$field[$key] = $parsed['zzform'][$key];
+			// scalars and lists replace the existing definition completely
+			$field[$key] = $value;
 		}
 	}
 	return $field;
+}
+
+/**
+ * parse merged parameter values recursively
+ *
+ * scalar leaves may use setting notation: constants, [list, values],
+ * &query=strings, leading backslash as escape character
+ *
+ * @param mixed $value
+ * @return mixed
+ */
+function zz_read_parameters_value($value) {
+	if (is_array($value)) {
+		foreach ($value as $key => $item)
+			$value[$key] = zz_read_parameters_value($item);
+		return $value;
+	}
+	return wrap_setting_list(wrap_setting_parse($value));
 }
 
 /**
