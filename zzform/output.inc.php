@@ -810,8 +810,8 @@ function zz_date_format($date) {
 	if (!$date) return '';
 
 	// convert ISO 639-1 codes to ISO 639-2T
-	if (wrap_setting('lang') === 'de') $language = 'deu';
-	elseif (wrap_setting('lang') === 'en') $language = 'eng';
+	if (wrap_lang_match(wrap_setting('lang'), 'de')) $language = 'deu';
+	elseif (wrap_lang_match(wrap_setting('lang'), 'en')) $language = 'eng';
 	else $language = '---';
 
 	// international format, ISO 8601

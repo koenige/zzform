@@ -2418,9 +2418,14 @@ function zz_field_memo($field, $display, $record) {
 			wrap_static('zzform_output', 'wmd_editor_instances', $data['wmd_editor']);
 			$fieldattr['class'] = 'wmd-input';
 			$fieldattr['id'] = 'wmd-input-'.$data['wmd_editor'];
-			if (!wrap_static('zzform_output', 'wmd_editor_lang')
-				AND in_array(wrap_setting('lang'), wrap_setting('zzform_wmd_editor_languages')))
-				wrap_static('zzform_output', 'wmd_editor_lang', wrap_setting('lang'));
+			if (!wrap_static('zzform_output', 'wmd_editor_lang')) {
+				foreach (wrap_setting('zzform_wmd_editor_languages') as $editor_lang) {
+					if (!wrap_lang_match(wrap_setting('lang'), $editor_lang)) continue;
+					// use base language: it is part of the localization filename
+					wrap_static('zzform_output', 'wmd_editor_lang', $editor_lang);
+					break;
+				}
+			}
 		} elseif (wrap_setting('zzform_upndown_editor')) {
 			// upndown Editor
 			$data['upndown_editor'] = wrap_static('zzform_output', 'upndown_editor_instances') + 1;
