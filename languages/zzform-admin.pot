@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzform module\n"
-"POT-Creation-Date: 2026-09-10 20:27+0000\n"
+"POT-Creation-Date: 2026-09-12 13:47+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -2499,22 +2499,66 @@ msgid "Key of metadata that is used for the value of this field"
 msgstr ""
 
 #: configuration/zz-fields.cfg:1181
-msgid "List of strings that are not allowed to be entered in this field"
+msgid "Validation rules for user input on this field, keyed by rule type"
 msgstr ""
 
 #: configuration/zz-fields.cfg:1186
-msgid "Message to show if validation fails"
+msgid "List of strings that are not allowed to be entered in this field"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1192
+#: configuration/zz-fields.cfg:1191
+msgid "Value must be greater than another field; field name or list of field names (first non-empty field is used)"
+msgstr ""
+
+#: configuration/zz-fields.cfg:1196
+msgid "Value must be greater than or equal to another field"
+msgstr ""
+
+#: configuration/zz-fields.cfg:1201
+msgid "Value must be smaller than another field"
+msgstr ""
+
+#: configuration/zz-fields.cfg:1205
+msgid "Value must be smaller than or equal to another field"
+msgstr ""
+
+#: configuration/zz-fields.cfg:1209
+msgid "Message to show if a validation rule fails, keyed by the same rule type as validate"
+msgstr ""
+
+#: configuration/zz-fields.cfg:1215
+msgid "Skip a validate rule when any listed field has a value; keyed by rule type like validate"
+msgstr ""
+
+#: configuration/zz-fields.cfg:1221
+msgid "Skip the '>' rule when any of these fields has a value"
+msgstr ""
+
+#: configuration/zz-fields.cfg:1226
+msgid "Skip the '>=' rule when any of these fields has a value"
+msgstr ""
+
+#: configuration/zz-fields.cfg:1230
+msgid "Skip the '<' rule when any of these fields has a value"
+msgstr ""
+
+#: configuration/zz-fields.cfg:1234
+msgid "Skip the '<=' rule when any of these fields has a value"
+msgstr ""
+
+#: configuration/zz-fields.cfg:1238
+msgid "Skip the forbidden_strings rule when any of these fields has a value"
+msgstr ""
+
+#: configuration/zz-fields.cfg:1242
 msgid "Predefined value for a field"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1195
+#: configuration/zz-fields.cfg:1245
 msgid "Resolve username via WebFinger instead of a URL template (for federated services)"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1200
+#: configuration/zz-fields.cfg:1250
 msgid "Split words in the list view, for better readability"
 msgstr ""
 
@@ -2991,11 +3035,11 @@ msgstr ""
 msgid "There is already a folder by that name."
 msgstr ""
 
-#: zzform/action.inc.php:2720
+#: zzform/action.inc.php:2738
 msgid "(Encryption: %s, existing hash: %s, entered hash: %s)"
 msgstr ""
 
-#: zzform/action.inc.php:3206
+#: zzform/action.inc.php:3224
 msgid "Field has no maximum integer value (is it an integer?): %s.%s.%s"
 msgstr ""
 

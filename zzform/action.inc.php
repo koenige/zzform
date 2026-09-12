@@ -2634,11 +2634,13 @@ function zz_write_detail_values($zz_tab, $f, $tab = 0, $rec = 0) {
  * @param array $field
  *		'validate' defines against what to validate 
  *		'validate_msg' (optional) set validation error message
+ *		'validate_unless' (optional) skip a rule if any listed field has a value
  * @param array $post
  * @return mixed false: everything is okay, array: error message
  */
 function zz_check_rules($value, $field, $post) {
 	foreach ($field['validate'] as $type => $data) {
+		if (zz_check_rules_unless($field, $type, $post)) continue;
 		switch ($type) {
 		case 'forbidden_strings':
 			foreach ($data as $needle) {
@@ -2677,6 +2679,22 @@ function zz_check_rules($value, $field, $post) {
 			}
 			break;
 		}
+	}
+	return false;
+}
+
+/**
+ * skip a validate rule if any unless-field has a value
+ *
+ * @param array $field
+ * @param string $type validate rule (e.g. '>', 'forbidden_strings')
+ * @param array $post
+ * @return bool
+ */
+function zz_check_rules_unless($field, $type, $post) {
+	if (empty($field['validate_unless'][$type])) return false;
+	foreach ((array) $field['validate_unless'][$type] as $field_name) {
+		if (!empty($post[$field_name])) return true;
 	}
 	return false;
 }
