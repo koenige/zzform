@@ -35,7 +35,7 @@ function zz_define_fields($fields, $db_table, $multiple_times = false, $mode = f
 		$db_table = $table_def['db_name'].'.'.$table_def['table'];
 	}
 	static $defs = [];
-	$hash = md5(serialize($fields).$db_table.$multiple_times.$mode.$subtable_no);
+	$hash = md5(serialize($fields).$db_table.$multiple_times.$mode.$action.$subtable_no);
 	if (!empty($defs[$hash])) return zz_return($defs[$hash]);
 
 	$to_translates = [
