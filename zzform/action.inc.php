@@ -1901,11 +1901,11 @@ function zz_validate($zz_tab, $tab, $rec = 0) {
 				$n_val = zz_check_number($my_rec['POST'][$field_name]);
 				if ($n_val !== NULL) {
 					$my_rec['POST'][$field_name] = $n_val;
-					if (!empty($field['max_int_value']) AND $n_val > $field['max_int_value']) {
+					if (!empty($field['db_max_int_value']) AND $n_val > $field['db_max_int_value']) {
 						$my_rec['validation'] = false;
 						$my_rec['fields'][$f]['check_validation'] = false;
 						$my_rec['fields'][$f]['validation_error']['_msg'] = 'The number %d is too high. Maximum value is %d.';
-						$my_rec['fields'][$f]['validation_error']['_msg_values'] = [$n_val, $field['max_int_value']];
+						$my_rec['fields'][$f]['validation_error']['_msg_values'] = [$n_val, $field['db_max_int_value']];
 					}
 				} else {
 					$my_rec['fields'][$f]['check_validation'] = false;
@@ -1919,11 +1919,11 @@ function zz_validate($zz_tab, $tab, $rec = 0) {
 			if ($value.'' !== $my_rec['POST'][$field_name].'') {
 				$my_rec['fields'][$f]['check_validation'] = false;
 				$my_rec['validation'] = false;
-			} elseif (!empty($field['max_int_value']) AND $value > $field['max_int_value']) {
+			} elseif (!empty($field['db_max_int_value']) AND $value > $field['db_max_int_value']) {
 				$my_rec['validation'] = false;
 				$my_rec['fields'][$f]['check_validation'] = false;
 				$my_rec['fields'][$f]['validation_error']['_msg'] = 'The number %d is too high. Maximum value is %d.';
-				$my_rec['fields'][$f]['validation_error']['_msg_values'] = [$value, $field['max_int_value']];
+				$my_rec['fields'][$f]['validation_error']['_msg_values'] = [$value, $field['db_max_int_value']];
 			}
 			break;
 		case 'password':
@@ -2238,14 +2238,19 @@ function zz_validate($zz_tab, $tab, $rec = 0) {
 	// (check here against array because field might be used as 'set' or 'enum',
 	// then a check is not necessary because the person who created the field
 	// approved the values beforehands)
-		if (!empty($field['maxlength'])
+		$max_length = $field['maxlength'] ?? 0;
+		if (!$max_length
+			AND !in_array($field['type'], ['number', 'sequence'], true)) {
+			$max_length = $field['db_column_size'] ?? 0;
+		}
+		if ($max_length
 			AND !empty($my_rec['POST'][$field_name])
 			AND !is_array($my_rec['POST'][$field_name])) {
-			if (($length = mb_strlen($my_rec['POST'][$field_name])) > $field['maxlength']) {
+			if (($length = mb_strlen($my_rec['POST'][$field_name])) > $max_length) {
 				$my_rec['fields'][$f]['check_validation'] = false;
 				$my_rec['fields'][$f]['validation_error'] = [
 					'_msg' => 'Text is too long (max. %d characters, %d submitted).',
-					'_msg_values' => [$field['maxlength'], $length]
+					'_msg_values' => [$max_length, $length]
 				];
 				$my_rec['validation'] = false;
 			}
@@ -3141,8 +3146,8 @@ function zz_sequence_normalize($ops, $zz_tab) {
 				$fields[$tab.'-'.$rec]['field_name'] = $field['field_name'];
 				if (!empty($field['sequence_sql']))
 					$fields[$tab.'-'.$rec]['sql'] = $field['sequence_sql'];
-				if (!empty($field['max_int_value']))
-					$fields[$tab.'-'.$rec]['max_int_value'] = $field['max_int_value'];
+				if (!empty($field['db_max_int_value']))
+					$fields[$tab.'-'.$rec]['db_max_int_value'] = $field['db_max_int_value'];
 			}
 		}
 	}
@@ -3212,8 +3217,8 @@ function zz_sequence_normalize($ops, $zz_tab) {
 			if (array_key_exists($full_field, $used_maxint_values)) {
 				$field_def['max_int_value'] = --$used_maxint_values[$full_field];
 			} else {
-				if (!empty($my_field['max_int_value'])) {
-					$field_def['max_int_value'] = $my_field['max_int_value'];
+				if (!empty($my_field['db_max_int_value'])) {
+					$field_def['max_int_value'] = $my_field['db_max_int_value'];
 				} else {
 					$field_def = zz_db_columns(
 						$zz_tab[$tab]['db_name'].'.'.$zz_tab[$tab]['table'], $my_field['field_name']

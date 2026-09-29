@@ -242,11 +242,16 @@ function zz_define_fields($fields, $db_table, $multiple_times = false, $mode = f
 		}
 
 		if (in_array($mode, ['add', 'edit', 'revise']) OR in_array($action, ['insert', 'update'])) {
+			if (isset($fields[$no]['field_name'])) {
+				if (!array_key_exists('db_column_size', $fields[$no])) {
+					zz_db_field_column_size($fields[$no], $db_table);
+				}
+			}
 			if (empty($fields[$no]['maxlength'])) {
 				if (isset($fields[$no]['field_name'])) {
-					// no need to check maxlength in list view only
-					if (!in_array($fields[$no]['type'], ['number', 'sequence'], true)) {
-						zz_db_field_maxlength($fields[$no], $db_table);
+					if (!in_array($fields[$no]['type'], ['number', 'sequence'], true)
+						AND !empty($fields[$no]['db_column_size'])) {
+						$fields[$no]['maxlength'] = $fields[$no]['db_column_size'];
 					}
 				} else {
 					$fields[$no]['maxlength'] = 32;

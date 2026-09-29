@@ -54,7 +54,7 @@ function zz_identifier_prepare($my_rec, $db_table, $post, $no) {
 	$field['idf_values'] = $values;
 
 	zz_identifier_defaults($conf);
-	$conf['max_length_field'] = $field['maxlength'] ?? NULL;
+	$conf['max_length_field'] = $field['maxlength'] ?? $field['db_column_size'] ?? NULL;
 	$field['idf_conf'] = $conf;
 	list($field['idf_conf']['sql'], $field['idf_conf']['sql_other'])
 		= zz_identifier_sql($field, $my_rec);

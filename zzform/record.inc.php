@@ -1120,21 +1120,13 @@ function zz_record_field_required($field, $zz_tab, $tab) {
  * set 'size' and 'maxlength' of a field
  *
  * @param array $field
- * @param string $db_table (optional) db_name.table for maxlength lookup
+ * @param string $db_table (optional) db_name.table for db_column_size lookup
  * @return array
  */
 function zz_record_field_size($field, $db_table = '') {
-	$configured_maxlength = !empty($field['maxlength']);
-	if (empty($field['maxlength']) AND !empty($field['field_name']) AND $db_table) {
-		if (in_array($field['type'], ['number', 'sequence'], true)) {
-			$size_field = ['field_name' => $field['field_name']];
-			zz_db_field_maxlength($size_field, $db_table);
-			if (!empty($size_field['maxlength'])) {
-				$field['maxlength'] = $size_field['maxlength'];
-			}
-		} else {
-			zz_db_field_maxlength($field, $db_table);
-		}
+	$keep_maxlength = !empty($field['maxlength']);
+	if (!array_key_exists('db_column_size', $field) AND !empty($field['field_name']) AND $db_table) {
+		zz_db_field_column_size($field, $db_table);
 	}
 	// field size, maxlength
 	if (!isset($field['size'])) {
@@ -1163,15 +1155,15 @@ function zz_record_field_size($field, $db_table = '') {
 	} elseif ($field['type'] === 'time') {
 		$field['size'] = 8;
 	}
-	$maxlength = (int) ($field['maxlength'] ?? 0);
-	if ($maxlength > 0
+	$width = (int) ($field['maxlength'] ?: $field['db_column_size'] ?? 0);
+	if ($width > 0
 		AND (empty($field['number_type']) OR !in_array($field['number_type'], ['latitude', 'longitude']))) {
-		if ($maxlength < $field['size']) $field['size'] = $maxlength;
+		if ($width < $field['size']) $field['size'] = $width;
 	}
 	if (($field['type']) === 'number' AND ($field['number_type'] ?? '') === 'currency'
-		AND empty($field['formatting_spaces']) AND $maxlength > 0) {
+		AND empty($field['formatting_spaces']) AND $width > 0) {
 		// size only: room for thousands separators in formatted currency values
-		$field['size'] += (int) floor(max(0, $maxlength - 3) / 3);
+		$field['size'] += (int) floor(max(0, $width - 3) / 3);
 	}
 	if (!empty($field['formatting_spaces'])) {
 		$field['size'] += $field['formatting_spaces'];
@@ -1179,7 +1171,7 @@ function zz_record_field_size($field, $db_table = '') {
 			$field['maxlength'] += $field['formatting_spaces'];
 		}
 	}
-	if (in_array($field['type'], ['number', 'sequence'], true) AND !$configured_maxlength) {
+	if (in_array($field['type'], ['number', 'sequence'], true) AND !$keep_maxlength) {
 		unset($field['maxlength']);
 	}
 	return $field;

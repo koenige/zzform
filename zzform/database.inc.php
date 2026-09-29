@@ -396,22 +396,25 @@ function zz_db_table_backticks($db_table) {
 }
 
 /** 
- * sets maximum field length in MySQL database table
+ * sets db_column_size and db_max_int_value from MySQL column metadata
  * 
  * @param array $field
  * @param string $db_table	table name [i. e. db_name.table]
  * @return bool
  */
-function zz_db_field_maxlength(&$field, $db_table) {
+function zz_db_field_column_size(&$field, $db_table) {
 	if (!$field['field_name']) return false;
 	// just if it's a field with a field_name
-	// for some field types it makes no sense to check for maxlength
+	// for some field types it makes no sense to check for column size
 	$type = zz_get_fieldtype($field);
 	$dont_check = [
 		'image', 'display', 'timestamp', 'hidden', 'foreign_key', 'select',
 		'id', 'date', 'time', 'option', 'ip'
 	];
-	if (in_array($type, $dont_check)) return false;
+	if (in_array($type, $dont_check)) {
+		$field['db_column_size'] = 0;
+		return false;
+	}
 
 	if (wrap_setting('debug')) zz_debug('start', __FUNCTION__);
 
@@ -419,16 +422,21 @@ function zz_db_field_maxlength(&$field, $db_table) {
 	if ($field_def) {
 		$typed = explode(' ', strtolower($field_def['Type']));
 		if (str_starts_with($typed[0], 'decimal')) {
-			$field['maxlength'] = zz_db_decimal_length($field_def['Type']);
+			$field['db_column_size'] = zz_db_decimal_length($field_def['Type']);
 		} elseif (preg_match('/\((\d+)\)/s', $field_def['Type'], $my_result)) {
-			$field['maxlength'] = $my_result[1];
+			$field['db_column_size'] = $my_result[1];
 		} elseif (str_ends_with($typed[0], 'int')) {
 			// from MySQL 8.0.19, there are no default lengths for ints
-			$field['maxlength'] = zz_db_int_length($typed);
-			$field['max_int_value'] = $field_def['max_int_value'] ?? NULL;
+			$field['db_column_size'] = zz_db_int_length($typed);
+			$field['db_max_int_value'] = $field_def['max_int_value'] ?? NULL;
 		}
 	}
-	if (wrap_setting('debug')) zz_debug($type.($field['maxlength'] ? '-'.$field['maxlength'] : ''));
+	if (!array_key_exists('db_column_size', $field)) {
+		$field['db_column_size'] = 0;
+	}
+	if (wrap_setting('debug')) {
+		zz_debug($type.(!empty($field['db_column_size']) ? '-'.$field['db_column_size'] : ''));
+	}
 	return zz_return(true);
 }
 
