@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzform module\n"
-"POT-Creation-Date: 2026-09-29 16:47+0000\n"
+"POT-Creation-Date: 2026-09-29 17:03+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -161,7 +161,7 @@ msgstr ""
 
 # List view: Filter
 #: templates/zzform-list-filter.template.txt:25
-#: zzform/list.inc.php:1661
+#: zzform/list.inc.php:1659
 msgid "all"
 msgstr ""
 
@@ -268,7 +268,7 @@ msgstr ""
 # alt-attribute if there's no image
 # Record form: File upload
 #: templates/zzform-record-field-file.template.txt:14
-#: zzform/list.inc.php:1081
+#: zzform/list.inc.php:1079
 #: zzform/path.inc.php:82
 msgid "No image"
 msgstr ""
@@ -937,55 +937,55 @@ msgstr ""
 
 # group by unknown
 # List view
-#: zzform/list.inc.php:690
+#: zzform/list.inc.php:688
 #: zzform/path.inc.php:58
 msgid "- unknown -"
 msgstr ""
 
 # List view: bottom
-#: zzform/list.inc.php:1607
+#: zzform/list.inc.php:1605
 msgid "%d record total"
 msgid_plural "%d records total"
 msgstr[] ""
 msgstr[] ""
 
 # List view: bottom
-#: zzform/list.inc.php:1646
+#: zzform/list.inc.php:1644
 msgid "First page"
 msgstr ""
 
 # List view: bottom
-#: zzform/list.inc.php:1656
+#: zzform/list.inc.php:1654
 msgid "Previous page"
 msgstr ""
 
 # List view: bottom
-#: zzform/list.inc.php:1663
+#: zzform/list.inc.php:1661
 msgid "All records on one page"
 msgstr ""
 
 # List view: bottom
-#: zzform/list.inc.php:1741
+#: zzform/list.inc.php:1739
 msgid "Next page"
 msgstr ""
 
 # List view: bottom
-#: zzform/list.inc.php:1747
+#: zzform/list.inc.php:1745
 msgid "Last page"
 msgstr ""
 
 # List view: Table head
-#: zzform/list.inc.php:1913
+#: zzform/list.inc.php:1911
 msgid "descending"
 msgstr ""
 
 # List view: Table head
-#: zzform/list.inc.php:1915
+#: zzform/list.inc.php:1913
 msgid "ascending"
 msgstr ""
 
 # List view: Table head
-#: zzform/list.inc.php:1919
+#: zzform/list.inc.php:1917
 msgid "Order by"
 msgstr ""
 

@@ -26,7 +26,7 @@
  * @param int $subtable_no number of subtable in definition
  * @return array $fields
  */
-function zz_prepare_fields($fields, $db_table, $multiple_times = false, $mode = false, $action = false, $subtable_no = false) {
+function zz_define_fields($fields, $db_table, $multiple_times = false, $mode = false, $action = false, $subtable_no = false) {
 	if (wrap_setting('debug')) {
 		zz_debug('start', __FUNCTION__.$multiple_times);
 	}
@@ -80,7 +80,7 @@ function zz_prepare_fields($fields, $db_table, $multiple_times = false, $mode = 
 			AND ($fields[$no]['type'] ?? '') === 'parameter'
 			AND empty($fields[$no]['help'])
 		) {
-			$parameter_help = zz_prepare_fields_parameter_help($db_table);
+			$parameter_help = zz_define_parameter_help($db_table);
 			if ($parameter_help) $fields[$no]['help'] = $parameter_help;
 		}
 		if (!$multiple_times AND !empty($fields[$no]['help'])) {
@@ -151,7 +151,7 @@ function zz_prepare_fields($fields, $db_table, $multiple_times = false, $mode = 
 			if (empty($fields[$no]['table_name'])) {
 				$fields[$no]['table_name'] = $fields[$no]['table'];
 			}
-			$fields[$no]['fields'] = zz_prepare_fields(
+			$fields[$no]['fields'] = zz_define_fields(
 				$fields[$no]['fields'], $fields[$no]['table'], $multiple_times,
 				$mode, $action, !empty($fields[$no]['subtable_no']) ? $fields[$no]['subtable_no'].'-'.$no : $no
 			);
@@ -192,9 +192,9 @@ function zz_prepare_fields($fields, $db_table, $multiple_times = false, $mode = 
 				$fields[$no]['max_select'] = wrap_setting('zzform_max_select');
 			if (!isset($fields[$no]['max_select_val_len']))
 				$fields[$no]['max_select_val_len'] = wrap_setting('zzform_max_select_val_len');
-			zz_prepare_fields_enum_set($fields[$no]);
+			zz_define_enum_set($fields[$no]);
 		case 'foreign_key':
-			$fields[$no]['key_field_name'] = zz_prepare_fields_key_field_name($fields[$no]);
+			$fields[$no]['key_field_name'] = zz_define_key_field_name($fields[$no]);
 			// shortcut as key for results
 			$fields[$no]['key_field'] = $fields[$no]['key_field_name'];
 			if ($pos = strrpos($fields[$no]['key_field'], '.'))
@@ -252,7 +252,7 @@ function zz_prepare_fields($fields, $db_table, $multiple_times = false, $mode = 
 					$fields[$no]['maxlength'] = 32;
 				}
 			}
-			$fields[$no]['required'] = zz_prepare_fields_required($fields[$no], $db_table);
+			$fields[$no]['required'] = zz_define_required($fields[$no], $db_table);
 		} else {
 			if (!isset($fields[$no]['maxlength'])) $fields[$no]['maxlength'] = 0;
 			if (!isset($fields[$no]['required'])) $fields[$no]['required'] = false;
@@ -271,7 +271,7 @@ function zz_prepare_fields($fields, $db_table, $multiple_times = false, $mode = 
  * @param string $db_table db_name.table
  * @return string|null
  */
-function zz_prepare_fields_parameter_help($db_table) {
+function zz_define_parameter_help($db_table) {
 	if (!wrap_path('default_help', [], ['testing' => 1])) return null;
 
 	$db_table = explode('.', $db_table);
@@ -298,7 +298,7 @@ function zz_prepare_fields_parameter_help($db_table) {
  * @param string $db_table [i. e. db_name.table]
  * @return bool true: field is required, false: field is optional
  */
-function zz_prepare_fields_required($field, $db_table) {
+function zz_define_required($field, $db_table) {
 	if (!empty($field['required'])) return true;
 	if (isset($field['required'])) return false;
 	// might be empty string
@@ -322,7 +322,7 @@ function zz_prepare_fields_required($field, $db_table) {
  * @param array $field
  * @return string
  */
-function zz_prepare_fields_key_field_name($field) {
+function zz_define_key_field_name($field) {
 	if (!empty($field['key_field_name']))
 		return $field['key_field_name'];
 	if (!empty($field['id_field_name'])) {
@@ -355,7 +355,7 @@ function zz_prepare_fields_key_field_name($field) {
  * @param array $field field definition (by reference)
  * @return void
  */
-function zz_prepare_fields_enum_set(&$field) {
+function zz_define_enum_set(&$field) {
 	$specs = [
 		['set_tsv', 'set_tsv_package', 'set'],
 		['enum_tsv', 'enum_tsv_package', 'enum'],
@@ -388,7 +388,7 @@ function zz_prepare_fields_enum_set(&$field) {
  * @param array $fields = $zz['fields']
  * @return bool 
  */
-function zz_set_fielddefs_for_record(&$zz) {
+function zz_define_record(&$zz) {
 	$tab = 1;
 	foreach (array_keys($zz['fields']) as $no) {
 		// translations

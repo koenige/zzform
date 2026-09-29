@@ -272,7 +272,7 @@ function zzform($zz) {
 		// no list, no record? redirect to referer
 		if ($referer = wrap_static('zzform_page', 'referer')) wrap_redirect($referer);
 	}
-	$zz['fields'] = zz_prepare_fields($zz['fields'], $zz['table']);
+	$zz['fields'] = zz_define_fields($zz['fields'], $zz['table']);
 	if ($ops['mode'] !== 'export') {
 		$ops['output'] .= zz_output_backlink();
 		// if there was no add button in list, add it here
@@ -304,11 +304,11 @@ function zzform_record($zz, $ops, $zz_conditions) {
 	}
 	// sets some $zz-definitions for records depending on existing definition for
 	// translations, subtabes, uploads, write_once-fields
-	zz_set_fielddefs_for_record($zz);
+	zz_define_record($zz);
 
 	// now we have the correct field definitions	
 	// set type, title etc. where unset
-	$zz['fields'] = zz_prepare_fields($zz['fields'], $zz['table'], false, $ops['mode'], $zz['record']['action']); 
+	$zz['fields'] = zz_define_fields($zz['fields'], $zz['table'], false, $ops['mode'], $zz['record']['action']); 
 
 	zz_trigger_error_too_big();
 	zz_error();	// @todo check if this can go into zz_trigger_error_too_big()
