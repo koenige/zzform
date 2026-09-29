@@ -24,8 +24,17 @@
  * @return void (modified array filter, array filter_active in $zz) 
  */
 function zz_filter_defaults(&$zz) {
-	if ($zz['filter'] AND !empty($_GET['filter']) AND is_array($_GET['filter']))
+	if ($zz['filter'] AND !empty($_GET['filter']) AND is_array($_GET['filter'])) {
+		// check if GET is valid
+		$max_length = wrap_setting('zzform_filter_value_max_length');
+		foreach ($_GET['filter'] as $key => $value) {
+			if (!is_scalar($value))
+				wrap_quit(400, wrap_text('The filter in the URL is not valid.'), ['log_errors' => false]);
+			if ($max_length AND strlen($value) > $max_length)
+				wrap_quit(400, wrap_text('The filter value in the URL is too long.'), ['log_errors' => false]);
+		}
 		$zz['filter_active'] = $_GET['filter'];
+	}
 	$identifiers = [];
 
 	// if there are filters:

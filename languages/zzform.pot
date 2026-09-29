@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzform module\n"
-"POT-Creation-Date: 2026-09-12 13:47+0000\n"
+"POT-Creation-Date: 2026-09-29 10:41+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -794,29 +794,37 @@ msgstr ""
 msgid "A function is missing for `%s` export in the script at `%s`."
 msgstr ""
 
+#: zzform/filter.inc.php:32
+msgid "The filter in the URL is not valid."
+msgstr ""
+
+#: zzform/filter.inc.php:34
+msgid "The filter value in the URL is too long."
+msgstr ""
+
 # List view: Filter
-#: zzform/filter.inc.php:142
+#: zzform/filter.inc.php:151
 msgid "(no value)"
 msgstr ""
 
 # List view: Filter
-#: zzform/filter.inc.php:191
-#: zzform/filter.inc.php:390
+#: zzform/filter.inc.php:200
+#: zzform/filter.inc.php:399
 msgid "<a href=\"%s\">List without this filter</a>"
 msgstr ""
 
 # List view: Filter
-#: zzform/filter.inc.php:191
+#: zzform/filter.inc.php:200
 msgid "This filter does not exist: %s"
 msgstr ""
 
 # List view: Filter
-#: zzform/filter.inc.php:363
+#: zzform/filter.inc.php:372
 msgid "“%s” is not a valid value for the selection “%s”. Please select a different filter."
 msgstr ""
 
 # List view: Filter
-#: zzform/filter.inc.php:389
+#: zzform/filter.inc.php:398
 msgid "A filter for the selection “%s” does not exist."
 msgstr ""
 
