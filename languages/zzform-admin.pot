@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzform module\n"
-"POT-Creation-Date: 2026-09-29 17:03+0000\n"
+"POT-Creation-Date: 2026-09-29 18:09+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -3039,11 +3039,11 @@ msgstr ""
 msgid "There is already a folder by that name."
 msgstr ""
 
-#: zzform/action.inc.php:2738
+#: zzform/action.inc.php:2743
 msgid "(Encryption: %s, existing hash: %s, entered hash: %s)"
 msgstr ""
 
-#: zzform/action.inc.php:3224
+#: zzform/action.inc.php:3229
 msgid "Field has no maximum integer value (is it an integer?): %s.%s.%s"
 msgstr ""
 
@@ -3079,7 +3079,7 @@ msgstr ""
 msgid "MySQL reports a problem."
 msgstr ""
 
-#: zzform/database.inc.php:687
+#: zzform/database.inc.php:695
 msgid "Field %s not found in table %s."
 msgstr ""
 
@@ -3195,72 +3195,72 @@ msgstr ""
 msgid "Trying to update a non-existent record in table `%s` with ID %d."
 msgstr ""
 
-#: zzform/preparation.inc.php:783
+#: zzform/preparation.inc.php:774
 msgid "Detail record with invalid ID was posted (ID of table_name %s was said to be %s, main record was ID %s)"
 msgstr ""
 
-#: zzform/preparation.inc.php:892
+#: zzform/preparation.inc.php:883
 msgid "Field marked as unique, but value appears more than once in record: %s (SQL %s)"
 msgstr ""
 
-#: zzform/preparation.inc.php:927
+#: zzform/preparation.inc.php:918
 msgid "UNIQUE was set but field %s is not in POST"
 msgstr ""
 
-#: zzform/preparation.inc.php:1000
+#: zzform/preparation.inc.php:991
 msgid "Field marked as unique, but could not find corresponding value: %s"
 msgstr ""
 
-#: zzform/preparation.inc.php:1516
+#: zzform/preparation.inc.php:1507
 msgid "Illegal value: %s"
 msgstr ""
 
 # Error handling
-#: zzform/preparation.inc.php:1519
+#: zzform/preparation.inc.php:1510
 msgid "Incorrect value: %s"
 msgstr ""
 
-#: zzform/preparation.inc.php:1561
+#: zzform/preparation.inc.php:1552
 msgid "Validation error, value missing in field `%s`. Error was hidden (table misconfiguration?)."
 msgstr ""
 
-#: zzform/preparation.inc.php:1566
+#: zzform/preparation.inc.php:1557
 msgid "Validation error, image upload missing in field `%s`. Error was hidden (table misconfiguration?)."
 msgstr ""
 
-#: zzform/preparation.inc.php:1615
+#: zzform/preparation.inc.php:1606
 msgid "No ID %s found (Query: %s)."
 msgstr ""
 
-#: zzform/record.inc.php:2484
+#: zzform/record.inc.php:2411
 msgid "For a subtable with a form_display = `set`, there needs to be a field with a field type `select`."
 msgstr ""
 
-#: zzform/record.inc.php:2615
+#: zzform/record.inc.php:2542
 msgid "Found a value selected that is set to non-selectable (table %s, ID %d)"
 msgstr ""
 
-#: zzform/record.inc.php:2661
+#: zzform/record.inc.php:2588
 msgid "For a subtable with form_display = `key_value`, a field with `subtable_key` = true is required."
 msgstr ""
 
-#: zzform/record.inc.php:2669
+#: zzform/record.inc.php:2596
 msgid "For a subtable with form_display = `key_value`, a field with `subtable_value` = true is required."
 msgstr ""
 
-#: zzform/record.inc.php:3356
+#: zzform/record.inc.php:3283
 msgid "Subtree with ID %s does not exist."
 msgstr ""
 
-#: zzform/record.inc.php:3495
+#: zzform/record.inc.php:3422
 msgid "`%s` is not a folder. Check `[\"set_folder\"]` definition."
 msgstr ""
 
-#: zzform/record.inc.php:3740
+#: zzform/record.inc.php:3667
 msgid "Mismatch of no. of enum translations in field “%s”"
 msgstr ""
 
-#: zzform/record.inc.php:4149
+#: zzform/record.inc.php:4076
 msgid "Configuration error. Missing upload_image details."
 msgstr ""
 

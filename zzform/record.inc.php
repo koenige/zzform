@@ -834,10 +834,6 @@ function zz_record_rows($zz_tab, $mode, $display, $zz_record, $data = []) {
 			}
 
 			$field['required'] = zz_record_field_required($field, $zz_tab, $data['tab']);
-			$db_table = !empty($zz_tab[$data['tab']]['db_name']) && !empty($zz_tab[$data['tab']]['table'])
-				? $zz_tab[$data['tab']]['db_name'].'.'.$zz_tab[$data['tab']]['table']
-				: ($zz_tab[$data['tab']]['table'] ?? '');
-			$field = zz_record_field_size($field, $db_table); // size, maxlength
 			$field['placeholder'] = zz_record_field_placeholder($field);
 
 			// apply factor only if there is a value in field
@@ -1114,67 +1110,6 @@ function zz_record_field_required($field, $zz_tab, $tab) {
 		// in case there is no value, it will come from an upload field
 		return false;
 	return $field['required'];
-}
-
-/**
- * set 'size' and 'maxlength' of a field
- *
- * @param array $field
- * @param string $db_table (optional) db_name.table for db_column_size lookup
- * @return array
- */
-function zz_record_field_size($field, $db_table = '') {
-	$keep_maxlength = !empty($field['maxlength']);
-	if (!array_key_exists('db_column_size', $field) AND !empty($field['field_name']) AND $db_table) {
-		zz_db_field_column_size($field, $db_table);
-	}
-	// field size, maxlength
-	if (!isset($field['size'])) {
-		switch ($field['type']) {
-		case 'number':
-		case 'sequence':
-			$field['size'] = 16;
-			break;
-		case 'date':
-			$field['size'] = 10;
-			break;
-		case 'datetime':
-		case 'timestamp':
-			$field['size'] = 19;
-			break;
-		case 'time':
-			$field['size'] = 8;
-			break;
-		default:
-			$field['size'] = 32;
-		}
-	}
-	if ($field['type'] === 'ipv4') {
-		$field['size'] = 15;
-		$field['maxlength'] = 15;
-	} elseif ($field['type'] === 'time') {
-		$field['size'] = 8;
-	}
-	$width = (int) ($field['maxlength'] ?: $field['db_column_size'] ?? 0);
-	if ($width > 0
-		AND (empty($field['number_type']) OR !in_array($field['number_type'], ['latitude', 'longitude']))) {
-		if ($width < $field['size']) $field['size'] = $width;
-	}
-	if (($field['type']) === 'number' AND ($field['number_type'] ?? '') === 'currency'
-		AND empty($field['formatting_spaces']) AND $width > 0) {
-		// size only: room for thousands separators in formatted currency values
-		$field['size'] += (int) floor(max(0, $width - 3) / 3);
-	}
-	if (!empty($field['formatting_spaces'])) {
-		$field['size'] += $field['formatting_spaces'];
-		if (isset($field['maxlength'])) {
-			$field['maxlength'] += $field['formatting_spaces'];
-		}
-	}
-	if (in_array($field['type'], ['number', 'sequence'], true) AND !$keep_maxlength) {
-		unset($field['maxlength']);
-	}
-	return $field;
 }
 
 /**

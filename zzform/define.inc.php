@@ -243,19 +243,9 @@ function zz_define_fields($fields, $db_table, $multiple_times = false, $mode = f
 
 		if (in_array($mode, ['add', 'edit', 'revise']) OR in_array($action, ['insert', 'update'])) {
 			if (isset($fields[$no]['field_name'])) {
-				if (!array_key_exists('db_column_size', $fields[$no])) {
-					zz_db_field_column_size($fields[$no], $db_table);
-				}
-			}
-			if (empty($fields[$no]['maxlength'])) {
-				if (isset($fields[$no]['field_name'])) {
-					if (!in_array($fields[$no]['type'], ['number', 'sequence'], true)
-						AND !empty($fields[$no]['db_column_size'])) {
-						$fields[$no]['maxlength'] = $fields[$no]['db_column_size'];
-					}
-				} else {
-					$fields[$no]['maxlength'] = 32;
-				}
+				zz_define_field_input($fields[$no], $db_table);
+			} elseif (empty($fields[$no]['maxlength'])) {
+				$fields[$no]['maxlength'] = 32;
 			}
 			$fields[$no]['required'] = zz_define_required($fields[$no], $db_table);
 		} else {
@@ -268,6 +258,71 @@ function zz_define_fields($fields, $db_table, $multiple_times = false, $mode = f
 	}
 	$defs[$hash] = $fields;
 	return zz_return($fields);
+}
+
+/**
+ * DB column width, HTML size and maxlength for record/validate input
+ *
+ * @param array $field
+ * @param string $db_table db_name.table
+ */
+function zz_define_field_input(&$field, $db_table) {
+	$keep_maxlength = !empty($field['maxlength']);
+
+	if (!array_key_exists('db_column_size', $field)) {
+		zz_db_field_column_size($field, $db_table);
+	}
+	if (empty($field['maxlength'])) {
+		if (!in_array($field['type'], ['number', 'sequence'], true)
+			AND !empty($field['db_column_size'])) {
+			$field['maxlength'] = $field['db_column_size'];
+		}
+	}
+
+	if (!isset($field['size'])) {
+		switch ($field['type']) {
+		case 'number':
+		case 'sequence':
+			$field['size'] = 16;
+			break;
+		case 'date':
+			$field['size'] = 10;
+			break;
+		case 'datetime':
+		case 'timestamp':
+			$field['size'] = 19;
+			break;
+		case 'time':
+			$field['size'] = 8;
+			break;
+		default:
+			$field['size'] = 32;
+		}
+	}
+	if ($field['type'] === 'ipv4') {
+		$field['size'] = 15;
+		$field['maxlength'] = 15;
+	} elseif ($field['type'] === 'time') {
+		$field['size'] = 8;
+	}
+	$width = (int) ($field['maxlength'] ?: $field['db_column_size'] ?? 0);
+	if ($width > 0
+		AND (empty($field['number_type']) OR !in_array($field['number_type'], ['latitude', 'longitude']))) {
+		if ($width < $field['size']) $field['size'] = $width;
+	}
+	if (($field['type']) === 'number' AND ($field['number_type'] ?? '') === 'currency'
+		AND empty($field['formatting_spaces']) AND $width > 0) {
+		$field['size'] += (int) floor(max(0, $width - 3) / 3);
+	}
+	if (!empty($field['formatting_spaces'])) {
+		$field['size'] += $field['formatting_spaces'];
+		if (isset($field['maxlength'])) {
+			$field['maxlength'] += $field['formatting_spaces'];
+		}
+	}
+	if (in_array($field['type'], ['number', 'sequence'], true) AND !$keep_maxlength) {
+		unset($field['maxlength']);
+	}
 }
 
 /**
