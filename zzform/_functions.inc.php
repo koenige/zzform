@@ -131,6 +131,7 @@ function zzform_includes() {
 	wrap_include('database', 'zzform');
 	wrap_include('sql', 'zzform');
 	wrap_include('state', 'zzform');
+	wrap_include('define', 'zzform');
 	$included = true;
 }
 
