@@ -494,6 +494,7 @@ function zz_prepare_subrecords($mode, $field, $zz_tab, $tab, $zz_record) {
 		foreach ($rec_tpl['fields'] as $field_no => $rec_field) {
 			if (empty($rec_field['field_name'])) continue;
 			if (!empty($rec_field['maxlength'])) continue;
+			if (in_array($rec_field['type'], ['number', 'sequence'], true)) continue;
 			zz_db_field_maxlength($rec_tpl['fields'][$field_no], $db_table);
 		}
 	}

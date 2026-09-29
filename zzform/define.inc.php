@@ -245,9 +245,9 @@ function zz_prepare_fields($fields, $db_table, $multiple_times = false, $mode = 
 			if (empty($fields[$no]['maxlength'])) {
 				if (isset($fields[$no]['field_name'])) {
 					// no need to check maxlength in list view only
-//					if (!in_array($fields[$no]['type'], ['number', 'sequence'], true)) {
+					if (!in_array($fields[$no]['type'], ['number', 'sequence'], true)) {
 						zz_db_field_maxlength($fields[$no], $db_table);
-//					}
+					}
 				} else {
 					$fields[$no]['maxlength'] = 32;
 				}

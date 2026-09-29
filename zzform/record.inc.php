@@ -1124,8 +1124,17 @@ function zz_record_field_required($field, $zz_tab, $tab) {
  * @return array
  */
 function zz_record_field_size($field, $db_table = '') {
+	$configured_maxlength = !empty($field['maxlength']);
 	if (empty($field['maxlength']) AND !empty($field['field_name']) AND $db_table) {
-		zz_db_field_maxlength($field, $db_table);
+		if (in_array($field['type'], ['number', 'sequence'], true)) {
+			$size_field = ['field_name' => $field['field_name']];
+			zz_db_field_maxlength($size_field, $db_table);
+			if (!empty($size_field['maxlength'])) {
+				$field['maxlength'] = $size_field['maxlength'];
+			}
+		} else {
+			zz_db_field_maxlength($field, $db_table);
+		}
 	}
 	// field size, maxlength
 	if (!isset($field['size'])) {
@@ -1159,7 +1168,7 @@ function zz_record_field_size($field, $db_table = '') {
 		AND (empty($field['number_type']) OR !in_array($field['number_type'], ['latitude', 'longitude']))) {
 		if ($maxlength < $field['size']) $field['size'] = $maxlength;
 	}
-	if (($field['type'] ?? '') === 'number' AND ($field['number_type'] ?? '') === 'currency'
+	if (($field['type']) === 'number' AND ($field['number_type'] ?? '') === 'currency'
 		AND empty($field['formatting_spaces']) AND $maxlength > 0) {
 		// size only: room for thousands separators in formatted currency values
 		$field['size'] += (int) floor(max(0, $maxlength - 3) / 3);
@@ -1169,6 +1178,9 @@ function zz_record_field_size($field, $db_table = '') {
 		if (isset($field['maxlength'])) {
 			$field['maxlength'] += $field['formatting_spaces'];
 		}
+	}
+	if (in_array($field['type'], ['number', 'sequence'], true) AND !$configured_maxlength) {
+		unset($field['maxlength']);
 	}
 	return $field;
 }
