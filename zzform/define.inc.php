@@ -101,10 +101,6 @@ function zz_define_fields($fields, $db_table, $multiple_times = false, $mode = f
 		// settings depending on field type
 		switch ($fields[$no]['type']) {
 		case 'option':
-			// do not show option-fields in tab
-			$fields[$no]['hide_in_list'] = true;
-			// makes no sense to export a form field
-			$fields[$no]['export'] = false;
 			// format option-fields with CSS
 			if (!in_array('option', $fields[$no]['class'])) {
 				$fields[$no]['class'][] = 'option';
@@ -129,8 +125,6 @@ function zz_define_fields($fields, $db_table, $multiple_times = false, $mode = f
 			$fields[$no]['type_detail'] = 'text';
 			break;
 		case 'id':
-			// set dont_sort as a default for ID columns
-			if (!isset($fields[$no]['dont_sort'])) $fields[$no]['dont_sort'] = true;
 			// hide empty ID fields on add
 			if ($mode === 'add') $fields[$no]['hide_in_form'] = true;
 			break;
@@ -165,8 +159,6 @@ function zz_define_fields($fields, $db_table, $multiple_times = false, $mode = f
 				unset($fields[$no]);
 				continue 2;
 			}
-			$fields[$no]['hide_in_list'] = true;
-			$fields[$no]['export'] = false;
 			break;
 		case 'upload_image':
 			wrap_include('upload', 'zzform');
@@ -183,10 +175,6 @@ function zz_define_fields($fields, $db_table, $multiple_times = false, $mode = f
 			}
 			break;
 		case 'select':
-			if (!isset($fields[$no]['max_select']))
-				$fields[$no]['max_select'] = wrap_setting('zzform_max_select');
-			if (!isset($fields[$no]['max_select_val_len']))
-				$fields[$no]['max_select_val_len'] = wrap_setting('zzform_max_select_val_len');
 			zz_define_enum_set($fields[$no]);
 		case 'foreign_key':
 			$fields[$no]['key_field_name'] = zz_define_key_field_name($fields[$no]);
@@ -197,9 +185,6 @@ function zz_define_fields($fields, $db_table, $multiple_times = false, $mode = f
 			break;
 		case 'time':
 		case 'datetime':
-			if (empty($fields[$no]['time_format']))
-				$fields[$no]['time_format'] = 'H:i';
-			// no break here
 		case 'date':
 			if (!empty($fields[$no]['default']) AND $fields[$no]['default'] === 'current_date') {
 				$fields[$no]['default'] = date('Y-m-d H:i:s');
@@ -230,11 +215,14 @@ function zz_define_fields($fields, $db_table, $multiple_times = false, $mode = f
 				wrap_error('Use key `identifier` instead of `conf_identifier`', E_USER_DEPRECATED);
 			}
 			break;
-		case 'url':
-		case 'url+placeholder':
-			if (!isset($fields[$no]['max_select_val_len']))
-				$fields[$no]['max_select_val_len'] = wrap_setting('zzform_max_select_val_len');
 		}
+
+		$apply_keys_from_cfg = [
+			'dont_sort', 'export', 'hide_in_list', 'max_select', 'max_select_val_len',
+			'time_format'
+		];
+		foreach ($apply_keys_from_cfg as $type_key)
+			zz_fieldtype($fields[$no], $type_key);
 
 		if (in_array($mode, ['add', 'edit', 'revise']) OR in_array($action, ['insert', 'update'])) {
 			if (isset($fields[$no]['field_name'])) {

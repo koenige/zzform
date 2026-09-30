@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzform module\n"
-"POT-Creation-Date: 2026-09-30 09:28+0000\n"
+"POT-Creation-Date: 2026-09-30 10:32+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -2686,51 +2686,51 @@ msgstr ""
 msgid "Selection from a fixed list or query; one or many"
 msgstr ""
 
-#: configuration/zz-fieldtypes.cfg:123
+#: configuration/zz-fieldtypes.cfg:125
 msgid "Position in order; changing it reorders the other rows automatically"
 msgstr ""
 
-#: configuration/zz-fieldtypes.cfg:127
+#: configuration/zz-fieldtypes.cfg:129
 msgid "Table of detail rows belonging to the main record"
 msgstr ""
 
-#: configuration/zz-fieldtypes.cfg:130
+#: configuration/zz-fieldtypes.cfg:132
 msgid "Single-line text"
 msgstr ""
 
-#: configuration/zz-fieldtypes.cfg:134
+#: configuration/zz-fieldtypes.cfg:136
 msgid "Time of day"
 msgstr ""
 
-#: configuration/zz-fieldtypes.cfg:139
+#: configuration/zz-fieldtypes.cfg:141
 msgid "Time of save, set automatically"
 msgstr ""
 
-#: configuration/zz-fieldtypes.cfg:143
+#: configuration/zz-fieldtypes.cfg:145
 msgid "Links a translation row to its source field"
 msgstr ""
 
-#: configuration/zz-fieldtypes.cfg:146
+#: configuration/zz-fieldtypes.cfg:148
 msgid "Date and time represented as seconds since 1970-01-01"
 msgstr ""
 
-#: configuration/zz-fieldtypes.cfg:149
+#: configuration/zz-fieldtypes.cfg:151
 msgid "File upload; optional thumbnails and other sizes"
 msgstr ""
 
-#: configuration/zz-fieldtypes.cfg:152
+#: configuration/zz-fieldtypes.cfg:154
 msgid "Web address (link)"
 msgstr ""
 
-#: configuration/zz-fieldtypes.cfg:155
+#: configuration/zz-fieldtypes.cfg:158
 msgid "URL or path template; supports `*` wildcards and `%…%` placeholders"
 msgstr ""
 
-#: configuration/zz-fieldtypes.cfg:158
+#: configuration/zz-fieldtypes.cfg:162
 msgid "Username on a website or service; shown as @name with profile link"
 msgstr ""
 
-#: configuration/zz-fieldtypes.cfg:161
+#: configuration/zz-fieldtypes.cfg:165
 msgid "Editable when creating the record; cannot be changed later"
 msgstr ""
 
