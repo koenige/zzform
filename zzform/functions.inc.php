@@ -698,10 +698,10 @@ function zz_fieldtype(&$field, $key, $default = null) {
 		$def = array_merge($def, $field_types[$def['like']] ?? []);
 
 	if (array_key_exists($key, $def['forced'] ?? []))
-		$field[$key] = $def['forced'][$key];
+		$field[$key] = wrap_setting_parse($def['forced'][$key]);
 	elseif (!array_key_exists($key, $field)
 		AND array_key_exists($key, $def['standard'] ?? []))
-		$field[$key] = $def['standard'][$key];
+		$field[$key] = wrap_setting_parse($def['standard'][$key]);
 	elseif (!array_key_exists($key, $field))
 		$field[$key] = $default;
 }

@@ -168,11 +168,6 @@ function zz_define_fields($fields, $db_table, $multiple_times = false, $mode = f
 			$fields[$no]['hide_in_list'] = true;
 			$fields[$no]['export'] = false;
 			break;
-		case 'password':
-		case 'password_change':
-			if (!isset($fields[$no]['minlength'])) $fields[$no]['minlength'] = 8;
-			if (!isset($fields[$no]['maxlength'])) $fields[$no]['maxlength'] = 60;
-			break;
 		case 'upload_image':
 			wrap_include('upload', 'zzform');
 			$fields[$no]['upload_max_filesize'] = zz_upload_max_filesize($fields[$no]['upload_max_filesize'] ?? 0);
@@ -281,6 +276,7 @@ function zz_define_field_input(&$field, $db_table) {
 
 	zz_fieldtype($field, 'size', 32);
 	zz_fieldtype($field, 'maxlength');
+	zz_fieldtype($field, 'minlength');
 
 	$width = (int) ($field['maxlength'] ?: $field['db_column_size'] ?? 0);
 	if ($width > 0
