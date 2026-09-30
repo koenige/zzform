@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzform module\n"
-"POT-Creation-Date: 2026-09-29 18:09+0000\n"
+"POT-Creation-Date: 2026-09-30 09:05+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -1733,837 +1733,1005 @@ msgid "Do not show an error if upload is missing"
 msgstr ""
 
 #: configuration/zz-fields.cfg:132
+msgid "Do not offer list sorting on this column"
+msgstr ""
+
+#: configuration/zz-fields.cfg:136
 msgid "Do not trim field content of spaces"
 msgstr ""
 
-#: configuration/zz-fields.cfg:137
+#: configuration/zz-fields.cfg:141
 msgid "Exclude field from internal search function"
 msgstr ""
 
-#: configuration/zz-fields.cfg:142
+#: configuration/zz-fields.cfg:146
 msgid "Text below field that explains what is expected to be put into this field"
 msgstr ""
 
-#: configuration/zz-fields.cfg:147
+#: configuration/zz-fields.cfg:151
 msgid "Text above field that explains what is expected to be put into this field"
 msgstr ""
 
-#: configuration/zz-fields.cfg:152
+#: configuration/zz-fields.cfg:156
 msgid "Maximum length of characters for a CSV field"
 msgstr ""
 
-#: configuration/zz-fields.cfg:157
+#: configuration/zz-fields.cfg:161
 msgid "Remove HTML code for export"
 msgstr ""
 
-#: configuration/zz-fields.cfg:162
+#: configuration/zz-fields.cfg:166
 msgid "Enum values for a SELECT element"
 msgstr ""
 
-#: configuration/zz-fields.cfg:168
+#: configuration/zz-fields.cfg:172
 msgid "Further explanation values defined in 'enum', will be shown as full text in the record view, as abbreviation in the list view"
 msgstr ""
 
-#: configuration/zz-fields.cfg:173
+#: configuration/zz-fields.cfg:177
 msgid "Values that are shown instead of values defined in 'enum'"
 msgstr ""
 
-#: configuration/zz-fields.cfg:178
+#: configuration/zz-fields.cfg:182
 msgid "Shows an input field attached to the last enum element"
 msgstr ""
 
-#: configuration/zz-fields.cfg:183
+#: configuration/zz-fields.cfg:187
 msgid "List of translation arrays parallel to 'enum' values; used when the stored value may differ from the enum value (e. g. translated text)"
 msgstr ""
 
-#: configuration/zz-fields.cfg:189
+#: configuration/zz-fields.cfg:193
 msgid "Basename of one or more files that supply this select field’s stored values and labels—the same as defining `enum` and `enum_abbr` by hand"
 msgstr ""
 
-#: configuration/zz-fields.cfg:195
-#: configuration/zz-fields.cfg:924
+#: configuration/zz-fields.cfg:199
+#: configuration/zz-fields.cfg:928
 msgid "Second argument to wrap_tsv_parse(), e.g. module name ratings"
 msgstr ""
 
-#: configuration/zz-fields.cfg:199
+#: configuration/zz-fields.cfg:203
 msgid "Database field name"
 msgstr ""
 
-#: configuration/zz-fields.cfg:202
+#: configuration/zz-fields.cfg:206
 msgid "Normally, fields are displayed in the order they are defined; here, a different field sequence can be defined"
 msgstr ""
 
-#: configuration/zz-fields.cfg:206
+#: configuration/zz-fields.cfg:210
 msgid "List of fields of a detail table or list of fields for identifier or for function"
 msgstr ""
 
-#: configuration/zz-fields.cfg:210
+#: configuration/zz-fields.cfg:214
 msgid "For detail records, always ignore this field"
 msgstr ""
 
-#: configuration/zz-fields.cfg:216
+#: configuration/zz-fields.cfg:220
 msgid "Layout of detail record"
 msgstr ""
 
-#: configuration/zz-fields.cfg:228
+#: configuration/zz-fields.cfg:232
 msgid "Function for formatting a field value in the record view"
 msgstr ""
 
-#: configuration/zz-fields.cfg:234
+#: configuration/zz-fields.cfg:238
 msgid "Number of spaces that can be added if field is formatted"
 msgstr ""
 
-#: configuration/zz-fields.cfg:238
+#: configuration/zz-fields.cfg:242
 msgid "Function that changes input after posting it, using field names in 'fields' as input"
 msgstr ""
 
-#: configuration/zz-fields.cfg:243
+#: configuration/zz-fields.cfg:247
 msgid "Format for wrap_latitude(), how to format a geographical coordinate"
 msgstr ""
 
-#: configuration/zz-fields.cfg:249
+#: configuration/zz-fields.cfg:253
 msgid "Marker for fields using for geocoding of places"
 msgstr ""
 
-#: configuration/zz-fields.cfg:258
+#: configuration/zz-fields.cfg:262
 msgid "Ignore this field for geocoding if it has this value (field name/value pairs)"
 msgstr ""
 
-#: configuration/zz-fields.cfg:262
+#: configuration/zz-fields.cfg:266
 msgid "Ignore this field for determining whether to update geocoding or not"
 msgstr ""
 
-#: configuration/zz-fields.cfg:266
+#: configuration/zz-fields.cfg:270
 msgid "Use as default value for geocoding for field if it has no value"
 msgstr ""
 
-#: configuration/zz-fields.cfg:269
+#: configuration/zz-fields.cfg:273
 msgid "Query to get value for geocoding from database"
 msgstr ""
 
-#: configuration/zz-fields.cfg:273
+#: configuration/zz-fields.cfg:277
 msgid "Key that specifies the usage of a field for GeoJSON export"
 msgstr ""
 
-#: configuration/zz-fields.cfg:283
+#: configuration/zz-fields.cfg:287
 msgid "Use this field name from query to group entries"
 msgstr ""
 
-#: configuration/zz-fields.cfg:288
+#: configuration/zz-fields.cfg:292
 msgid "Help link as package/Title"
 msgstr ""
 
-#: configuration/zz-fields.cfg:293
+#: configuration/zz-fields.cfg:297
 msgid "Hide field in the record view"
 msgstr ""
 
-#: configuration/zz-fields.cfg:298
+#: configuration/zz-fields.cfg:302
 msgid "Hide field in the list view"
 msgstr ""
 
-#: configuration/zz-fields.cfg:303
+#: configuration/zz-fields.cfg:307
 msgid "Hide field in the list view if all values on the displayed page are empty"
 msgstr ""
 
-#: configuration/zz-fields.cfg:308
+#: configuration/zz-fields.cfg:312
 msgid "Do not show the format hint below the field title when the field has a format function"
 msgstr ""
 
-#: configuration/zz-fields.cfg:314
+#: configuration/zz-fields.cfg:318
 msgid "Hide value for no selection for radio buttons or checkboxes"
 msgstr ""
 
-#: configuration/zz-fields.cfg:320
+#: configuration/zz-fields.cfg:324
 msgid "Do not show 0 values"
 msgstr ""
 
-#: configuration/zz-fields.cfg:330
+#: configuration/zz-fields.cfg:334
 msgid "Requirements for creating identifiers"
 msgstr ""
 
-#: configuration/zz-fields.cfg:335
+#: configuration/zz-fields.cfg:339
 msgid "String or array of strings used for concatenation of variables. if array, values are used in the same order they appear in the array"
 msgstr ""
 
-#: configuration/zz-fields.cfg:340
+#: configuration/zz-fields.cfg:344
 msgid "Identifier depends on main records identifier, so evaluate values just before creating the dependent identifier"
 msgstr ""
 
-#: configuration/zz-fields.cfg:345
+#: configuration/zz-fields.cfg:349
 msgid "List of values (field_name => value) that are used as a default if there is no value"
 msgstr ""
 
-#: configuration/zz-fields.cfg:350
+#: configuration/zz-fields.cfg:354
 msgid "String used for concatenation if identifier exists"
 msgstr ""
 
-#: configuration/zz-fields.cfg:355
+#: configuration/zz-fields.cfg:359
 msgid "Sprintf() format for numerical value that is appended if identifier already exists"
 msgstr ""
 
-#: configuration/zz-fields.cfg:360
+#: configuration/zz-fields.cfg:364
 msgid "Function to determine whether existing identifiers should change or not (e. g. for events moved to a different year, change, otherwise not)"
 msgstr ""
 
-#: configuration/zz-fields.cfg:365
+#: configuration/zz-fields.cfg:369
 msgid "String that will be used for replacing spaces and unknown letters"
 msgstr ""
 
-#: configuration/zz-fields.cfg:370
+#: configuration/zz-fields.cfg:374
 msgid "Name of function that identifier will go through finally"
 msgstr ""
 
-#: configuration/zz-fields.cfg:374
+#: configuration/zz-fields.cfg:378
 msgid "Up to 4 function parameters to pass to function, if none is set, use identifier as parameter"
 msgstr ""
 
-#: configuration/zz-fields.cfg:379
+#: configuration/zz-fields.cfg:383
 msgid "Create hash from identifier and current timestamp"
 msgstr ""
 
-#: configuration/zz-fields.cfg:384
+#: configuration/zz-fields.cfg:388
 msgid "List of fields that are ignored for creation of identifier (fields were used before)"
 msgstr ""
 
-#: configuration/zz-fields.cfg:389
+#: configuration/zz-fields.cfg:393
 msgid "List of fields (field1 => field2) that are ignored, e. g. field1 is ignored if field2 has a value"
 msgstr ""
 
-#: configuration/zz-fields.cfg:394
+#: configuration/zz-fields.cfg:398
 msgid "List of fields (field1 => field2) that are ignored, e. g. field1 is ignored if field2 has an identical value"
 msgstr ""
 
-#: configuration/zz-fields.cfg:399
+#: configuration/zz-fields.cfg:403
 msgid "Transform all letters to lowercase?"
 msgstr ""
 
-#: configuration/zz-fields.cfg:405
+#: configuration/zz-fields.cfg:409
 msgid "Maximum length of identifier"
 msgstr ""
 
-#: configuration/zz-fields.cfg:411
+#: configuration/zz-fields.cfg:415
 msgid "Prefix that will always be added before identifier"
 msgstr ""
 
-#: configuration/zz-fields.cfg:415
+#: configuration/zz-fields.cfg:419
 msgid "If there can be more than one sub record, find preferred sub record via values, e. g. IDs. example: $zz['fields'][2]['identifier']['preferred']['objects-Title'] = ['text_language_id' => [wrap_id('languages', '-id'), wrap_id('languages', '---'), wrap_id('languages', 'eng')]];"
 msgstr ""
 
-#: configuration/zz-fields.cfg:420
+#: configuration/zz-fields.cfg:424
 msgid "Use a random hash as identifier, length of characters"
 msgstr ""
 
-#: configuration/zz-fields.cfg:425
+#: configuration/zz-fields.cfg:429
 msgid "String with characters used for random_hash"
 msgstr ""
 
-#: configuration/zz-fields.cfg:429
+#: configuration/zz-fields.cfg:433
 msgid "List of strings that are removed from values for identifier"
 msgstr ""
 
-#: configuration/zz-fields.cfg:434
+#: configuration/zz-fields.cfg:438
 msgid "Key => value; characters in key will be replaced by value"
 msgstr ""
 
-#: configuration/zz-fields.cfg:439
+#: configuration/zz-fields.cfg:443
 msgid "Replace field names for translations"
 msgstr ""
 
-#: configuration/zz-fields.cfg:444
+#: configuration/zz-fields.cfg:448
 msgid "Preserve slashes?"
 msgstr ""
 
-#: configuration/zz-fields.cfg:449
+#: configuration/zz-fields.cfg:453
 msgid "SQL query to check if identifier already exists"
 msgstr ""
 
-#: configuration/zz-fields.cfg:455
+#: configuration/zz-fields.cfg:459
 msgid "SQL query to check if identifier already exists, other record (translated or untranslated)"
 msgstr ""
 
-#: configuration/zz-fields.cfg:461
+#: configuration/zz-fields.cfg:465
 msgid "Internal queries for translations of identifiers"
 msgstr ""
 
-#: configuration/zz-fields.cfg:466
+#: configuration/zz-fields.cfg:470
 msgid "Source table where value is translated"
 msgstr ""
 
-#: configuration/zz-fields.cfg:471
+#: configuration/zz-fields.cfg:475
 msgid "Value from which the first identical identifier begins to count up"
 msgstr ""
 
-#: configuration/zz-fields.cfg:477
+#: configuration/zz-fields.cfg:481
 msgid "Always append start value, even for first occurence of an identifier"
 msgstr ""
 
-#: configuration/zz-fields.cfg:482
+#: configuration/zz-fields.cfg:486
 msgid "Strip HTML tags with strip_tags()"
 msgstr ""
 
-#: configuration/zz-fields.cfg:487
+#: configuration/zz-fields.cfg:491
 msgid "List of extra fields that are needed to create a query with a unique result"
 msgstr ""
 
-#: configuration/zz-fields.cfg:493
+#: configuration/zz-fields.cfg:497
 msgid "Transform all letters to uppercase?"
 msgstr ""
 
-#: configuration/zz-fields.cfg:498
+#: configuration/zz-fields.cfg:502
 msgid "All fields are required, no empty values accepted"
 msgstr ""
 
-#: configuration/zz-fields.cfg:503
+#: configuration/zz-fields.cfg:507
 msgid "WHERE-condition to be appended to query that checks existence of identifier in database"
 msgstr ""
 
-#: configuration/zz-fields.cfg:508
+#: configuration/zz-fields.cfg:512
 msgid "Instead of automatically generating an identifier, translate this field only if the user enters a translation"
 msgstr ""
 
-#: configuration/zz-fields.cfg:512
-#: configuration/zz-fields.cfg:1160
+#: configuration/zz-fields.cfg:516
+#: configuration/zz-fields.cfg:1164
 msgid "List of definitions that are added to table definition if a condition is not true, indexed by key of condition"
 msgstr ""
 
-#: configuration/zz-fields.cfg:516
+#: configuration/zz-fields.cfg:520
 msgid "List of definitions that are added to table definition if in export mode"
 msgstr ""
 
-#: configuration/zz-fields.cfg:520
+#: configuration/zz-fields.cfg:524
 msgid "List of definitions that are added to table definition if in batch mode"
 msgstr ""
 
-#: configuration/zz-fields.cfg:524
+#: configuration/zz-fields.cfg:528
 msgid "List of definitions that are added to table definition if in revision mode"
 msgstr ""
 
-#: configuration/zz-fields.cfg:528
+#: configuration/zz-fields.cfg:532
 msgid "List of definitions that are added to table definition if in where condition on this field is active"
 msgstr ""
 
-#: configuration/zz-fields.cfg:532
+#: configuration/zz-fields.cfg:536
 msgid "List of definitions that are added to table definition if there is only a single record shown"
 msgstr ""
 
-#: configuration/zz-fields.cfg:537
+#: configuration/zz-fields.cfg:541
 msgid "List of images with title, field name, path, required"
 msgstr ""
 
-#: configuration/zz-fields.cfg:542
+#: configuration/zz-fields.cfg:546
 msgid "Web URL definition for image variant; if set, used instead of path for URL generation; auto-assigned from field path_web if image path is not set explicitly"
 msgstr ""
 
-#: configuration/zz-fields.cfg:548
+#: configuration/zz-fields.cfg:552
 msgid "List of file types that are allowed to upload"
 msgstr ""
 
-#: configuration/zz-fields.cfg:553
+#: configuration/zz-fields.cfg:557
 msgid "Inherit type and format of translated field"
 msgstr ""
 
-#: configuration/zz-fields.cfg:557
+#: configuration/zz-fields.cfg:561
 msgid "Field whose content is not stored in database but is used, e. g., for hook functions"
 msgstr ""
 
-#: configuration/zz-fields.cfg:561
+#: configuration/zz-fields.cfg:565
 msgid "Use `date` for inputs with dates, not `text` (little less flexible, but datepicker)"
 msgstr ""
 
-#: configuration/zz-fields.cfg:566
+#: configuration/zz-fields.cfg:570
 msgid "Displays subrecord td content in next subrecord (not th, not ID), adds spacer if needed"
 msgstr ""
 
-#: configuration/zz-fields.cfg:570
+#: configuration/zz-fields.cfg:574
 msgid "For SQL queries, ID field name; set only if different from first field in SELECT"
 msgstr ""
 
-#: configuration/zz-fields.cfg:574
+#: configuration/zz-fields.cfg:578
 msgid "Key that specifies the usage of a field for KML export"
 msgstr ""
 
-#: configuration/zz-fields.cfg:583
+#: configuration/zz-fields.cfg:587
 msgid "Navigation link put below field value in list view, constructed from field and string values"
 msgstr ""
 
-#: configuration/zz-fields.cfg:589
+#: configuration/zz-fields.cfg:593
 msgid "Mark this field’s `link` definition to use for show link on record foot"
 msgstr ""
 
-#: configuration/zz-fields.cfg:594
+#: configuration/zz-fields.cfg:598
 msgid "Name of the field whose value is displayed in `abbr` element after the displayed value"
 msgstr ""
 
-#: configuration/zz-fields.cfg:599
+#: configuration/zz-fields.cfg:603
 msgid "String to show behind fields in the middle if one or more fields are appended (e. g. comma)"
 msgstr ""
 
-#: configuration/zz-fields.cfg:605
+#: configuration/zz-fields.cfg:609
 msgid "String to show behind the first field if one or more fields are appended (e. g. comma)"
 msgstr ""
 
-#: configuration/zz-fields.cfg:611
+#: configuration/zz-fields.cfg:615
 msgid "Show next field in same column for the list view"
 msgstr ""
 
-#: configuration/zz-fields.cfg:617
+#: configuration/zz-fields.cfg:621
 msgid "Show title even if list_append = true"
 msgstr ""
 
-#: configuration/zz-fields.cfg:622
+#: configuration/zz-fields.cfg:626
 msgid "Characters shown for concatenation of values for geo point"
 msgstr ""
 
-#: configuration/zz-fields.cfg:628
+#: configuration/zz-fields.cfg:632
 msgid "Function for formatting a field value in the list view"
 msgstr ""
 
-#: configuration/zz-fields.cfg:635
+#: configuration/zz-fields.cfg:639
 msgid "Function for a field value in the list view if type is 'list_function'"
 msgstr ""
 
-#: configuration/zz-fields.cfg:640
+#: configuration/zz-fields.cfg:644
 msgid "Hide value in list view"
 msgstr ""
 
-#: configuration/zz-fields.cfg:645
+#: configuration/zz-fields.cfg:649
 msgid "Do not apply default format to field in list (escape HTML, line breaks)"
 msgstr ""
 
-#: configuration/zz-fields.cfg:650
+#: configuration/zz-fields.cfg:654
 msgid "Generate no link for list view (e. g. for fields of type URL)"
 msgstr ""
 
-#: configuration/zz-fields.cfg:655
+#: configuration/zz-fields.cfg:659
 msgid "Text that is shown before a value in the list view"
 msgstr ""
 
-#: configuration/zz-fields.cfg:660
+#: configuration/zz-fields.cfg:664
 msgid "Text that is shown before a value of the first field that has others appended in the list view "
 msgstr ""
 
-#: configuration/zz-fields.cfg:666
+#: configuration/zz-fields.cfg:670
 msgid "Text that is shown behind a value in the list view"
 msgstr ""
 
-#: configuration/zz-fields.cfg:672
+#: configuration/zz-fields.cfg:676
 msgid "Text that is shown behind a value of the last field that was appended in the list view "
 msgstr ""
 
-#: configuration/zz-fields.cfg:678
+#: configuration/zz-fields.cfg:682
 msgid "Unit shown after a value if it is not empty, list view"
 msgstr ""
 
-#: configuration/zz-fields.cfg:685
+#: configuration/zz-fields.cfg:689
 msgid "Use this field’s value as username for logging after insert"
 msgstr ""
 
-#: configuration/zz-fields.cfg:689
+#: configuration/zz-fields.cfg:693
 msgid "Marks content in this field (most likely a field with 'display_field' set) if a search is done over one of the fields in the list of fields"
 msgstr ""
 
-#: configuration/zz-fields.cfg:694
+#: configuration/zz-fields.cfg:698
 msgid "Maximum value for number inputs (HTML max attribute); for number_type rating, number of rating symbols"
 msgstr ""
 
-#: configuration/zz-fields.cfg:698
+#: configuration/zz-fields.cfg:702
 msgid "Maximum length of field value"
 msgstr ""
 
-#: configuration/zz-fields.cfg:702
+#: configuration/zz-fields.cfg:706
 msgid "Maximum of allowed detail records"
 msgstr ""
 
-#: configuration/zz-fields.cfg:707
+#: configuration/zz-fields.cfg:711
 msgid "Query to get the maximum number of detail records"
 msgstr ""
 
-#: configuration/zz-fields.cfg:712
+#: configuration/zz-fields.cfg:716
 msgid "Append value to existing field; if set to non-boolean value, use as concatenation string"
 msgstr ""
 
-#: configuration/zz-fields.cfg:715
+#: configuration/zz-fields.cfg:719
 msgid "Records will only be merged if values in this field are all identical"
 msgstr ""
 
-#: configuration/zz-fields.cfg:719
+#: configuration/zz-fields.cfg:723
 msgid "Ignore this field value for merging"
 msgstr ""
 
-#: configuration/zz-fields.cfg:723
+#: configuration/zz-fields.cfg:727
 msgid "Text shown if there are no subtables"
 msgstr ""
 
-#: configuration/zz-fields.cfg:729
+#: configuration/zz-fields.cfg:733
 msgid "Minimum value for number inputs (HTML min attribute)"
 msgstr ""
 
-#: configuration/zz-fields.cfg:733
+#: configuration/zz-fields.cfg:737
 msgid "Minimum length of field value"
 msgstr ""
 
-#: configuration/zz-fields.cfg:737
+#: configuration/zz-fields.cfg:741
 msgid "Minimum of shown detail records"
 msgstr ""
 
-#: configuration/zz-fields.cfg:742
+#: configuration/zz-fields.cfg:746
 msgid "Minimum of required detail records"
 msgstr ""
 
-#: configuration/zz-fields.cfg:747
+#: configuration/zz-fields.cfg:751
 msgid "Query to get the minimum number of detail records"
 msgstr ""
 
-#: configuration/zz-fields.cfg:752
+#: configuration/zz-fields.cfg:756
 msgid "Format tokens for wrap_money() when number_type is currency; value may include currency code (e.g. from CONCAT in SQL)"
 msgstr ""
 
-#: configuration/zz-fields.cfg:766
+#: configuration/zz-fields.cfg:770
 msgid "Another field in the definition whose value must not be identical to this one"
 msgstr ""
 
-#: configuration/zz-fields.cfg:770
+#: configuration/zz-fields.cfg:774
 msgid "Allow to save a value of 0 instead of a NULL value"
 msgstr ""
 
-#: configuration/zz-fields.cfg:774
+#: configuration/zz-fields.cfg:778
 msgid "Allow to save an empty string instead of a NULL value"
 msgstr ""
 
-#: configuration/zz-fields.cfg:778
+#: configuration/zz-fields.cfg:782
 msgid "Define a special type of a number"
 msgstr ""
 
-#: configuration/zz-fields.cfg:787
+#: configuration/zz-fields.cfg:791
 msgid "Per-option data attributes; option_data[explanation][id] becomes data-explanation on that option"
 msgstr ""
 
-#: configuration/zz-fields.cfg:792
+#: configuration/zz-fields.cfg:796
 msgid "List of key/value pairs of a field that must have a value that enables/disables option elements with another value in attributes"
 msgstr ""
 
-#: configuration/zz-fields.cfg:796
+#: configuration/zz-fields.cfg:800
 msgid "Mark upload as optional; adds checkbox to delete uploaded file"
 msgstr ""
 
-#: configuration/zz-fields.cfg:801
+#: configuration/zz-fields.cfg:805
 msgid "Field definitions that are applied if a selection matches"
 msgstr ""
 
-#: configuration/zz-fields.cfg:805
+#: configuration/zz-fields.cfg:809
 msgid "Path for filename"
 msgstr ""
 
-#: configuration/zz-fields.cfg:811
+#: configuration/zz-fields.cfg:815
 msgid "Web URL definition for file; if set, used instead of path for web URL generation (e.g. when original file is in a different folder than thumbnails)"
 msgstr ""
 
-#: configuration/zz-fields.cfg:817
+#: configuration/zz-fields.cfg:821
 msgid "HTML validation pattern attribute"
 msgstr ""
 
-#: configuration/zz-fields.cfg:820
+#: configuration/zz-fields.cfg:824
 msgid "Show a placeholder in an input or textarea field; true: create from field name, otherwise: show this text"
 msgstr ""
 
-#: configuration/zz-fields.cfg:825
+#: configuration/zz-fields.cfg:829
 msgid "Function that is called after validation step for a field with the field value"
 msgstr ""
 
-#: configuration/zz-fields.cfg:829
+#: configuration/zz-fields.cfg:833
 msgid "Marks a field as required for input"
 msgstr ""
 
-#: configuration/zz-fields.cfg:833
+#: configuration/zz-fields.cfg:837
 msgid "Removes local hostname from URLs"
 msgstr ""
 
-#: configuration/zz-fields.cfg:839
+#: configuration/zz-fields.cfg:843
 msgid "round a date to n minutes, defined in setting `zzform_date_round_to_min`"
 msgstr ""
 
-#: configuration/zz-fields.cfg:844
+#: configuration/zz-fields.cfg:848
 msgid "Number of rows for memo fields (textarea)"
 msgstr ""
 
-#: configuration/zz-fields.cfg:851
+#: configuration/zz-fields.cfg:855
 msgid "SQL field that is used for search (e. g. if field name is different from display field)"
 msgstr ""
 
-#: configuration/zz-fields.cfg:855
+#: configuration/zz-fields.cfg:859
 msgid "if detail table is not JOINed to main query, explicitly force to search in detail table query"
 msgstr ""
 
-#: configuration/zz-fields.cfg:859
+#: configuration/zz-fields.cfg:863
 msgid "If there is only one value returning from a query, do not force to use this as the value for the field"
 msgstr ""
 
-#: configuration/zz-fields.cfg:864
+#: configuration/zz-fields.cfg:868
 msgid "If set to true, do not allow to add a subrecord if the query returns no records"
 msgstr ""
 
-#: configuration/zz-fields.cfg:869
+#: configuration/zz-fields.cfg:873
 msgid "save value in database, not ID, for a select"
 msgstr ""
 
-#: configuration/zz-fields.cfg:874
+#: configuration/zz-fields.cfg:878
 msgid "Separator after field"
 msgstr ""
 
-#: configuration/zz-fields.cfg:877
+#: configuration/zz-fields.cfg:881
 msgid "Separator before field"
 msgstr ""
 
-#: configuration/zz-fields.cfg:881
+#: configuration/zz-fields.cfg:885
 msgid "Set values for a SELECT element"
 msgstr ""
 
-#: configuration/zz-fields.cfg:887
+#: configuration/zz-fields.cfg:891
 msgid "Further explanation values defined in 'set', will be shown as full text in the record view, as abbreviation in the list view"
 msgstr ""
 
-#: configuration/zz-fields.cfg:892
+#: configuration/zz-fields.cfg:896
 msgid "Use content of this folder as values for a set"
 msgstr ""
 
-#: configuration/zz-fields.cfg:897
+#: configuration/zz-fields.cfg:901
 msgid "In record view, show all stored values (comma-separated) instead of only values still defined in 'set' (e. g. if options were removed)"
 msgstr ""
 
-#: configuration/zz-fields.cfg:902
+#: configuration/zz-fields.cfg:906
 msgid "Read values for a set from database"
 msgstr ""
 
-#: configuration/zz-fields.cfg:907
+#: configuration/zz-fields.cfg:911
 msgid "Values that are shown instead of values defined in 'set'"
 msgstr ""
 
-#: configuration/zz-fields.cfg:912
+#: configuration/zz-fields.cfg:916
 msgid "List of translation arrays parallel to 'set' values; used when matching stored set values that may differ from the set value (e. g. translated text)"
 msgstr ""
 
-#: configuration/zz-fields.cfg:918
+#: configuration/zz-fields.cfg:922
 msgid "Basename of one or more files that supply this select field’s stored values and labels—the same as defining `set` and `set_abbr` by hand"
 msgstr ""
 
-#: configuration/zz-fields.cfg:928
+#: configuration/zz-fields.cfg:932
 msgid "Field name that contains the main hierarchy ID"
 msgstr ""
 
-#: configuration/zz-fields.cfg:933
+#: configuration/zz-fields.cfg:937
 msgid "Set to true if hierarchy is in same table to disallow moving items to be children of themselves"
 msgstr ""
 
-#: configuration/zz-fields.cfg:938
+#: configuration/zz-fields.cfg:942
 msgid "ID in result of query that is used as the top of the hierarchical display of records"
 msgstr ""
 
-#: configuration/zz-fields.cfg:944
+#: configuration/zz-fields.cfg:948
 msgid "Instead of saving NULL if no ID is chosen, save value defined in show_hierarchy"
 msgstr ""
 
-#: configuration/zz-fields.cfg:949
+#: configuration/zz-fields.cfg:953
 msgid "Size of an input field"
 msgstr ""
 
-#: configuration/zz-fields.cfg:953
+#: configuration/zz-fields.cfg:957
 msgid "Query to get values for a SELECT field (or existing values of text field)"
 msgstr ""
 
-#: configuration/zz-fields.cfg:959
+#: configuration/zz-fields.cfg:963
 msgid "List of character encodings per key in an SQL query"
 msgstr ""
 
-#: configuration/zz-fields.cfg:965
+#: configuration/zz-fields.cfg:969
 msgid "List of queries for a dependent field reading values that fit for the values entered into the main fields"
 msgstr ""
 
-#: configuration/zz-fields.cfg:971
+#: configuration/zz-fields.cfg:975
 msgid "List of field names that are ignored when searching for a value to be found in a query"
 msgstr ""
 
-#: configuration/zz-fields.cfg:976
+#: configuration/zz-fields.cfg:980
 msgid "List of fields that are not shown in SELECT, but used otherwise"
 msgstr ""
 
-#: configuration/zz-fields.cfg:982
+#: configuration/zz-fields.cfg:986
 msgid "List of tables, indexed by table primary ID, to use for translations"
 msgstr ""
 
-#: configuration/zz-fields.cfg:988
+#: configuration/zz-fields.cfg:992
 msgid "Allows you to append the main record ID (passed via id = …) to a WHERE clause in an SQL query"
 msgstr ""
 
-#: configuration/zz-fields.cfg:992
+#: configuration/zz-fields.cfg:996
 msgid "Allows you to exclude the main record ID (passed via id != …) via a WHERE clause in an SQL query"
 msgstr ""
 
-#: configuration/zz-fields.cfg:996
+#: configuration/zz-fields.cfg:1000
 msgid "Select field (or field[column]) whose SQL row supplies a query string merged before validation"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1001
+#: configuration/zz-fields.cfg:1005
 msgid "Keys from `zzform[…]` on the category to merge onto this field; values in setting notation are parsed, lists (like `fields`) replace existing values completely, keyed arrays are merged"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1007
+#: configuration/zz-fields.cfg:1011
 msgid "Show the field title in the record form; false hides the th cell (subtable fields) or leaves it empty (main record)"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1013
+#: configuration/zz-fields.cfg:1017
 msgid "Show select options as a vertical list of radio buttons instead of a dropdown or inline radio buttons"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1019
+#: configuration/zz-fields.cfg:1023
 msgid "List of fields where additional, derived values belonging to this field are being stored (typically during validation)."
 msgstr ""
 
-#: configuration/zz-fields.cfg:1024
+#: configuration/zz-fields.cfg:1028
 msgid "Marks a field as the key in a key_value subtable; gets for_action_ignore automatically"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1029
+#: configuration/zz-fields.cfg:1033
 msgid "Marks a field as the value in a key_value subtable; its content determines if a record is saved"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1034
+#: configuration/zz-fields.cfg:1038
 msgid "Text that appears behind value in record view"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1039
+#: configuration/zz-fields.cfg:1043
 msgid "Build a sum of the values in this field, show sum in footer"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1044
+#: configuration/zz-fields.cfg:1048
 msgid "Time format for time field"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1048
+#: configuration/zz-fields.cfg:1052
 msgid "Title of field, shown in the record and the list view"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1055
+#: configuration/zz-fields.cfg:1059
 msgid "Title of field, use if another field is appended to this field"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1060
+#: configuration/zz-fields.cfg:1064
 msgid "Text for button for adding a subtable, defaults to `title` if not set"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1065
+#: configuration/zz-fields.cfg:1069
 msgid "Short explanatory text shown below the field title in the record form"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1072
+#: configuration/zz-fields.cfg:1076
 msgid "Title of field in tabular column headers (list view and horizontal detail tables), if it should be different from the record view"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1078
+#: configuration/zz-fields.cfg:1082
 msgid "Translate the values of this field"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1084
+#: configuration/zz-fields.cfg:1088
 msgid "Trim field content of spaces"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1089
+#: configuration/zz-fields.cfg:1093
 msgid "Type of field"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1134
+#: configuration/zz-fields.cfg:1138
 msgid "Type of field if main type is generic"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1141
+#: configuration/zz-fields.cfg:1145
 msgid "Clean up some typography issues, e. g. quotation marks, spaces, etc."
 msgstr ""
 
-#: configuration/zz-fields.cfg:1145
+#: configuration/zz-fields.cfg:1149
 msgid "Replace two or more spaces in text with one space"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1149
+#: configuration/zz-fields.cfg:1153
 msgid "List of field names that do not need to be shown if first value is already uniquely describing the record"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1154
+#: configuration/zz-fields.cfg:1158
 msgid "Unit shown after a value if it is not empty"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1166
+#: configuration/zz-fields.cfg:1170
 msgid "No. of field that has a file upload that is used as a source for metadata"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1170
+#: configuration/zz-fields.cfg:1174
 msgid "Maximum upload file size for this field; byte suffix allowed (e.g. 2M). Defaults to setting zzform_upload_max_filesize, capped by php.ini upload_max_filesize and post_max_size"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1177
+#: configuration/zz-fields.cfg:1181
 msgid "Key of metadata that is used for the value of this field"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1181
+#: configuration/zz-fields.cfg:1185
 msgid "Validation rules for user input on this field, keyed by rule type"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1186
+#: configuration/zz-fields.cfg:1190
 msgid "List of strings that are not allowed to be entered in this field"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1191
+#: configuration/zz-fields.cfg:1195
 msgid "Value must be greater than another field; field name or list of field names (first non-empty field is used)"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1196
+#: configuration/zz-fields.cfg:1200
 msgid "Value must be greater than or equal to another field"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1201
+#: configuration/zz-fields.cfg:1205
 msgid "Value must be smaller than another field"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1205
+#: configuration/zz-fields.cfg:1209
 msgid "Value must be smaller than or equal to another field"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1209
+#: configuration/zz-fields.cfg:1213
 msgid "Message to show if a validation rule fails, keyed by the same rule type as validate"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1215
+#: configuration/zz-fields.cfg:1219
 msgid "Skip a validate rule when any listed field has a value; keyed by rule type like validate"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1221
+#: configuration/zz-fields.cfg:1225
 msgid "Skip the '>' rule when any of these fields has a value"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1226
+#: configuration/zz-fields.cfg:1230
 msgid "Skip the '>=' rule when any of these fields has a value"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1230
+#: configuration/zz-fields.cfg:1234
 msgid "Skip the '<' rule when any of these fields has a value"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1234
+#: configuration/zz-fields.cfg:1238
 msgid "Skip the '<=' rule when any of these fields has a value"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1238
+#: configuration/zz-fields.cfg:1242
 msgid "Skip the forbidden_strings rule when any of these fields has a value"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1242
+#: configuration/zz-fields.cfg:1246
 msgid "Predefined value for a field"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1245
+#: configuration/zz-fields.cfg:1249
 msgid "Resolve username via WebFinger instead of a URL template (for federated services)"
 msgstr ""
 
-#: configuration/zz-fields.cfg:1250
+#: configuration/zz-fields.cfg:1254
 msgid "Split words in the list view, for better readability"
+msgstr ""
+
+#: configuration/zz-fieldtypes.cfg:14
+msgid "Value computed from two or more other fields on the record (numbers or dates)"
+msgstr ""
+
+#: configuration/zz-fieldtypes.cfg:18
+msgid "Challenge used to reduce spam on new submissions"
+msgstr ""
+
+#: configuration/zz-fieldtypes.cfg:23
+msgid "Calendar date"
+msgstr ""
+
+#: configuration/zz-fieldtypes.cfg:27
+msgid "Date and time"
+msgstr ""
+
+#: configuration/zz-fieldtypes.cfg:32
+msgid "Legacy link to a sibling detail row’s ID (not the main record)"
+msgstr ""
+
+#: configuration/zz-fieldtypes.cfg:36
+msgid "Shows a formatted record value or fixed text on the record and in lists"
+msgstr ""
+
+#: configuration/zz-fieldtypes.cfg:40
+msgid "Related record shown for context; not editable"
+msgstr ""
+
+#: configuration/zz-fieldtypes.cfg:45
+msgid "Links this row by ID to another record created on the same form"
+msgstr ""
+
+#: configuration/zz-fieldtypes.cfg:48
+msgid "Hidden parent record ID for a detail row; set automatically on save"
+msgstr ""
+
+#: configuration/zz-fieldtypes.cfg:51
+msgid "Separate record on the same form; saved first and linked via `foreign_id`"
+msgstr ""
+
+#: configuration/zz-fieldtypes.cfg:54
+msgid "Geographic point or map location"
+msgstr ""
+
+#: configuration/zz-fieldtypes.cfg:57
+msgid "Hidden input; value is preset or taken from the record and cannot be edited"
+msgstr ""
+
+#: configuration/zz-fieldtypes.cfg:60
+msgid "Primary key of the record"
+msgstr ""
+
+#: configuration/zz-fieldtypes.cfg:64
+msgid "Stable, human-readable identifier"
+msgstr ""
+
+#: configuration/zz-fieldtypes.cfg:67
+msgid "Picture shown on the form or in lists"
+msgstr ""
+
+#: configuration/zz-fieldtypes.cfg:71
+msgid "IP address"
+msgstr ""
+
+#: configuration/zz-fieldtypes.cfg:74
+msgid "IPv4 address"
+msgstr ""
+
+#: configuration/zz-fieldtypes.cfg:79
+msgid "Custom content in the list view"
+msgstr ""
+
+#: configuration/zz-fieldtypes.cfg:83
+msgid "E-mail address"
+msgstr ""
+
+#: configuration/zz-fieldtypes.cfg:86
+msgid "E-mail address(es) together with name(s)"
+msgstr ""
+
+#: configuration/zz-fieldtypes.cfg:89
+msgid "Longer text over several lines"
+msgstr ""
+
+#: configuration/zz-fieldtypes.cfg:92
+msgid "Numeric field with configurable types and formatting, including coordinates, currency, and more"
+msgstr ""
+
+#: configuration/zz-fieldtypes.cfg:96
+msgid "One-time option for this save; choice not stored"
+msgstr ""
+
+#: configuration/zz-fieldtypes.cfg:101
+msgid "Structured key/value settings"
+msgstr ""
+
+#: configuration/zz-fieldtypes.cfg:104
+msgid "Password for this website"
+msgstr ""
+
+#: configuration/zz-fieldtypes.cfg:109
+msgid "Change password for this website"
+msgstr ""
+
+#: configuration/zz-fieldtypes.cfg:113
+msgid "Phone number"
+msgstr ""
+
+#: configuration/zz-fieldtypes.cfg:116
+msgid "Internal preset value"
+msgstr ""
+
+#: configuration/zz-fieldtypes.cfg:120
+msgid "Selection from a fixed list or query; one or many"
+msgstr ""
+
+#: configuration/zz-fieldtypes.cfg:123
+msgid "Position in order; changing it reorders the other rows automatically"
+msgstr ""
+
+#: configuration/zz-fieldtypes.cfg:127
+msgid "Table of detail rows belonging to the main record"
+msgstr ""
+
+#: configuration/zz-fieldtypes.cfg:130
+msgid "Single-line text"
+msgstr ""
+
+#: configuration/zz-fieldtypes.cfg:134
+msgid "Time of day"
+msgstr ""
+
+#: configuration/zz-fieldtypes.cfg:139
+msgid "Time of save, set automatically"
+msgstr ""
+
+#: configuration/zz-fieldtypes.cfg:143
+msgid "Links a translation row to its source field"
+msgstr ""
+
+#: configuration/zz-fieldtypes.cfg:146
+msgid "Date and time represented as seconds since 1970-01-01"
+msgstr ""
+
+#: configuration/zz-fieldtypes.cfg:149
+msgid "File upload; optional thumbnails and other sizes"
+msgstr ""
+
+#: configuration/zz-fieldtypes.cfg:152
+msgid "Web address (link)"
+msgstr ""
+
+#: configuration/zz-fieldtypes.cfg:155
+msgid "URL or path template; supports `*` wildcards and `%…%` placeholders"
+msgstr ""
+
+#: configuration/zz-fieldtypes.cfg:158
+msgid "Username on a website or service; shown as @name with profile link"
+msgstr ""
+
+#: configuration/zz-fieldtypes.cfg:161
+msgid "Editable when creating the record; cannot be changed later"
 msgstr ""
 
 #: templates/debug.template.txt:14
