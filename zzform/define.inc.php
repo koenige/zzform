@@ -279,32 +279,9 @@ function zz_define_field_input(&$field, $db_table) {
 		}
 	}
 
-	if (!isset($field['size'])) {
-		switch ($field['type']) {
-		case 'number':
-		case 'sequence':
-			$field['size'] = 16;
-			break;
-		case 'date':
-			$field['size'] = 10;
-			break;
-		case 'datetime':
-		case 'timestamp':
-			$field['size'] = 19;
-			break;
-		case 'time':
-			$field['size'] = 8;
-			break;
-		default:
-			$field['size'] = 32;
-		}
-	}
-	if ($field['type'] === 'ipv4') {
-		$field['size'] = 15;
-		$field['maxlength'] = 15;
-	} elseif ($field['type'] === 'time') {
-		$field['size'] = 8;
-	}
+	zz_fieldtype($field, 'size', 32);
+	zz_fieldtype($field, 'maxlength');
+
 	$width = (int) ($field['maxlength'] ?: $field['db_column_size'] ?? 0);
 	if ($width > 0
 		AND (empty($field['number_type']) OR !in_array($field['number_type'], ['latitude', 'longitude']))) {

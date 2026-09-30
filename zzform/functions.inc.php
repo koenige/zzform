@@ -683,6 +683,30 @@ function zz_write_onces(&$zz) {
 }
 
 /**
+ * apply definitions per field type
+ *
+ * @param array $field
+ * @param string $key
+ * @param mixed $default (optional)
+ * @return mixed
+ */
+function zz_fieldtype(&$field, $key, $default = null) {
+	$field_types = wrap_cfg_files('zz-fieldtypes');
+	$type = zz_get_fieldtype($field);
+	$def = $field_types[$type] ?? [];
+	if (array_key_exists('like', $def))
+		$def = array_merge($def, $field_types[$def['like']] ?? []);
+
+	if (array_key_exists($key, $def['forced'] ?? []))
+		$field[$key] = $def['forced'][$key];
+	elseif (!array_key_exists($key, $field)
+		AND array_key_exists($key, $def['standard'] ?? []))
+		$field[$key] = $def['standard'][$key];
+	elseif (!array_key_exists($key, $field))
+		$field[$key] = $default;
+}
+
+/**
  * return field title
  *
  * @param array $field
