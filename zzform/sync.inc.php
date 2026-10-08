@@ -436,7 +436,7 @@ function zz_sync_zzform($raw, $setting) {
 			// do nothing if value is NULL
 			if ($line_raw[$pos]) $line_raw[$pos] = trim($line_raw[$pos]);
 			if (!$line_raw[$pos]) $line_raw[$pos] = zz_sync_null_value($line_raw[$pos], $field_name, $def['fields']);
-			if (!isset($line_raw[$pos])) continue;
+			if (!array_key_exists($pos, $line_raw)) continue;
 			$fields = [];
 			if (!empty($setting['function'][$pos])) {
 				$fields[$field_name] = $setting['function'][$pos]($line_raw[$pos]);
