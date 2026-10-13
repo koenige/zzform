@@ -443,12 +443,12 @@ function zz_sync_zzform($raw, $setting) {
 			} elseif (strstr($field_name, '+') AND !empty($setting['split_function'][$pos])) {
 				// @todo error handling
 				$field_names = explode('+', $field_name);
-				$my_values = $setting['split_function'][$pos](trim($line_raw[$pos]));
+				$my_values = $setting['split_function'][$pos]($line_raw[$pos]);
 				foreach ($field_names as $field_name) {
 					$fields[$field_name] = array_shift($my_values);
 				}
 			} else {
-				$fields[$field_name] = trim($line_raw[$pos]);
+				$fields[$field_name] = $line_raw[$pos];
 			}
 			foreach ($fields as $field_name => $value) {
 				if ($setting['testing'])
