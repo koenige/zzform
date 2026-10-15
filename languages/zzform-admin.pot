@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzform module\n"
-"POT-Creation-Date: 2026-09-30 10:32+0000\n"
+"POT-Creation-Date: 2026-10-15 22:31+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -3167,15 +3167,15 @@ msgstr ""
 msgid "Unable to insert data into table %s."
 msgstr ""
 
-#: zzform/_functions.inc.php:426
+#: zzform/_functions.inc.php:429
 msgid "Unable to update record in table %s. No unique key given."
 msgstr ""
 
-#: zzform/_functions.inc.php:444
+#: zzform/_functions.inc.php:447
 msgid "Unable to update record in table %s. No primary key found."
 msgstr ""
 
-#: zzform/_functions.inc.php:458
+#: zzform/_functions.inc.php:461
 msgid "Unable to update data in table %s."
 msgstr ""
 

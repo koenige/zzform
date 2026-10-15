@@ -396,7 +396,10 @@ function zzform_insert($table, $data, $error_type = E_USER_NOTICE, $settings = [
 			'Unable to insert data into table %s.',
 			[
 				'values' => [$def['table']],
-				'data' => ['Data' => $data, wrap_text('Reason') => $ops['error']],
+				'data' => [
+					wrap_text('Reason') => $ops['error'],
+					wrap_text('Data') => $data,
+				],
 				'intro' => $def['msg']
 			]
 		], $error_type, $def['error_settings']);
@@ -458,7 +461,10 @@ function zzform_update($table, $data, $error_type = E_USER_NOTICE, $settings = [
 			'Unable to update data in table %s.',
 			[
 				'values' => [$def['table']],
-				'data' => ['Data' => $data, wrap_text('Reason') => $ops['error']],
+				'data' => [
+					wrap_text('Reason') => $ops['error'],
+					wrap_text('Data') => $data,
+				],
 				'intro' => $def['msg']
 			],
 		], $error_type, $def['error_settings']);

@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzform module\n"
-"POT-Creation-Date: 2026-09-30 09:28+0000\n"
+"POT-Creation-Date: 2026-10-15 22:31+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -448,6 +448,8 @@ msgstr ""
 
 # Record form: Revision
 #: zzbrick_tables/revisions.php:53
+#: zzform/_functions.inc.php:401
+#: zzform/_functions.inc.php:466
 msgid "Data"
 msgstr ""
 
@@ -524,8 +526,8 @@ msgstr ""
 msgid "Unable to insert record into table %s."
 msgstr ""
 
-#: zzform/_functions.inc.php:399
-#: zzform/_functions.inc.php:461
+#: zzform/_functions.inc.php:400
+#: zzform/_functions.inc.php:465
 msgid "Reason"
 msgstr ""
 
