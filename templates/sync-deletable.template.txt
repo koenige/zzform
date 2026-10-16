@@ -53,6 +53,7 @@
 <form method="POST" action="">
 <input type="submit" value="%%% text Delete records %%%">
 </form>
+%%% script default/form-submit-once.js %%%
 %%% endif %%%
 %%% else %%%
 %%% text There are no deletable records. %%%

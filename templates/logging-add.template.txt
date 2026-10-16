@@ -50,6 +50,7 @@
 %%% text Upload SQL log %%%&nbsp; <input type="file" name="sqlfile">&nbsp; <input type="submit" value="%%% text Upload %%%">
 <input type="hidden" name="loggingadd" value="1">
 </form>
+%%% script default/form-submit-once.js %%%
 
 %%% endif %%%
 %%% endif %%%
