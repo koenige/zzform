@@ -2299,10 +2299,11 @@ function zz_select_concat($field) {
  *
  * @param array $post
  * @param string $field_name
- * @param string $value (NULL: get value, other: set value)
+ * @param string $value (not passed: get value, passed: set value, NULL allowed)
  * @return array
  */
 function zz_check_values($post, $field_name, $value = NULL) {
+	$get = func_num_args() < 3;
 	if (strstr($field_name, '[')) {
 		$fields = explode('[', $field_name);
 		foreach ($fields as $index => $field) {
@@ -2310,14 +2311,14 @@ function zz_check_values($post, $field_name, $value = NULL) {
 			$fields[$index] = trim($field, ']');
 		}
 		if (count($fields) === 3) {
-			if (is_null($value)) {
+			if ($get) {
 				return $post[$fields[0]][$fields[1]][$fields[2]];
 			} else {
 				$post[$fields[0]][$fields[1]][$fields[2]] = $value;
 			}
 		}
 	} else {
-		if (is_null($value)) {
+		if ($get) {
 			return($post[$field_name]);
 		} else {
 			$post[$field_name] = $value;
