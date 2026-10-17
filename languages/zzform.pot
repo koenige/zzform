@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzform module\n"
-"POT-Creation-Date: 2026-10-15 22:31+0000\n"
+"POT-Creation-Date: 2026-10-16 23:57+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -285,7 +285,7 @@ msgstr ""
 
 # Record form: File upload
 #: templates/zzform-record-field-file.template.txt:43
-#: zzform/errorhandling.inc.php:430
+#: zzform/errorhandling.inc.php:431
 #: zzform/upload.inc.php:1753
 msgid "Maximum allowed filesize is %s."
 msgstr ""
@@ -756,30 +756,30 @@ msgid "An error occured. We are working on the solution of this problem. Sorry f
 msgstr ""
 
 # Error handling
-#: zzform/errorhandling.inc.php:176
-#: zzform/errorhandling.inc.php:179
+#: zzform/errorhandling.inc.php:177
+#: zzform/errorhandling.inc.php:180
 #: zzform/record.inc.php:129
 #: zzform/record.inc.php:134
 msgid "Attention!"
 msgstr ""
 
 # Backend: Development, Error mail
-#: zzform/errorhandling.inc.php:192
+#: zzform/errorhandling.inc.php:193
 msgid "The following error(s) occured in project %s:"
 msgstr ""
 
 # Backend: Development, Error mail
-#: zzform/errorhandling.inc.php:201
+#: zzform/errorhandling.inc.php:202
 msgid "Database access error"
 msgstr ""
 
 # Record form: File upload
-#: zzform/errorhandling.inc.php:429
+#: zzform/errorhandling.inc.php:430
 msgid "Transfer failed. Probably you sent a file that was too large."
 msgstr ""
 
 # Record form: File upload
-#: zzform/errorhandling.inc.php:431
+#: zzform/errorhandling.inc.php:432
 msgid "– You sent: %s data."
 msgstr ""
 

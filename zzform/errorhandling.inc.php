@@ -162,6 +162,7 @@ function zz_error() {
 			if (wrap_setting('error_log['.$level.']') AND wrap_setting('log_errors')) {
 				wrap_log('['.wrap_setting('request_uri').'] '.$log,  $level, 'zzform');
 				if ($error['log_post_data']) wrap_log('postdata', 'notice', 'zzform');
+				wrap_static('zzform_page', 'zzform_logged_error', true);
 			}
 
 			// add to mail queue
