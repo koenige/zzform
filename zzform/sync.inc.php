@@ -578,7 +578,7 @@ function zz_sync_field_queries($raw, $setting) {
 		$sql = sprintf($setting['field'][$field], implode($implode, $values));
 		$ids = wrap_db_fetch($sql, '_dummy_', 'key/value');
 		foreach ($raw as $identifier => $line)
-			$raw[$identifier][$index] = $ids[trim($line[$index])];
+			$raw[$identifier][$index] = $ids[trim($line[$index])] ?? null;
 	}
 	return $raw;
 }
