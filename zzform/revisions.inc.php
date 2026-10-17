@@ -32,6 +32,7 @@ function zz_revisions($ops, $zz_tab = [], $rev_only = false) {
 		if ($table['action'] === 'delete') {
 			$data[] = [
 				'table_name' => $table['table_name'],
+				'db_table' => $table['table'],
 				'record_id' => $table['id_value'],
 				'changed_values' => 'NULL',
 				'complete_values' => 'NULL',
@@ -47,6 +48,7 @@ function zz_revisions($ops, $zz_tab = [], $rev_only = false) {
 		if (!$changed) continue;
 		$data[] = [
 			'table_name' => $table['table_name'],
+			'db_table' => $table['table'],
 			'record_id' => $table['id_value'],
 			'changed_values' => sprintf('"%s"', wrap_db_escape(json_encode($changed))),
 			'complete_values' => sprintf('"%s"', wrap_db_escape(json_encode($ops['record_new'][$index]))),
@@ -98,8 +100,8 @@ function zz_revisions($ops, $zz_tab = [], $rev_only = false) {
  */
 function zz_revisions_insert_data($data, $id, $open_revisions) {
 	$sql_rev = 'INSERT INTO /*_PREFIX_*/_revisiondata
-		(revision_id, table_name, record_id, changed_values, complete_values, rev_action)
-		VALUES (%d, "%%s", %%d, %%s, %%s, "%%s")';
+		(revision_id, table_name, db_table, record_id, changed_values, complete_values, rev_action)
+		VALUES (%d, "%%s", "%%s", %%d, %%s, %%s, "%%s")';
 	$sql_rev = sprintf($sql_rev, $id);
 	foreach ($data as $line) {
 		$ignored = [];
@@ -287,36 +289,193 @@ function zz_revisions_read_id($table) {
  * read revision date for a corresponding revision and either write data or
  * set action to delete
  *
+ * updates and deletes are matched by table and record ID, inserts were
+ * assigned to a subtable beforehands (see zz_revisions_insert_tabs())
+ * and go into the records without ID
+ *
  * @param array $my_tab
  * @param int $revision_id
  * @return array
  */
 function zz_revisions_read_data($my_tab, $revision_id) {
-	$sql = 'SELECT record_id, changed_values, rev_action
-		FROM /*_PREFIX_*/_revisiondata
-		WHERE table_name = "%s"
-		AND revision_id = %d
-		AND rev_action != "ignore"';
-	$sql = sprintf($sql
-		, $my_tab['table_name']
-		, $revision_id
-	);
-	$revision_data = wrap_db_fetch($sql, 'record_id');
-	if (!$revision_data) return $my_tab;
+	$rows = zz_revisions_rows($revision_id);
+	if (!$rows) return $my_tab;
+
+	$inserts = [];
+	foreach ($my_tab['revision_inserts'] ?? [] as $revisiondata_id)
+		$inserts[] = $rows[$revisiondata_id];
+
 	foreach ($my_tab as $index => $rec) {
 		if (!is_numeric($index)) continue;
-		if (!$rec['id']['value']) $rec['id']['value'] = -1;
-		if (!in_array($rec['id']['value'], array_keys($revision_data))) continue;
-		$revision = $revision_data[$rec['id']['value']];
-		if ($revision['rev_action'] === 'update') {
-			$my_tab[$index]['revision'] = json_decode($revision['changed_values'], true);
-		} elseif ($revision['rev_action'] === 'delete') {
-			$my_tab[0]['action'] = 'delete';
-		} elseif ($revision['rev_action'] === 'insert') {
-			$my_tab[$index]['revision'] = json_decode($revision['changed_values'], true);
+		if (!$rec['id']['value']) {
+			$row = array_shift($inserts);
+			if (!$row) continue;
+			$my_tab[$index]['revision'] = json_decode($row['changed_values'], true);
+			continue;
 		}
+		$row = zz_revisions_record_row($rows, $my_tab, $rec['id']['value']);
+		if (!$row) continue;
+		if ($row['rev_action'] === 'delete') {
+			$my_tab[0]['action'] = 'delete';
+			continue;
+		}
+		$my_tab[$index]['revision'] = json_decode($row['changed_values'], true);
 	}
 	return $my_tab;
+}
+
+/**
+ * get revision data for an existing record of a table
+ *
+ * @param array $rows
+ * @param array $my_tab
+ * @param int $record_id
+ * @return array
+ */
+function zz_revisions_record_row($rows, $my_tab, $record_id) {
+	foreach ($rows as $row) {
+		if ($row['rev_action'] === 'insert') continue;
+		if ($row['record_id'].'' !== $record_id.'') continue;
+		if ($row['table_name'] === $my_tab['table_name']) return $row;
+		if (zz_revisions_row_table($row) === $my_tab['table']) return $row;
+	}
+	return [];
+}
+
+/**
+ * assign inserted records of a revision to the subtables of the current form
+ *
+ * the layout of subtables may differ from the form the revision was made
+ * with; a subtable with the same name is used, otherwise the first subtable
+ * of the same table whose field definitions accept the values
+ *
+ * @param int $revision_id
+ * @param array $tabs list of subtables, indexed by tab
+ *		string 'table', string 'table_name', array 'fields'
+ * @return array list of revisiondata IDs, indexed by tab
+ */
+function zz_revisions_insert_tabs($revision_id, $tabs) {
+	$assigned = [];
+	foreach (zz_revisions_rows($revision_id) as $revisiondata_id => $row) {
+		if ($row['rev_action'] !== 'insert') continue;
+		$tab = zz_revisions_insert_tab($row, $tabs);
+		if ($tab === NULL) {
+			zz_error_log([
+				'_msg' => 'A pending change for %s cannot be shown in this form.',
+				'_msg_values' => [zz_nice_tablenames(zz_revisions_row_table($row))],
+				'level' => E_USER_NOTICE
+			]);
+			continue;
+		}
+		$assigned[$tab][] = $revisiondata_id;
+	}
+	return $assigned;
+}
+
+/**
+ * get subtable for an inserted record
+ *
+ * @param array $row
+ * @param array $tabs
+ * @return int
+ */
+function zz_revisions_insert_tab($row, $tabs) {
+	foreach ($tabs as $tab => $def)
+		if ($def['table_name'] === $row['table_name']) return $tab;
+
+	$values = json_decode($row['complete_values'] ?? $row['changed_values'], true) ?? [];
+	$table = zz_revisions_row_table($row);
+	foreach ($tabs as $tab => $def) {
+		if ($def['table'] !== $table) continue;
+		if (!zz_revisions_fields_accept($def['fields'], $values)) continue;
+		return $tab;
+	}
+	return NULL;
+}
+
+/**
+ * check if field definitions accept the values of a record
+ *
+ * fields with a fixed value must have this value, selects must offer it
+ *
+ * @param array $fields
+ * @param array $values
+ * @return bool
+ */
+function zz_revisions_fields_accept($fields, $values) {
+	foreach ($fields as $field) {
+		if (empty($field['field_name'])) continue;
+		if (!array_key_exists($field['field_name'], $values)) continue;
+		if (!zz_revisions_field_accepts($field, $values[$field['field_name']])) return false;
+	}
+	return true;
+}
+
+/**
+ * check if a field definition accepts a value
+ *
+ * @param array $field
+ * @param mixed $value
+ * @return bool
+ */
+function zz_revisions_field_accepts($field, $value) {
+	if (isset($field['value'])) return $field['value'].'' === $value.'';
+	if (($field['type'] ?? '') !== 'select') return true;
+	if ($value === '' OR $value === NULL) return true;
+	if (!empty($field['enum'])) return in_array($value, $field['enum']);
+	if (empty($field['sql'])) return true;
+	return in_array($value.'', zz_revisions_select_keys($field['sql']), true);
+}
+
+/**
+ * get keys (first column) of a select query
+ *
+ * @param string $sql
+ * @return array
+ */
+function zz_revisions_select_keys($sql) {
+	static $keys = [];
+	if (array_key_exists($sql, $keys)) return $keys[$sql];
+	$keys[$sql] = [];
+	foreach (zz_db_fetch($sql, '_dummy_id_', 'numeric') as $line)
+		$keys[$sql][] = reset($line).'';
+	return $keys[$sql];
+}
+
+/**
+ * get all lines of a revision
+ *
+ * @param int $revision_id
+ * @return array
+ */
+function zz_revisions_rows($revision_id) {
+	static $rows = [];
+	if (array_key_exists($revision_id, $rows)) return $rows[$revision_id];
+	$sql = 'SELECT revisiondata_id, table_name, db_table, record_id
+			, changed_values, complete_values, rev_action
+		FROM /*_PREFIX_*/_revisiondata
+		WHERE revision_id = %d
+		AND rev_action != "ignore"
+		ORDER BY revisiondata_id';
+	$sql = sprintf($sql, $revision_id);
+	$rows[$revision_id] = wrap_db_fetch($sql, 'revisiondata_id');
+	return $rows[$revision_id];
+}
+
+/**
+ * get table of a revision line
+ *
+ * older lines without db_table: table name of subtable without
+ * numerical suffix, e. g. contactdetails_585 = contactdetails
+ *
+ * @param array $row
+ * @return string
+ */
+function zz_revisions_row_table($row) {
+	if (!empty($row['db_table'])) return $row['db_table'];
+	$table = preg_replace('/_\d+$/', '', $row['table_name']);
+	if (!str_starts_with($table, '/*_PREFIX_*/')) $table = '/*_PREFIX_*/'.$table;
+	return wrap_db_prefix($table);
 }
 
 /**

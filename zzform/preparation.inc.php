@@ -80,6 +80,12 @@ function zz_prepare_tables($zz, $mode) {
 	if (!empty($zz_conf['int']['revisions_only']))
 		$zz_conf['int']['revision_data'] = zz_revisions_tab($zz_tab[0]);
 		
+	$revision_inserts = [];
+	if ($mode === 'revise' AND !empty($zz_tab[0]['revision_id']))
+		$revision_inserts = zz_revisions_insert_tabs(
+			$zz_tab[0]['revision_id'], zz_prepare_revision_tabs($zz)
+		);
+
 	//	### put each table (if more than one) into one array of its own ###
 	$integrate_records = 0;
 	foreach ($zz['record']['subtables'] as $tab => $no) {
@@ -95,6 +101,7 @@ function zz_prepare_tables($zz, $mode) {
 		if ($integrate_records) $my_field['integrate_records'] = $integrate_records;
 		$zz_tab[$tab] = zz_get_subtable($my_field, $zz_tab[$main_tab], $tab, $no);
 		$zz_tab[$tab]['where'] = $zz['record']['where'][$zz_tab[$tab]['table_name']] ?? [];
+		$zz_tab[$tab]['revision_inserts'] = $revision_inserts[$tab] ?? [];
 		if (in_array($mode, ['revise', 'show']) AND $zz_tab[$tab]['values']) {
 			// don't show values which are not saved in show-record mode
 			$zz_tab[$tab]['values'] = [];
@@ -186,6 +193,31 @@ function zz_prepare_tables($zz, $mode) {
 	);
 
 	return $zz_tab;
+}
+
+/**
+ * list subtables of a form with table, table name and field definitions
+ *
+ * @param array $zz
+ * @return array indexed by tab
+ */
+function zz_prepare_revision_tabs($zz) {
+	$tabs = [];
+	foreach ($zz['record']['subtables'] as $tab => $no) {
+		if (strstr($no, '-')) {
+			$nos = explode('-', $no);
+			$field = $zz['fields'][$nos[0]]['fields'][$nos[1]];
+		} else {
+			$field = $zz['fields'][$no];
+		}
+		if (!empty($field['hide_in_form'])) continue;
+		$tabs[$tab] = [
+			'table' => zz_db_table($field['table'])['table'],
+			'table_name' => $field['table_name'],
+			'fields' => $field['fields']
+		];
+	}
+	return $tabs;
 }
 
 /**
@@ -622,6 +654,11 @@ function zz_prepare_subrecords($mode, $field, $zz_tab, $tab, $zz_record) {
 		}
 		if ($my_tab['records'] < $my_tab['min_records']) 
 			$my_tab['records'] = $my_tab['min_records'];
+		// inserts from a revision need one record without ID each
+		if (!empty($my_tab['revision_inserts'])) {
+			$missing_records = count($my_tab['revision_inserts']) - ($my_tab['records'] - count($existing_ids));
+			if ($missing_records > 0) $my_tab['records'] += $missing_records;
+		}
 		// always show one record minimum
 		if (!empty($field['form_display']) AND in_array($field['form_display'], ['set', 'key_value']))
 			$zz_record['always_show_empty_detail_record'] = true;

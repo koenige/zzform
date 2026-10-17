@@ -6,7 +6,7 @@
  * https://www.zugzwang.org/modules/zzform
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2020-2021, 2023-2024 Gustaf Mossakowski
+ * @copyright Copyright © 2020-2021, 2023-2024, 2026 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -15,6 +15,7 @@ CREATE TABLE `_revisiondata` (
   `revisiondata_id` int unsigned NOT NULL AUTO_INCREMENT,
   `revision_id` int unsigned NOT NULL,
   `table_name` varchar(63) CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL,
+  `db_table` varchar(63) CHARACTER SET latin1 COLLATE latin1_general_ci DEFAULT NULL,
   `record_id` int NOT NULL,
   `changed_values` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `complete_values` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,

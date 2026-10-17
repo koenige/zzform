@@ -1181,6 +1181,11 @@ msgstr "Alter Wert: %s"
 msgid "– empty –"
 msgstr "– leer –"
 
+# Record form: Revision
+#: zzform/revisions.inc.php:364
+msgid "A pending change for %s cannot be shown in this form."
+msgstr "Eine ausstehende Änderung für %s kann in diesem Formular nicht angezeigt werden."
+
 # Record form: Select
 #: zzform/record.inc.php:995
 msgid "No source defined"

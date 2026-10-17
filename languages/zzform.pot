@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzform module\n"
-"POT-Creation-Date: 2026-10-16 23:57+0000\n"
+"POT-Creation-Date: 2026-10-17 09:45+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -538,7 +538,7 @@ msgstr ""
 
 # Record form: Validation, displayed above form
 #: zzform/action.inc.php:131
-#: zzform/preparation.inc.php:1535
+#: zzform/preparation.inc.php:1572
 msgid "Value missing in field <strong>%s</strong>."
 msgstr ""
 
@@ -1029,8 +1029,8 @@ msgid "Value incorrect in field <strong>%s</strong>."
 msgstr ""
 
 # Record form: Validation, displayed above form
-#: zzform/preparation.inc.php:1522
-#: zzform/preparation.inc.php:1530
+#: zzform/preparation.inc.php:1559
+#: zzform/preparation.inc.php:1567
 msgid "Nothing was uploaded in field <strong>%s</strong>."
 msgstr ""
 
@@ -1235,6 +1235,11 @@ msgstr ""
 # Record form: Detail record
 #: zzform/record.inc.php:4418
 msgid "Remove %s"
+msgstr ""
+
+# Record form: Revision
+#: zzform/revisions.inc.php:364
+msgid "A pending change for %s cannot be shown in this form."
 msgstr ""
 
 # Record form: File upload

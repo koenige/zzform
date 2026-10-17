@@ -31,3 +31,4 @@
 /* 2026-08-16-12 */	UPDATE categories SET parameters = REPLACE(parameters, '&identifier[', '&zzform[identifier][') WHERE parameters LIKE '%&identifier[%';
 /* 2026-08-16-13 */	UPDATE categories SET parameters = REPLACE(parameters, '&zzform[identifier][fields][', '&zzform[fields][') WHERE parameters LIKE '%&zzform[identifier][fields][%';
 /* 2026-08-19-1 */	UPDATE categories SET parameters = REPLACE(parameters, '&fields[', '&zzform_field[') WHERE parameters LIKE '%&fields[%';
+/* 2026-10-17-1 */	ALTER TABLE `_revisiondata` ADD `db_table` varchar(63) COLLATE 'latin1_general_ci' NULL AFTER `table_name`;
