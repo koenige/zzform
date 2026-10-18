@@ -161,8 +161,10 @@ function zzform($zz) {
 //	Check mode, action, access for record;
 //	access for list will be checked later
 //
-	if (!wrap_static('zzform_output', 'batch_mode'))
+	if (!wrap_static('zzform_output', 'batch_mode')) {
 		zz_init_limit($zz);
+		zzform_redirect_deprecated_query();
+	}
 
 	// initalize export module
 	// might set mode to export
@@ -567,8 +569,8 @@ function zzform_cacheable() {
 	// add form, also for bare `?add` and for values which are not a valid record
 	if (isset($_GET['add'])) return false;
 	$uncacheable = [
-		'q', 'delete', 'insert', 'update', 'noupdate', 'zzhash', 'mode',
-		'thumbs', 'edit', 'show', 'revise', 'merge'
+		'q', 'delete', 'insert', 'update', 'noupdate', 'zzhash',
+		'thumbs', 'edit', 'show', 'revise', 'merge', 'focus'
 	];
 	foreach ($uncacheable as $query)
 		if (!empty($_GET[$query])) return false;

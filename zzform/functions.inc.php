@@ -898,22 +898,6 @@ function zz_record_access($zz, $ops) {
 			$zz_conf['int']['id']['source_value'] = zz_check_get_array('add', 'is_int', [], false);
 		break;
 
-	case !empty($_GET['mode']):
-		// standard case, get mode from URL
-		// @deprecated
-		if (in_array($_GET['mode'], wrap_setting('zzform_allowed_modes'))) {
-			$ops['mode'] = $_GET['mode']; // set mode from URL
-			if (in_array($ops['mode'], ['edit', 'delete', 'show'])
-				AND !empty($_GET['id'])) {
-				$id_value = zz_check_get_array('id', 'is_int');
-			}
-		} else {
-			// illegal parameter, don't set a mode at all
-			wrap_static('zzform_page', 'status', 404);
-			$keys = ['id', 'mode'];
-		}
-		break;
-
 	case isset($_GET['delete']):
 	case isset($_GET['insert']):
 	case isset($_GET['update']):
@@ -1172,11 +1156,6 @@ function zz_record_access($zz, $ops) {
 		break;
 	}
 
-	// @deprecated
-	if ($ops['mode'] === 'add' AND $zz['record']['copy'] AND !empty($_GET['source_id'])) {
-		$zz_conf['int']['id']['source_value'] = zz_check_get_array('source_id', 'is_int');
-	}
-
 	if ($zz_conf['int']['where_with_unique_id']) { // just for record, not for list
 		// in case of where and not unique, ie. only one record in table, 
 		// don't do this.
@@ -1261,16 +1240,12 @@ function zz_query_strings_allowed($zz) {
 		OR !empty($zz['record']['view'])
 		OR !empty($zz['record']['delete'])
 	) {
-		$strings[] = 'mode'; // @deprecated
-		$strings[] = 'id'; // @deprecated
 		$strings[] = 'zzhash';
 		$strings[] = 'focus';
 	}
 	if (!empty($zz['record']['add'])) {
 		$strings[] = 'add';
 		$strings[] = 'insert';
-		if (!empty($zz['record']['copy']))
-			$strings[] = 'source_id';
 	}
 	if (!empty($zz['record']['edit'])) {
 		$strings[] = 'edit';

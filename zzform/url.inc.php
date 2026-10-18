@@ -269,3 +269,32 @@ function zz_extra_get_params() {
 
 	$zz_conf['int']['extra_get'] = http_build_query($keep_query);
 }
+
+/**
+ * redirect deprecated query strings `mode`, `id`, and `source_id`
+ * e. g. ?mode=edit&id=5 to ?edit=5, ?mode=add&source_id=5 to ?add=5;
+ * unknown `mode` (not in zzform_allowed_modes) → 404, strip deprecated keys
+ *
+ * @return void
+ */
+function zzform_redirect_deprecated_query() {
+	if (!isset($_GET['mode']) AND !isset($_GET['id'])) return;
+
+	$mode = $_GET['mode'] ?? '';
+	if ($mode AND !in_array($mode, wrap_setting('zzform_allowed_modes'), true)) {
+		wrap_static('zzform_page', 'status', 404);
+		zzform_url_remove(['mode', 'id', 'source_id']);
+		return;
+	}
+
+	$new = [];
+	if ($mode) {
+		if (in_array($mode, ['edit', 'delete', 'show'], true))
+			$new[$mode] = !empty($_GET['id']) ? $_GET['id'] : NULL;
+		elseif ($mode === 'add')
+			$new['add'] = !empty($_GET['source_id']) ? $_GET['source_id'] : NULL;
+	}
+
+	$url = zzform_url_remove(['mode', 'id', 'source_id'], zzform_url('full+qs+qs_zzform'));
+	wrap_redirect(zzform_url_add($new, $url), 301, false);
+}

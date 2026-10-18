@@ -29,8 +29,7 @@ function zz_export_init(&$ops, &$zz) {
 
 	// no edit modes allowed
 	$unwanted_keys = [
-		'mode', 'id', 'source_id', 'show', 'edit', 'add', 'delete', 'insert',
-		'update', 'revise'
+		'show', 'edit', 'add', 'delete', 'insert', 'update', 'revise'
 	];
 	foreach ($unwanted_keys as $key) {
 		if (!isset($_GET[$key])) continue;

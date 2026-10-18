@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzform module\n"
-"POT-Creation-Date: 2026-10-18 11:36+0000\n"
+"POT-Creation-Date: 2026-10-18 14:04+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -497,7 +497,7 @@ msgstr ""
 #: zzbrick_xhr/configs.inc.php:83
 #: zzbrick_xhr/zzform.inc.php:137
 #: zzbrick_xhr/zzform.inc.php:143
-#: zzform/functions.inc.php:1986
+#: zzform/functions.inc.php:1961
 msgid "Please enter more characters."
 msgstr ""
 
@@ -784,15 +784,15 @@ msgid "– You sent: %s data."
 msgstr ""
 
 # Modules: Export
-#: zzform/export.inc.php:39
+#: zzform/export.inc.php:38
 msgid "Please don’t mess with the URL parameters. <code>%s</code> is not allowed here."
 msgstr ""
 
-#: zzform/export.inc.php:208
+#: zzform/export.inc.php:207
 msgid "A file is missing for `%s` export. Please create a script at `%s`."
 msgstr ""
 
-#: zzform/export.inc.php:220
+#: zzform/export.inc.php:219
 msgid "A function is missing for `%s` export in the script at `%s`."
 msgstr ""
 
@@ -843,13 +843,13 @@ msgid "Only one field may be defined as `id`!"
 msgstr ""
 
 # Record form: Validation, displayed inside form
-#: zzform/functions.inc.php:1924
+#: zzform/functions.inc.php:1899
 msgid "No entry found. Try less characters."
 msgstr ""
 
 # Record form: Validation, displayed inside form
-#: zzform/functions.inc.php:1940
-#: zzform/functions.inc.php:1960
+#: zzform/functions.inc.php:1915
+#: zzform/functions.inc.php:1935
 msgid "Please make a different selection."
 msgstr ""
 
@@ -1353,7 +1353,7 @@ msgid "%d records merged successfully"
 msgstr ""
 
 # Record form: Validation, resubmit because of logout
-#: zzform/zzform.php:358
+#: zzform/zzform.php:360
 msgid "You had been logged out automatically. Therefore, your changes were not yet saved. Please submit the form again."
 msgstr ""
 
