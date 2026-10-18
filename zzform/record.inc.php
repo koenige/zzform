@@ -42,7 +42,7 @@ function zz_record($ops, $record, $zz_tab, $zz_conditions) {
 	$record['formhead'] = false;
 	$records = false;
 	if (!empty($_GET['delete'])) {
-		$records = zz_check_get_array('delete', 'is_int');
+		$records = wrap_url_qs('zzform.delete');
 	} elseif (is_array($zz_conf['int']['id']['value'])) {
 		$records = count($zz_conf['int']['id']['value']);
 	}

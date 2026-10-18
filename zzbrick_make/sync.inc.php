@@ -42,7 +42,6 @@ function mod_zzform_make_sync($params) {
 		return $page;
 	}
 
-	$page['query_strings'] = ['limit'];
 	$page['title'] = wrap_text('Synchronization: %s', ['values' => [$config[$params[0]]['title']]]);
 	$page['breadcrumbs'][]['title'] = $config[$params[0]]['title'];
 

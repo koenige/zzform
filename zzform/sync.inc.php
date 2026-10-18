@@ -161,7 +161,7 @@ function zz_sync_defaults($setting) {
 		$setting['sync_records_per_run'] = wrap_setting('sync_records_per_run');
 		if (!$setting['testing']) $setting['sync_records_per_run'] *= 10;
 	}
-	$setting['limit'] = empty($_GET['limit']) ? 0 : zz_check_get_array('limit', 'is_int');
+	$setting['limit'] = wrap_url_qs('zzform.sync.limit');
 	$setting['end'] = $setting['limit'] + $setting['sync_records_per_run'];
 
 	switch ($setting['type']) {

@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzform module\n"
-"POT-Creation-Date: 2026-10-18 14:04+0000\n"
+"POT-Creation-Date: 2026-10-18 21:00+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -258,6 +258,46 @@ msgstr ""
 
 #: configuration/package.cfg:15
 msgid "Database-backed forms: lists, records, uploads, validation, and exports"
+msgstr ""
+
+#: configuration/query-strings.cfg:12
+msgid "ID of record to copy into a new record"
+msgstr ""
+
+#: configuration/query-strings.cfg:17
+msgid "ID of record to delete"
+msgstr ""
+
+#: configuration/query-strings.cfg:23
+msgid "ID of record to edit"
+msgstr ""
+
+#: configuration/query-strings.cfg:29
+msgid "ID of record that was inserted"
+msgstr ""
+
+#: configuration/query-strings.cfg:35
+msgid "ID of record that was not changed"
+msgstr ""
+
+#: configuration/query-strings.cfg:41
+msgid "ID of record to revise"
+msgstr ""
+
+#: configuration/query-strings.cfg:47
+msgid "ID of record to show"
+msgstr ""
+
+#: configuration/query-strings.cfg:53
+msgid "Start position for synchronisation"
+msgstr ""
+
+#: configuration/query-strings.cfg:60
+msgid "ID of record to create thumbnails for"
+msgstr ""
+
+#: configuration/query-strings.cfg:66
+msgid "ID of record that was updated"
 msgstr ""
 
 #: configuration/routes.cfg:12
@@ -3032,15 +3072,15 @@ msgstr ""
 msgid "This URL is for synchronising a production and a development server only. No direct access is possible."
 msgstr ""
 
-#: zzbrick_make/sync.inc.php:46
+#: zzbrick_make/sync.inc.php:45
 msgid "Synchronization: %s"
 msgstr ""
 
-#: zzbrick_make/sync.inc.php:73
+#: zzbrick_make/sync.inc.php:72
 msgid "Deletable Records"
 msgstr ""
 
-#: zzbrick_make/sync.inc.php:81
+#: zzbrick_make/sync.inc.php:80
 msgid "Sync finished"
 msgstr ""
 
@@ -3263,39 +3303,39 @@ msgstr ""
 msgid "Wrong configuration: The format `%s` of export %s is not in the list of possible formats."
 msgstr ""
 
-#: zzform/functions.inc.php:730
+#: zzform/functions.inc.php:736
 msgid "zzform field definition incorrect, field has neither field_name nor title."
 msgstr ""
 
 # Record form: Heading
-#: zzform/functions.inc.php:1189
+#: zzform/functions.inc.php:1195
 msgid "Configuration does not allow this mode: %s"
 msgstr ""
 
 # Record form: Heading
-#: zzform/functions.inc.php:1199
+#: zzform/functions.inc.php:1205
 msgid "Configuration does not allow this action: %s"
 msgstr ""
 
 # Record form: Validation, displayed above form
-#: zzform/functions.inc.php:1434
+#: zzform/functions.inc.php:1440
 msgid "Creation of directory %s failed: Parent directory is not writable."
 msgstr ""
 
 # Record form: Validation, displayed above form
-#: zzform/functions.inc.php:1448
+#: zzform/functions.inc.php:1454
 msgid "Creation of directory %s failed."
 msgstr ""
 
-#: zzform/functions.inc.php:1747
+#: zzform/functions.inc.php:1753
 msgid "It is not possible to depend on different fields in a single subtable (%s). Second field is ignored."
 msgstr ""
 
-#: zzform/functions.inc.php:1974
+#: zzform/functions.inc.php:1980
 msgid "Multiple records matching (maybe set \"ids\" for zzform_multi?): value %s in field %s. <br>SQL: %s"
 msgstr ""
 
-#: zzform/functions.inc.php:1979
+#: zzform/functions.inc.php:1985
 msgid "No entry found: value %s in field %s. <br>SQL: %s"
 msgstr ""
 

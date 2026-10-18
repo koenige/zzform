@@ -386,7 +386,6 @@ function zz_get_where_conditions(&$zz) {
  *		'field_name': check if there's something like a field_name as subkey
  *		'values': check against $values if value is valid
  *		'is_numeric': checks if value is numeric
- *		'is_int': checks if value is integer / string that looks like integer
  * @param array $values (optional) list of possible values
  * @param bool $exit_on_error defaults to true
  * @return mixed
@@ -413,10 +412,6 @@ function zz_check_get_array($key, $type, $values = [], $exit_on_error = true) {
 	case 'values':
 		if (!in_array($_GET[$key], $values)) $error_in[$key] = true;
 		break;
-	case 'is_int':
-		$intval = intval($_GET[$key]).'';
-		if ($intval !== $_GET[$key]) $error_in[$key] = true;
-		break;
 	case 'is_numeric':
 		if (!is_numeric($_GET[$key])) $error_in[$key] = true;
 		break;
@@ -440,6 +435,17 @@ function zz_check_get_array($key, $type, $values = [], $exit_on_error = true) {
 	zzform_url_remove($unwanted_keys);
 	if (!isset($_GET[$key])) return $return;
 	return $_GET[$key];
+}
+
+/**
+ * invalid query string, `on_error = zzform.404` in query-strings.cfg
+ *
+ * @param string $key key of query string
+ * @param string $identifier identifier of rule
+ */
+function zz_query_string_404($key, $identifier) {
+	wrap_static('zzform_page', 'status', 404);
+	zzform_url_remove([$key]);
 }
 
 /** 
@@ -865,13 +871,13 @@ function zz_record_access($zz, $ops) {
 		if ($zz_conf['int']['where_with_unique_id']) {
 			$id_value = $zz_conf['int']['id']['value'];
 		} else {
-			$id_value = zz_check_get_array('edit', 'is_int');
+			$id_value = wrap_url_qs('zzform.edit');
 		}
 		break;
 
 	case !empty($_GET['delete']):
 		$ops['mode'] = 'delete';
-		$id_value = zz_check_get_array('delete', 'is_int');
+		$id_value = wrap_url_qs('zzform.delete');
 		break;
 
 	case isset($_GET['delete']) AND $zz_conf['int']['where_with_unique_id']:
@@ -884,18 +890,18 @@ function zz_record_access($zz, $ops) {
 
 	case !empty($_GET['show']):
 		$ops['mode'] = 'show';
-		$id_value = zz_check_get_array('show', 'is_int');
+		$id_value = wrap_url_qs('zzform.show');
 		break;
 
 	case !empty($_GET['revise']):
 		$ops['mode'] = 'revise';
-		$id_value = zz_check_get_array('revise', 'is_int');
+		$id_value = wrap_url_qs('zzform.revise');
 		break;
 
 	case isset($_GET['add']) AND empty($_POST['zz_action']):
 		$ops['mode'] = 'add';
 		if ($zz['record']['copy'])
-			$zz_conf['int']['id']['source_value'] = zz_check_get_array('add', 'is_int', [], false);
+			$zz_conf['int']['id']['source_value'] = wrap_url_qs('zzform.add');
 		break;
 
 	case isset($_GET['delete']):
@@ -909,7 +915,7 @@ function zz_record_access($zz, $ops) {
 		$found = 0;
 		foreach ($keys as $key) {
 			if (!isset($_GET[$key])) continue;
-			if ($key !== 'delete') $id_value = zz_check_get_array($key, 'is_int');
+			if ($key !== 'delete') $id_value = wrap_url_qs('zzform.'.$key);
 			$found++;
 		}
 		if ($found > 1) {
@@ -937,7 +943,7 @@ function zz_record_access($zz, $ops) {
 	case !empty($_GET['thumbs']):
 		$keys = ['thumbs', 'field'];
 		$ops['mode'] = 'thumbnails';
-		$id_value = zz_check_get_array('thumbs', 'is_int');
+		$id_value = wrap_url_qs('zzform.thumbs');
 		if (empty($_GET['field'])) {
 			wrap_static('zzform_page', 'status', 404);
 			break;
