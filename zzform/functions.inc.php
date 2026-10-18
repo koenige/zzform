@@ -387,6 +387,7 @@ function zz_get_where_conditions(&$zz) {
  */
 function zz_query_string_404($key, $identifier) {
 	wrap_static('zzform_page', 'status', 404);
+	wrap_static('zzform_page', 'status_fixed', true);
 	zzform_url_remove([$key]);
 }
 
