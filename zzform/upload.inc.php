@@ -101,11 +101,7 @@ function zz_upload_thumbnail($ops, $zz_tab) {
 		wrap_static('zzform_page', 'status', 404);
 		return $ops;
 	}
-	$ops['thumb_field'] = explode('-', $_GET['field']);
-	if (count($ops['thumb_field']) !== 2) {
-		wrap_static('zzform_page', 'status', 404);
-		return $ops;
-	}
+	$ops['thumb_field'] = explode('-', wrap_url_qs('zzform.thumbnails.field'));
 
 	if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 		wrap_static('zzform_page', 'status', 404);

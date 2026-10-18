@@ -886,11 +886,9 @@ function zz_record_access($zz, $ops) {
 	case !empty($_GET['thumbs']):
 		$keys = ['thumbs', 'field'];
 		$ops['mode'] = 'thumbnails';
-		$id_value = wrap_url_qs('zzform.thumbs');
-		if (empty($_GET['field'])) {
-			wrap_static('zzform_page', 'status', 404);
-			break;
-		}
+		$id_value = wrap_url_qs('zzform.thumbnails.thumbs');
+		if (!wrap_url_qs('zzform.thumbnails.field'))
+			zz_query_string_404('field', 'zzform.thumbnails.field');
 		break;
 
 	case $zz_conf['int']['where_with_unique_id']:
@@ -900,8 +898,7 @@ function zz_record_access($zz, $ops) {
 		break;
 
 	case !empty($_GET['field']):
-		$keys = ['thumbs', 'field'];
-		wrap_static('zzform_page', 'status', 404);
+		zz_query_string_404('field', 'zzform.thumbnails.field');
 		break;
 
 	default:

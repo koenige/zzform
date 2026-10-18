@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzform module\n"
-"POT-Creation-Date: 2026-10-18 21:07+0000\n"
+"POT-Creation-Date: 2026-10-18 23:07+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -297,11 +297,23 @@ msgid "Start position for synchronisation"
 msgstr ""
 
 #: configuration/query-strings.cfg:67
-msgid "ID of record to create thumbnails for"
+msgid "Upload field number and image index for thumbnail generation (field_no-image_no)"
 msgstr ""
 
 #: configuration/query-strings.cfg:73
+msgid "ID of record to create thumbnails for"
+msgstr ""
+
+#: configuration/query-strings.cfg:79
 msgid "ID of record that was updated"
+msgstr ""
+
+#: configuration/query-strings.cfg:85
+msgid "Field names for prefill conditions when adding a record"
+msgstr ""
+
+#: configuration/query-strings.cfg:90
+msgid "Field names for where conditions on list and record views"
 msgstr ""
 
 #: configuration/routes.cfg:12
@@ -3307,39 +3319,39 @@ msgstr ""
 msgid "Wrong configuration: The format `%s` of export %s is not in the list of possible formats."
 msgstr ""
 
-#: zzform/functions.inc.php:732
+#: zzform/functions.inc.php:679
 msgid "zzform field definition incorrect, field has neither field_name nor title."
 msgstr ""
 
 # Record form: Heading
-#: zzform/functions.inc.php:1191
+#: zzform/functions.inc.php:1135
 msgid "Configuration does not allow this mode: %s"
 msgstr ""
 
 # Record form: Heading
-#: zzform/functions.inc.php:1201
+#: zzform/functions.inc.php:1145
 msgid "Configuration does not allow this action: %s"
 msgstr ""
 
 # Record form: Validation, displayed above form
-#: zzform/functions.inc.php:1436
+#: zzform/functions.inc.php:1380
 msgid "Creation of directory %s failed: Parent directory is not writable."
 msgstr ""
 
 # Record form: Validation, displayed above form
-#: zzform/functions.inc.php:1450
+#: zzform/functions.inc.php:1394
 msgid "Creation of directory %s failed."
 msgstr ""
 
-#: zzform/functions.inc.php:1749
+#: zzform/functions.inc.php:1693
 msgid "It is not possible to depend on different fields in a single subtable (%s). Second field is ignored."
 msgstr ""
 
-#: zzform/functions.inc.php:1976
+#: zzform/functions.inc.php:1920
 msgid "Multiple records matching (maybe set \"ids\" for zzform_multi?): value %s in field %s. <br>SQL: %s"
 msgstr ""
 
-#: zzform/functions.inc.php:1981
+#: zzform/functions.inc.php:1925
 msgid "No entry found: value %s in field %s. <br>SQL: %s"
 msgstr ""
 
@@ -3560,80 +3572,80 @@ msgstr ""
 msgid "Translations script for `%s` does not exist!"
 msgstr ""
 
-#: zzform/upload.inc.php:552
+#: zzform/upload.inc.php:548
 msgid "%s returns with a warning:\n\n%s"
 msgstr ""
 
-#: zzform/upload.inc.php:926
+#: zzform/upload.inc.php:922
 msgid "File type %s does not match MIME type %s as found by file() for %s"
 msgstr ""
 
-#: zzform/upload.inc.php:1337
-#: zzform/upload.inc.php:1442
+#: zzform/upload.inc.php:1333
+#: zzform/upload.inc.php:1438
 msgid "Error: Source file %s does not exist."
 msgstr ""
 
-#: zzform/upload.inc.php:1499
+#: zzform/upload.inc.php:1495
 msgid "Error: File %s does not exist. Temporary Directory: %s"
 msgstr ""
 
-#: zzform/upload.inc.php:1572
+#: zzform/upload.inc.php:1568
 msgid "No options for field %s were found."
 msgstr ""
 
-#: zzform/upload.inc.php:1641
+#: zzform/upload.inc.php:1637
 msgid "Configuration error: function <code>%s()</code> for image upload does not exist."
 msgstr ""
 
-#: zzform/upload.inc.php:1709
+#: zzform/upload.inc.php:1705
 msgid "Error. Could not determine file ending"
 msgstr ""
 
-#: zzform/upload.inc.php:1815
+#: zzform/upload.inc.php:1811
 msgid "`max_pages` can only be used with PDF filetypes and `pdfinfo` as upload tool."
 msgstr ""
 
-#: zzform/upload.inc.php:1852
+#: zzform/upload.inc.php:1848
 msgid "Error in $zz definition for upload_field: [%d]"
 msgstr ""
 
-#: zzform/upload.inc.php:2252
+#: zzform/upload.inc.php:2248
 msgid "File %s exists, but is not a file."
 msgstr ""
 
-#: zzform/upload.inc.php:2324
+#: zzform/upload.inc.php:2320
 msgid "Insert: `%s` exists, but is not a file."
 msgstr ""
 
-#: zzform/upload.inc.php:2740
+#: zzform/upload.inc.php:2736
 msgid "zz_rename(): No new filename given."
 msgstr ""
 
-#: zzform/upload.inc.php:2747
+#: zzform/upload.inc.php:2743
 msgid "zz_rename(): File %s does not exist."
 msgstr ""
 
-#: zzform/upload.inc.php:2817
+#: zzform/upload.inc.php:2813
 msgid "Insufficient rights. Directory `%s` is not writable."
 msgstr ""
 
-#: zzform/upload.inc.php:2820
+#: zzform/upload.inc.php:2816
 msgid "Unknown error. Copying of file not successful. <br>From: %s <br>To: %s<br>"
 msgstr ""
 
-#: zzform/upload.inc.php:2862
+#: zzform/upload.inc.php:2858
 msgid "Value for upload_max_filesize from php.ini is smaller than value which is set in the script. The value from php.ini will be used. To upload bigger files, please adjust your configuration settings."
 msgstr ""
 
-#: zzform/upload.inc.php:3001
+#: zzform/upload.inc.php:2997
 msgid "Configuration error on server: command `%s` was not found. Paths tried: %s"
 msgstr ""
 
-#: zzform/upload.inc.php:3020
+#: zzform/upload.inc.php:3016
 msgid "Set `zzform_upload_binary_version_option` for command `%s` to get version information."
 msgstr ""
 
-#: zzform/upload.inc.php:3026
+#: zzform/upload.inc.php:3022
 msgid "Binary command `%s` not found."
 msgstr ""
 

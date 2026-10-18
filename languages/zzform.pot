@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzform module\n"
-"POT-Creation-Date: 2026-10-18 21:07+0000\n"
+"POT-Creation-Date: 2026-10-18 23:07+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -286,7 +286,7 @@ msgstr ""
 # Record form: File upload
 #: templates/zzform-record-field-file.template.txt:43
 #: zzform/errorhandling.inc.php:431
-#: zzform/upload.inc.php:1753
+#: zzform/upload.inc.php:1749
 msgid "Maximum allowed filesize is %s."
 msgstr ""
 
@@ -497,7 +497,7 @@ msgstr ""
 #: zzbrick_xhr/configs.inc.php:83
 #: zzbrick_xhr/zzform.inc.php:137
 #: zzbrick_xhr/zzform.inc.php:143
-#: zzform/functions.inc.php:1963
+#: zzform/functions.inc.php:1907
 msgid "Please enter more characters."
 msgstr ""
 
@@ -834,22 +834,22 @@ msgstr ""
 msgid "The value is only visible during editing."
 msgstr ""
 
-#: zzform/functions.inc.php:327
+#: zzform/functions.inc.php:328
 msgid "Adding value %s in field %s is forbidden here"
 msgstr ""
 
-#: zzform/functions.inc.php:776
+#: zzform/functions.inc.php:723
 msgid "Only one field may be defined as `id`!"
 msgstr ""
 
 # Record form: Validation, displayed inside form
-#: zzform/functions.inc.php:1901
+#: zzform/functions.inc.php:1845
 msgid "No entry found. Try less characters."
 msgstr ""
 
 # Record form: Validation, displayed inside form
-#: zzform/functions.inc.php:1917
-#: zzform/functions.inc.php:1937
+#: zzform/functions.inc.php:1861
+#: zzform/functions.inc.php:1881
 msgid "Please make a different selection."
 msgstr ""
 
@@ -1243,107 +1243,107 @@ msgid "A pending change for %s cannot be shown in this form."
 msgstr ""
 
 # Record form: File upload
-#: zzform/upload.inc.php:354
+#: zzform/upload.inc.php:350
 msgid "The file %s is empty. If you are uploading from a Mac, please check if the data is not only available in the so-called “resource fork” of the file."
 msgstr ""
 
-#: zzform/upload.inc.php:408
+#: zzform/upload.inc.php:404
 msgid "unknown"
 msgstr ""
 
 # Record form: File upload
-#: zzform/upload.inc.php:409
+#: zzform/upload.inc.php:405
+#: zzform/upload.inc.php:1740
 #: zzform/upload.inc.php:1744
 #: zzform/upload.inc.php:1748
-#: zzform/upload.inc.php:1752
-#: zzform/upload.inc.php:1776
-#: zzform/upload.inc.php:1782
-#: zzform/upload.inc.php:1790
-#: zzform/upload.inc.php:1796
-#: zzform/upload.inc.php:1805
+#: zzform/upload.inc.php:1772
+#: zzform/upload.inc.php:1778
+#: zzform/upload.inc.php:1786
+#: zzform/upload.inc.php:1792
+#: zzform/upload.inc.php:1801
 msgid "Error: "
 msgstr ""
 
 # Record form: File upload
-#: zzform/upload.inc.php:410
+#: zzform/upload.inc.php:406
 msgid "Unsupported filetype:"
 msgstr ""
 
 # Record form: File upload
-#: zzform/upload.inc.php:1744
+#: zzform/upload.inc.php:1740
 msgid "No file was uploaded."
 msgstr ""
 
 # Record form: File upload
-#: zzform/upload.inc.php:1748
+#: zzform/upload.inc.php:1744
 msgid "File was only partially uploaded."
 msgstr ""
 
 # Record form: File upload
-#: zzform/upload.inc.php:1752
+#: zzform/upload.inc.php:1748
 msgid "File is too big."
 msgstr ""
 
 # Record form: File upload
-#: zzform/upload.inc.php:1777
+#: zzform/upload.inc.php:1773
 msgid "Minimum width must be at least %s px."
 msgstr ""
 
 # Record form: File upload
-#: zzform/upload.inc.php:1779
-#: zzform/upload.inc.php:1793
+#: zzform/upload.inc.php:1775
+#: zzform/upload.inc.php:1789
 msgid "Uploaded width is %s px."
 msgstr ""
 
 # Record form: File upload
-#: zzform/upload.inc.php:1783
+#: zzform/upload.inc.php:1779
 msgid "Minimum height must be at least %s px."
 msgstr ""
 
 # Record form: File upload
-#: zzform/upload.inc.php:1785
-#: zzform/upload.inc.php:1799
+#: zzform/upload.inc.php:1781
+#: zzform/upload.inc.php:1795
 msgid "Uploaded height is %s px."
 msgstr ""
 
 # Record form: File upload
-#: zzform/upload.inc.php:1791
+#: zzform/upload.inc.php:1787
 msgid "Maximum width must be at most %s px."
 msgstr ""
 
 # Record form: File upload
-#: zzform/upload.inc.php:1797
+#: zzform/upload.inc.php:1793
 msgid "Maximum height must be at most %s px."
 msgstr ""
 
 # Record form: File upload
-#: zzform/upload.inc.php:1806
+#: zzform/upload.inc.php:1802
 msgid "The PDF consists of %d pages. Only %d page is allowed."
 msgid_plural "The PDF consists of %d pages. Only %d pages are allowed."
 msgstr[0] ""
 msgstr[1] ""
 
 # Record form: File upload
-#: zzform/upload.inc.php:2242
+#: zzform/upload.inc.php:2238
 msgid "Could not delete %s, file did not exist."
 msgstr ""
 
 # Record form: File upload
-#: zzform/upload.inc.php:2270
+#: zzform/upload.inc.php:2266
 msgid "Could not delete %s."
 msgstr ""
 
 # Record form: File upload
-#: zzform/upload.inc.php:2811
+#: zzform/upload.inc.php:2807
 msgid "File could not be saved. There is a problem with the user rights. We are working on it."
 msgstr ""
 
-#: zzform/upload.inc.php:2893
+#: zzform/upload.inc.php:2889
 msgid "No user"
 msgstr ""
 
 # Record form: File upload
-#: zzform/upload.inc.php:2929
+#: zzform/upload.inc.php:2925
 msgid "Supported filetypes:"
 msgstr ""
 
