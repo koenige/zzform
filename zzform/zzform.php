@@ -547,6 +547,8 @@ function zzform_exit($ops) {
 		wrap_static('zzform_output', 'delete', $ops['result'] === 'successful_delete' ? true : zz_valid_request('delete'));
 		wrap_static('zzform_output', 'update', $ops['result'] === 'successful_update' ? true : zz_valid_request('update'));
 		wrap_static('zzform_output', 'no_update', $ops['result'] === 'no_update' ? true : zz_valid_request('noupdate'));
+
+		if (!zzform_cacheable()) wrap_setting('cache', false);
 	}
 
 	// get rid of internal variables
@@ -554,6 +556,23 @@ function zzform_exit($ops) {
 
 	$ops['page'] = wrap_static('zzform_page');
 	return $ops;
+}
+
+/**
+ * checks if the response to the current request may be cached
+ *
+ * @return bool
+ */
+function zzform_cacheable() {
+	// add form, also for bare `?add` and for values which are not a valid record
+	if (isset($_GET['add'])) return false;
+	$uncacheable = [
+		'q', 'delete', 'insert', 'update', 'noupdate', 'zzhash', 'mode',
+		'thumbs', 'edit', 'show', 'revise', 'merge'
+	];
+	foreach ($uncacheable as $query)
+		if (!empty($_GET[$query])) return false;
+	return true;
 }
 
 /**
