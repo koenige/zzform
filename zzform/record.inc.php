@@ -304,10 +304,6 @@ function zz_record_form($zz_tab, $mode, $display, $zz_record, $zz_conditions) {
 					'name' => 'zz_referer', 'value' => $referer
 				];
 		}
-		if (isset($_GET['file']) && $_GET['file']) 
-			$output['hidden'][] = [
-				'name' => 'file', 'value' => wrap_html_escape($_GET['file'])
-			];
 	}
 	if ($display === 'form') {
 		foreach ($zz_tab as $tab => $my_tab) {

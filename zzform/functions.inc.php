@@ -1250,7 +1250,6 @@ function zz_query_strings_allowed($zz) {
 	$strings = [
 		'referer', 'nolist', 'zz',
 		'where', // @todo check if this should be disallowed on some forms
-		'file', // @todo 'file' what is this for?
 		'thumbs', 'field' // @todo 'thumbs', 'fields' better use separate script for thumbnails?
 	];
 	if (wrap_setting('zzform_search')) {
