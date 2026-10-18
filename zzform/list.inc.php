@@ -1795,18 +1795,17 @@ function zz_sql_order($fields, $sql) {
 	global $zz_conf;
 
 	// direction
-	if (!isset($_GET['order']) AND !isset($_GET['group'])) {
-		// accept 'dir' only in combination with order or group
-		$possible_values = [];
-	} else {
-		$possible_values = ['desc', 'asc'];
-		$my_order = '';
-	}
-	$dir = zz_check_get_array('dir', 'values', $possible_values);
-	if ($dir === 'asc') {
-		$my_order = ' ASC';
-	} elseif ($dir === 'desc') {
-		$my_order = ' DESC';
+	$my_order = '';
+	if (isset($_GET['order']) OR isset($_GET['group'])) {
+		$dir = wrap_url_qs('zzform.list.dir');
+		if ($dir === 'asc') {
+			$my_order = ' ASC';
+		} elseif ($dir === 'desc') {
+			$my_order = ' DESC';
+		}
+	} elseif (isset($_GET['dir'])) {
+		wrap_static('zzform_page', 'status', 404);
+		zzform_url_remove(['dir']);
 	}
 
 	if (!isset($_GET['order']) AND !isset($_GET['group'])) return $sql;

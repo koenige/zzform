@@ -384,7 +384,6 @@ function zz_get_where_conditions(&$zz) {
  * @param string $key
  * @param string $type
  *		'field_name': check if there's something like a field_name as subkey
- *		'values': check against $values if value is valid
  *		'is_numeric': checks if value is numeric
  * @param array $values (optional) list of possible values
  * @param bool $exit_on_error defaults to true
@@ -408,9 +407,6 @@ function zz_check_get_array($key, $type, $values = [], $exit_on_error = true) {
 			elseif (strstr($name, ';')) $correct = false;
 			if (!$correct) $error_in[$key][$name] = true;
 		}
-		break;
-	case 'values':
-		if (!in_array($_GET[$key], $values)) $error_in[$key] = true;
 		break;
 	case 'is_numeric':
 		if (!is_numeric($_GET[$key])) $error_in[$key] = true;

@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzform module\n"
-"POT-Creation-Date: 2026-10-18 21:00+0000\n"
+"POT-Creation-Date: 2026-10-18 21:07+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -277,26 +277,30 @@ msgid "ID of record that was inserted"
 msgstr ""
 
 #: configuration/query-strings.cfg:35
+msgid "Sort direction for list order or group"
+msgstr ""
+
+#: configuration/query-strings.cfg:42
 msgid "ID of record that was not changed"
 msgstr ""
 
-#: configuration/query-strings.cfg:41
+#: configuration/query-strings.cfg:48
 msgid "ID of record to revise"
 msgstr ""
 
-#: configuration/query-strings.cfg:47
+#: configuration/query-strings.cfg:54
 msgid "ID of record to show"
 msgstr ""
 
-#: configuration/query-strings.cfg:53
+#: configuration/query-strings.cfg:60
 msgid "Start position for synchronisation"
 msgstr ""
 
-#: configuration/query-strings.cfg:60
+#: configuration/query-strings.cfg:67
 msgid "ID of record to create thumbnails for"
 msgstr ""
 
-#: configuration/query-strings.cfg:66
+#: configuration/query-strings.cfg:73
 msgid "ID of record that was updated"
 msgstr ""
 
@@ -3303,39 +3307,39 @@ msgstr ""
 msgid "Wrong configuration: The format `%s` of export %s is not in the list of possible formats."
 msgstr ""
 
-#: zzform/functions.inc.php:736
+#: zzform/functions.inc.php:732
 msgid "zzform field definition incorrect, field has neither field_name nor title."
 msgstr ""
 
 # Record form: Heading
-#: zzform/functions.inc.php:1195
+#: zzform/functions.inc.php:1191
 msgid "Configuration does not allow this mode: %s"
 msgstr ""
 
 # Record form: Heading
-#: zzform/functions.inc.php:1205
+#: zzform/functions.inc.php:1201
 msgid "Configuration does not allow this action: %s"
 msgstr ""
 
 # Record form: Validation, displayed above form
-#: zzform/functions.inc.php:1440
+#: zzform/functions.inc.php:1436
 msgid "Creation of directory %s failed: Parent directory is not writable."
 msgstr ""
 
 # Record form: Validation, displayed above form
-#: zzform/functions.inc.php:1454
+#: zzform/functions.inc.php:1450
 msgid "Creation of directory %s failed."
 msgstr ""
 
-#: zzform/functions.inc.php:1753
+#: zzform/functions.inc.php:1749
 msgid "It is not possible to depend on different fields in a single subtable (%s). Second field is ignored."
 msgstr ""
 
-#: zzform/functions.inc.php:1980
+#: zzform/functions.inc.php:1976
 msgid "Multiple records matching (maybe set \"ids\" for zzform_multi?): value %s in field %s. <br>SQL: %s"
 msgstr ""
 
-#: zzform/functions.inc.php:1985
+#: zzform/functions.inc.php:1981
 msgid "No entry found: value %s in field %s. <br>SQL: %s"
 msgstr ""
 
