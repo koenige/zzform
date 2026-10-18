@@ -298,7 +298,7 @@ function zz_module_fieldchecks($field, $key, $type) {
  */
 function zz_get_where_conditions(&$zz) {
 	// WHERE: Add with suggested values
-	$zz['where_condition']['list+record'] = zz_check_get_array('where', 'field_name');
+	$zz['where_condition']['list+record'] = wrap_url_qs('zzform.where.where');
 	if (!empty($zz['where'])) {
 		// $zz['where'] will be merged to $_GET['where'], identical keys
 		// will be overwritten
@@ -309,7 +309,8 @@ function zz_get_where_conditions(&$zz) {
 
 	// ADD: overwrite write_once with values, in case there are identical fields
 	// use add conditions only for record
-	$zz['where_condition']['record'] = zz_check_get_array('add', 'field_name', [], false);
+	$zz['where_condition']['record'] = is_array($_GET['add'] ?? NULL)
+		? wrap_url_qs('zzform.where.add') : [];
 	if (!$zz['where_condition']['record'] AND !empty($_POST['zz_fields'])
 		AND (empty($_POST['zz_action']) OR $_POST['zz_action'] === 'insert') // empty => coming from 'details'
 		AND !empty($zz['add'])) {
@@ -376,61 +377,6 @@ function zz_get_where_conditions(&$zz) {
 	}
 
 	return true;
-}
-
-/**
- * check $_GET array if user input is valid
- *
- * @param string $key
- * @param string $type
- *		'field_name': check if there's something like a field_name as subkey
- *		'is_numeric': checks if value is numeric
- * @param array $values (optional) list of possible values
- * @param bool $exit_on_error defaults to true
- * @return mixed
- * @todo use this function in more places
- */
-function zz_check_get_array($key, $type, $values = [], $exit_on_error = true) {
-	$return = $type === 'field_name' ? [] : '';
-	if (!isset($_GET[$key])) return $return;
-
-	$error_in = [];
-	switch ($type) {
-	case 'field_name':
-		if (!is_array($_GET[$key])) {
-			$error_in[$key] = true;
-			break;
-		}
-		foreach ($_GET[$key] AS $name => $value) {
-			$correct = true;
-			if (strstr($name, ' ')) $correct = false;
-			elseif (strstr($name, ';')) $correct = false;
-			if (!$correct) $error_in[$key][$name] = true;
-		}
-		break;
-	case 'is_numeric':
-		if (!is_numeric($_GET[$key])) $error_in[$key] = true;
-		break;
-	}
-	if (!$error_in) return $_GET[$key];
-	if (!$exit_on_error) return $return;
-
-	wrap_static('zzform_page', 'status', 404);
-	$unwanted_keys = [];
-	foreach ($error_in as $key => $values) {
-		if (is_array($values)) {
-			foreach (array_keys($values) as $subkey) {
-				$unwanted_keys = $key.'['.$subkey.']';
-				unset($_GET[$key][$subkey]);
-			}
-		} else {
-			$unwanted_keys[] = $key;
-			unset($_GET[$key]);
-		}
-	}
-	zzform_url_remove($unwanted_keys);
-	if (!isset($_GET[$key])) return $return;
-	return $_GET[$key];
 }
 
 /**
