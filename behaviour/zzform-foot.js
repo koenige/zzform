@@ -747,6 +747,8 @@ function zzProcessDependency(dependency) {
 
     var mainField = document.getElementById(mainFieldId);
     var dependentField = document.getElementById(dependentFieldId);
+    if (!dependentField)
+        dependentField = document.querySelector('[data-field-id="' + dependentFieldId + '"]');
     if (!dependentField) return;
 
 %%% if setting zzform_dependent_row_class %%%

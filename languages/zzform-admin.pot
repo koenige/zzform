@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzform module\n"
-"POT-Creation-Date: 2026-10-18 23:07+0000\n"
+"POT-Creation-Date: 2026-10-20 09:24+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -3456,35 +3456,35 @@ msgstr ""
 msgid "No ID %s found (Query: %s)."
 msgstr ""
 
-#: zzform/record.inc.php:2407
+#: zzform/record.inc.php:2409
 msgid "For a subtable with a form_display = `set`, there needs to be a field with a field type `select`."
 msgstr ""
 
-#: zzform/record.inc.php:2538
+#: zzform/record.inc.php:2540
 msgid "Found a value selected that is set to non-selectable (table %s, ID %d)"
 msgstr ""
 
-#: zzform/record.inc.php:2584
+#: zzform/record.inc.php:2586
 msgid "For a subtable with form_display = `key_value`, a field with `subtable_key` = true is required."
 msgstr ""
 
-#: zzform/record.inc.php:2592
+#: zzform/record.inc.php:2594
 msgid "For a subtable with form_display = `key_value`, a field with `subtable_value` = true is required."
 msgstr ""
 
-#: zzform/record.inc.php:3279
+#: zzform/record.inc.php:3281
 msgid "Subtree with ID %s does not exist."
 msgstr ""
 
-#: zzform/record.inc.php:3418
+#: zzform/record.inc.php:3420
 msgid "`%s` is not a folder. Check `[\"set_folder\"]` definition."
 msgstr ""
 
-#: zzform/record.inc.php:3663
+#: zzform/record.inc.php:3665
 msgid "Mismatch of no. of enum translations in field “%s”"
 msgstr ""
 
-#: zzform/record.inc.php:4072
+#: zzform/record.inc.php:4074
 msgid "Configuration error. Missing upload_image details."
 msgstr ""
 

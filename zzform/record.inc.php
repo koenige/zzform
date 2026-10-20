@@ -2353,6 +2353,7 @@ function zz_field_memo($field, $display, $record) {
 			wrap_static('zzform_output', 'wmd_editor_instances', $data['wmd_editor']);
 			$fieldattr['class'] = 'wmd-input';
 			$fieldattr['id'] = 'wmd-input-'.$data['wmd_editor'];
+			$fieldattr['data-field-id'] = zz_make_id_fieldname($field['f_field_name']);
 			if (!wrap_static('zzform_output', 'wmd_editor_lang')) {
 				foreach (wrap_setting('zzform_wmd_editor_languages') as $editor_lang) {
 					if (!wrap_lang_match(wrap_setting('lang'), $editor_lang)) continue;
@@ -2369,6 +2370,7 @@ function zz_field_memo($field, $display, $record) {
 			wrap_static('zzform_output', 'upndown_editor_instances', $data['upndown_editor']);
 			$fieldattr['class'] = 'markdown';
 			$fieldattr['id'] = 'markdown-'.$data['upndown_editor'];
+			$fieldattr['data-field-id'] = zz_make_id_fieldname($field['f_field_name']);
 		}
 	}
 	
