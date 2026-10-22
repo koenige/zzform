@@ -80,8 +80,6 @@ function mod_zzform_xhr_zzform($xmlHttpRequest, $zz) {
 	$sql_fields = wrap_mysql_fields($sql);
 	$where = [];
 	foreach ($sql_fields as $no => $sql_field) {
-		// get sql_character_set etc.
-		$sql_field = array_merge($field, $sql_field);
 		foreach ($text as $index => $value) {
 			// first field must be id field, so if value is not numeric, ignore it
 			if (!$no AND !is_numeric($value)) continue;

@@ -67,6 +67,8 @@
 2025-03-30-2	code	sqlcount	use `sql_count` instead
 2025-03-30-3	code	sqlextra	use `sql_extra` instead
 2025-05-12-1	code	sql_association	removed
+2025-05-16-1	code	['sql_character_set']	removed, character encoding is detected via wrap_mysql_fields()
+2025-05-16-2	code	['sql_table']	removed, table/encoding for select columns is detected via wrap_mysql_fields()
 2026-01-04-1	code	zzform_css_background_color_body	set via CSS --background-color-body	zzform/configuration/settings.cfg;zzform/layout/zzform-colours.css
 2026-01-04-2	code	zzform_css_background_color_error	set via CSS --background-color-error	zzform/configuration/settings.cfg;zzform/layout/zzform-colours.css
 2026-01-04-3	code	zzform_css_color_error	set via CSS --color-error	zzform/configuration/settings.cfg;zzform/layout/zzform-colours.css

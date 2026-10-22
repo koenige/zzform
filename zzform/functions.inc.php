@@ -1955,8 +1955,7 @@ function zz_field_select_value_hierarchy($field, $record, $id_field_name) {
  *		'sql', 'sql_fieldnames_ignore', 'concat_fields', 'show_hierarchy',
  *		'show_hierarchy_same_table', 'show_hierarchy_subtree'
  *	(for collation only:)
- *		'search', 'display_field', 'field_name', 'character_set',
- *		'sql_character_set', 'sql_table'
+ *		'search', 'display_field', 'field_name', 'character_set'
  * @param string $postvalue
  * @param array $id = $zz_tab[$tab][$rec]['id'] optional; for hierarchy in same table
  * @return array $field
