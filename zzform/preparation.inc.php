@@ -575,7 +575,8 @@ function zz_prepare_subrecords($mode, $field, $zz_tab, $tab, $zz_record) {
 	if (zz_error_exit()) return $my_tab;
 	// get detail records for source_id
 	$source_values = [];
-	if ($mode === 'add' AND !empty($zz_tab[0][0]['id']['source_value'])) {
+	if ($mode === 'add' AND !empty($zz_tab[0][0]['id']['source_value'])
+		AND empty($field['dont_copy'])) {
 		$my_tab['POST'] = zz_query_subrecord(
 			$my_tab, $zz_tab[0][0]['id']['source_value'],
 			$rec_tpl['id']['field_name'], $my_tab['subtable_deleted']
@@ -1475,6 +1476,7 @@ function zz_prepare_record($record, $fields) {
  */
 function zz_prepare_clean_copy($fields, $record) {
 	foreach ($fields as $my_field) {
+		if (empty($my_field['field_name'])) continue;
 		if (!empty($my_field['dont_copy'])) {
 			unset($record[$my_field['field_name']]);
 			$defvals = zz_prepare_def_vals($record, [$my_field]);
