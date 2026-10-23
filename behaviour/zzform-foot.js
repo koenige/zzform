@@ -746,6 +746,7 @@ function zzProcessDependency(dependency) {
     var hasTranslation = dependency[4];
 
     var mainField = document.getElementById(mainFieldId);
+    if (!mainField) return;
     var dependentField = document.getElementById(dependentFieldId);
     if (!dependentField)
         dependentField = document.querySelector('[data-field-id="' + dependentFieldId + '"]');
