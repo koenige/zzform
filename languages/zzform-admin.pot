@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzform module\n"
-"POT-Creation-Date: 2026-10-23 11:28+0000\n"
+"POT-Creation-Date: 2026-10-28 13:36+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -3172,23 +3172,23 @@ msgstr ""
 msgid "The original file does not exist."
 msgstr ""
 
-#: zzbrick_make/thumbnails.inc.php:433
+#: zzbrick_make/thumbnails.inc.php:431
 msgid "The original file does not contain any data."
 msgstr ""
 
-#: zzbrick_make/thumbnails.inc.php:460
+#: zzbrick_make/thumbnails.inc.php:458
 msgid "Could not build destination path."
 msgstr ""
 
-#: zzbrick_make/thumbnails.inc.php:475
+#: zzbrick_make/thumbnails.inc.php:473
 msgid "The function `%s` does not exist."
 msgstr ""
 
-#: zzbrick_make/thumbnails.inc.php:486
+#: zzbrick_make/thumbnails.inc.php:484
 msgid "Thumbnail for %s × %s px was created."
 msgstr ""
 
-#: zzbrick_make/thumbnails.inc.php:496
+#: zzbrick_make/thumbnails.inc.php:494
 msgid "Thumbnail for %s × %s px could not be created."
 msgstr ""
 

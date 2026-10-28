@@ -420,11 +420,9 @@ function mod_zzform_make_thumbnails_process_job($zz, $id_field_name, $upload_gro
 	}
 	// $source is canonical (realpath via zz_path_file); strip cms root for shorter log lines
 	$source_display = $source;
-	$cms_dir = wrap_setting('cms_dir');
-	if ($cms_dir && ($cms_real = realpath($cms_dir))
-		&& str_starts_with($source_display, $cms_real)
-		&& (strlen($source_display) === strlen($cms_real) || $source_display[strlen($cms_real)] === '/')) {
-		$source_display = substr($source_display, strlen($cms_real));
+	if (str_starts_with($source_display, wrap_setting('cms_dir'))
+		&& (strlen($source_display) === strlen(wrap_setting('cms_dir')) || $source_display[strlen(wrap_setting('cms_dir'))] === '/')) {
+		$source_display = substr($source_display, strlen(wrap_setting('cms_dir')));
 	}
 	$prefix = sprintf('ID %d (%s): ', $id, $source_display);
 	if (!@filesize($source)) {
