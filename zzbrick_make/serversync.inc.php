@@ -99,6 +99,9 @@ function mod_zzform_make_serversync_development() {
 	$defs = ['html', 'title', 'url', 'json'];
 	foreach ($defs as $def) unset($last_log[$def]);
 	$last_log_local = zz_logging_last();
+	// @todo remove once all logging tables have db_table
+	if (!array_key_exists('db_table', $last_log) OR !array_key_exists('db_table', $last_log_local))
+		unset($last_log['db_table'], $last_log_local['db_table']);
 	if ($last_log === $last_log_local) {
 		$out['identical'] = wrap_number($last_log['log_id']);
 	} elseif ($last_log['log_id'] < $last_log_local['log_id']) {

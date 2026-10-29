@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzform module\n"
-"POT-Creation-Date: 2026-10-28 13:36+0000\n"
+"POT-Creation-Date: 2026-10-29 08:16+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -3391,15 +3391,15 @@ msgstr ""
 msgid "Wrong key_field_name `%s`. Please set $zz[\"fields\"][n][\"key_field_name\"] to something different: %s"
 msgstr ""
 
-#: zzform/logging.inc.php:172
+#: zzform/logging.inc.php:195
 msgid "Archive file for database logging for period %s already exists."
 msgstr ""
 
-#: zzform/logging.inc.php:190
+#: zzform/logging.inc.php:213
 msgid "Archive file for database logging for period %s was not created."
 msgstr ""
 
-#: zzform/logging.inc.php:201
+#: zzform/logging.inc.php:224
 msgid "Unable to gzip archive file for database logging for period %s."
 msgstr ""
 

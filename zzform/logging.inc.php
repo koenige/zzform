@@ -84,6 +84,18 @@ function zz_logging_add($json) {
  * @param array $line
  */
 function zz_logging_insert($line) {
+	if (zz_logging_has_db_table()) {
+		$sql = 'INSERT INTO /*_TABLE zzform_logging _*/ (query, db_table, record_id, user, last_update)
+			VALUES (_binary "%s", %s, %s, "%s", "%s")';
+		$sql = sprintf($sql
+			, wrap_db_escape($line['query'])
+			, !empty($line['db_table']) ? sprintf('"%s"', wrap_db_escape($line['db_table'])) : 'NULL'
+			, ($line['record_id'] ?? 'NULL')
+			, wrap_db_escape($line['user'])
+			, $line['last_update']
+		);
+		return wrap_db_query($sql);
+	}
 	$sql = 'INSERT INTO /*_TABLE zzform_logging _*/ (query, record_id, user, last_update)
 		VALUES (_binary "%s", %s, "%s", "%s")';
 	$sql = sprintf($sql
@@ -93,6 +105,17 @@ function zz_logging_insert($line) {
 		, $line['last_update']
 	);
 	return wrap_db_query($sql);
+}
+
+/**
+ * check if logging table has a db_table column
+ *
+ * @return bool
+ * @todo remove once all logging tables have db_table
+ */
+function zz_logging_has_db_table() {
+	$columns = wrap_db_columns(wrap_sql_table('zzform_logging'));
+	return in_array('db_table', $columns);
 }
 
 /*
