@@ -2311,8 +2311,8 @@ function zz_field_memo($field, $display, $record) {
 	!empty($field['cols']) OR $field['cols'] = 60;
 	!empty($field['rows']) OR $field['rows'] = 8;
 	if ($record AND $value) {
-		// always add two extra lines
-		$calculated_rows = 2;
+		// extra lines beyond the content
+		$calculated_rows = $field['rows_extra'] ?? wrap_setting('zzform_memo_rows_extra');
 		// factor for long text to get extra lines because of 
 		// long words at line breaks
 		$factor = 1.01;
@@ -2337,7 +2337,6 @@ function zz_field_memo($field, $display, $record) {
 	}
 	if (!empty($field['minlength']))
 		$fieldattr['minlength'] = $field['minlength'];
-	if ($fieldattr['rows'] < 2) $fieldattr['rows'] = 2;
 
 	if (!empty($field['sql'])) {
 		$field['unrestricted'] = true;
