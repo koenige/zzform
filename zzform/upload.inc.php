@@ -947,7 +947,9 @@ function zz_upload_unix_file($filename, $file) {
 
 /**
  * saves files with an unknown filetype or with an error while converting
- * in the backup directory for further inspection, sends mail to admin
+ * in the backup directory for further inspection, sends mail to admin.
+ * An unknown upload of at most zzform_upload_unknown_text_max bytes whose
+ * bytes are all plain text is logged instead of copied.
  *
  * @param string $filename
  * @param array $file
@@ -969,7 +971,10 @@ function zz_upload_error_with_file($filename, $file, $return = []) {
 	// don’t do that when creating thumbnails in background: master file is
 	// already saved anyways
 	$error_filename = false;
-	if (wrap_setting('zzform_backup') AND !in_array($filename, $copied_files)
+	$error_text = false;
+	if (($file['filetype'] ?? '') === 'unknown')
+		$error_text = zz_upload_unknown_text($filename, $file);
+	if ($error_text === false AND wrap_setting('zzform_backup') AND !in_array($filename, $copied_files)
 		AND empty($file['create_in_background'])) {
 		// don't return here in case of error - 
 		// it's not so important to break the whole process
@@ -1011,6 +1016,11 @@ function zz_upload_error_with_file($filename, $file, $return = []) {
 		$return['error_msg'] .= "\r\n%s";
 		$return['_msg_dev_values'][] = var_export($err_upload, true);
 	}
+	if ($error_text !== false) {
+		$return['error_msg'] .= "\r\nFile content (%d bytes):\r\n%s";
+		$return['_msg_dev_values'][] = strlen($error_text);
+		$return['_msg_dev_values'][] = wrap_html_escape_text($error_text);
+	}
 	if ($error_filename) {
 		$return['error_msg'] .= "\r\nThe source file was temporarily saved under: %s";
 		$return['_msg_dev_values'][] = $error_filename;
@@ -1024,6 +1034,23 @@ function zz_upload_error_with_file($filename, $file, $return = []) {
 	]);
 	zz_error();
 	return true;
+}
+
+/**
+ * plain-text body of a short unknown upload, for the error log
+ *
+ * @param string $filename
+ * @param array $file
+ * @return string|false content, or false when the file should be saved
+ */
+function zz_upload_unknown_text($filename, $file) {
+	if (empty($file['size'])) return false;
+	if ($file['size'] > wrap_setting('zzform_upload_unknown_text_max')) return false;
+	$content = file_get_contents($filename);
+	if ($content === false) return false;
+	// printable ASCII, tab, CR, and LF only
+	if (!preg_match('/^[\t\n\r\x20-\x7E]*$/', $content)) return false;
+	return $content;
 }
 
 /**

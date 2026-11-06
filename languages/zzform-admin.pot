@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzform module\n"
-"POT-Creation-Date: 2026-11-05 14:11+0000\n"
+"POT-Creation-Date: 2026-11-06 14:49+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -733,30 +733,34 @@ msgid "Use `pdfinfo` to get information about file"
 msgstr ""
 
 #: configuration/settings.cfg:572
+msgid "Maximum size in bytes of a plain-text unknown upload that is put in the error log instead of being saved (0: always save)"
+msgstr ""
+
+#: configuration/settings.cfg:577
 msgid "Use Upndown WYSYWIG Editor for Markdown"
 msgstr ""
 
-#: configuration/settings.cfg:576
+#: configuration/settings.cfg:581
 msgid "Keep query string for internal zzform URL, e. g. if a form is used to set a password integrated in another page that is only identified by an existing query string"
 msgstr ""
 
-#: configuration/settings.cfg:580
+#: configuration/settings.cfg:585
 msgid "Extensions for images that the browser can display natively"
 msgstr ""
 
-#: configuration/settings.cfg:588
+#: configuration/settings.cfg:593
 msgid "Use Pagedown Editor (old: WMD) for Markdown"
 msgstr ""
 
-#: configuration/settings.cfg:593
+#: configuration/settings.cfg:598
 msgid "Possible language(s) for Pagedown Editor for Markdown"
 msgstr ""
 
-#: configuration/settings.cfg:600
+#: configuration/settings.cfg:605
 msgid "'maximum characters, longer words are split with zero width in list view'"
 msgstr ""
 
-#: configuration/settings.cfg:605
+#: configuration/settings.cfg:610
 msgid "Use XHR for select fields; needs vxJS library"
 msgstr ""
 
@@ -3596,72 +3600,72 @@ msgstr ""
 msgid "File type %s does not match MIME type %s as found by file() for %s"
 msgstr ""
 
-#: zzform/upload.inc.php:1333
-#: zzform/upload.inc.php:1438
+#: zzform/upload.inc.php:1360
+#: zzform/upload.inc.php:1465
 msgid "Error: Source file %s does not exist."
 msgstr ""
 
-#: zzform/upload.inc.php:1495
+#: zzform/upload.inc.php:1522
 msgid "Error: File %s does not exist. Temporary Directory: %s"
 msgstr ""
 
-#: zzform/upload.inc.php:1568
+#: zzform/upload.inc.php:1595
 msgid "No options for field %s were found."
 msgstr ""
 
-#: zzform/upload.inc.php:1637
+#: zzform/upload.inc.php:1664
 msgid "Configuration error: function <code>%s()</code> for image upload does not exist."
 msgstr ""
 
-#: zzform/upload.inc.php:1705
+#: zzform/upload.inc.php:1732
 msgid "Error. Could not determine file ending"
 msgstr ""
 
-#: zzform/upload.inc.php:1811
+#: zzform/upload.inc.php:1838
 msgid "`max_pages` can only be used with PDF filetypes and `pdfinfo` as upload tool."
 msgstr ""
 
-#: zzform/upload.inc.php:1848
+#: zzform/upload.inc.php:1875
 msgid "Error in $zz definition for upload_field: [%d]"
 msgstr ""
 
-#: zzform/upload.inc.php:2248
+#: zzform/upload.inc.php:2275
 msgid "File %s exists, but is not a file."
 msgstr ""
 
-#: zzform/upload.inc.php:2320
+#: zzform/upload.inc.php:2347
 msgid "Insert: `%s` exists, but is not a file."
 msgstr ""
 
-#: zzform/upload.inc.php:2736
+#: zzform/upload.inc.php:2763
 msgid "zz_rename(): No new filename given."
 msgstr ""
 
-#: zzform/upload.inc.php:2743
+#: zzform/upload.inc.php:2770
 msgid "zz_rename(): File %s does not exist."
 msgstr ""
 
-#: zzform/upload.inc.php:2813
+#: zzform/upload.inc.php:2840
 msgid "Insufficient rights. Directory `%s` is not writable."
 msgstr ""
 
-#: zzform/upload.inc.php:2816
+#: zzform/upload.inc.php:2843
 msgid "Unknown error. Copying of file not successful. <br>From: %s <br>To: %s<br>"
 msgstr ""
 
-#: zzform/upload.inc.php:2858
+#: zzform/upload.inc.php:2885
 msgid "Value for upload_max_filesize from php.ini is smaller than value which is set in the script. The value from php.ini will be used. To upload bigger files, please adjust your configuration settings."
 msgstr ""
 
-#: zzform/upload.inc.php:2997
+#: zzform/upload.inc.php:3024
 msgid "Configuration error on server: command `%s` was not found. Paths tried: %s"
 msgstr ""
 
-#: zzform/upload.inc.php:3016
+#: zzform/upload.inc.php:3043
 msgid "Set `zzform_upload_binary_version_option` for command `%s` to get version information."
 msgstr ""
 
-#: zzform/upload.inc.php:3022
+#: zzform/upload.inc.php:3049
 msgid "Binary command `%s` not found."
 msgstr ""
 
