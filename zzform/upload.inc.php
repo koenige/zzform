@@ -2147,6 +2147,7 @@ function zz_upload_action($zz_tab) {
 				elseif (!empty($my_rec['fields'][$no]['optional_image'])) $show_filename = false;
 				elseif (!empty($val['optional_image'])) $show_filename = false;
 				elseif (!empty($val['on_request'])) $show_filename = false;
+				elseif (isset($val['source'])) $show_filename = false;
 				if ($show_filename)
 					$show_filename = zz_path_link($val['path'], $zz_tab[$tab][$rec]['existing'] ?? [], ['skip_file_check' => true]);
 				// delete file
