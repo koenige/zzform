@@ -110,6 +110,13 @@ function zz_upload_thumbnail($ops, $zz_tab) {
 
 	$zz_tab = zz_upload_get($zz_tab);
 	$zz_tab = zz_upload_prepare_tn($zz_tab, $ops);
+	foreach ($zz_tab[0]['upload_fields'] ?? [] as $field) {
+		$tab = $field['tab'];
+		$rec = $field['rec'];
+		if (empty($zz_tab[$tab][$rec])) continue;
+		if (!empty($zz_tab[$tab][$rec]['action'])) continue;
+		$zz_tab[$tab][$rec]['action'] = $zz_tab[0][0]['action'];
+	}
 	$zz_tab = zz_upload_action($zz_tab);
 	zz_upload_cleanup($zz_tab);
 
