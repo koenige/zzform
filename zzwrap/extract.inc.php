@@ -186,7 +186,8 @@ function zz_extract_implicit_titles($content, $relative_path, $pot, &$entries) {
 /**
  * Extract translatable value(s) from the RHS of an assignment
  *
- * Handles: string literals, array of strings (['a', 'b']).
+ * Handles: string literals, array of strings (['a', 'b']),
+ * wrap_text() sentence lists ([['a', params], ['b']]).
  * Skips: function calls, variables, booleans, integers.
  * Flags wrap_text() usage for manual review.
  *
@@ -227,6 +228,17 @@ function zz_extract_assignment_value($content, $offset, $relative_path, $pot, $k
 				wrap_extract_line_number($content, $text_array['offset'])
 			);
 			wrap_extract_add($entries, $text_array['msgid'], $reference, $pot, $text_array['context']);
+			return;
+		}
+		// sentence list: [['msgid', params], ['msgid']]
+		if (preg_match('/\G\[\s*\[/', $content, $m, 0, $offset)) {
+			foreach (wrap_extract_text_tuples($content, $offset) as $tuple) {
+				$reference = sprintf(
+					'%s:%d', $relative_path,
+					wrap_extract_line_number($content, $tuple['offset'])
+				);
+				wrap_extract_add($entries, $tuple['msgid'], $reference, $pot, $tuple['context']);
+			}
 			return;
 		}
 		// plain array literal: ['value1', 'value2']
