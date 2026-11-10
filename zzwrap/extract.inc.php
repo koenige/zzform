@@ -21,7 +21,7 @@
 function zz_extract_register() {
 	return [
 		[
-			'match' => ['zzbrick_tables/*.php', 'zzbrick_forms/*.php'],
+			'match' => ['zzbrick_tables/*.php', 'zzbrick_forms/*.php', 'zzform_subs/*.php'],
 			'scan' => 'zz_extract_table_fields',
 		],
 	];
