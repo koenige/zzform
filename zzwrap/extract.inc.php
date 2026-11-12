@@ -33,6 +33,8 @@ function zz_extract_register() {
  * Extracts string literals assigned to keys marked translate = 1 in
  * zz-fields.cfg ($zz['fields'][n][key]) and zz.cfg ($zz[key]).
  * Skips assignments whose value is a function call, variable, or boolean.
+ * A variable with a null-coalescing string fallback ($var ?? 'literal')
+ * contributes that literal.
  *
  * @param string $content file contents with Unix line endings
  * @param string $relative_path path relative to package folder
@@ -187,8 +189,9 @@ function zz_extract_implicit_titles($content, $relative_path, $pot, &$entries) {
  * Extract translatable value(s) from the RHS of an assignment
  *
  * Handles: string literals, array of strings (['a', 'b']),
- * wrap_text() sentence lists ([['a', params], ['b']]).
- * Skips: function calls, variables, booleans, integers.
+ * wrap_text() sentence lists ([['a', params], ['b']]),
+ * null-coalescing fallbacks ($var ?? 'literal').
+ * Skips: function calls, variables without a string fallback, booleans, integers.
  * Flags wrap_text() usage for manual review.
  *
  * @param string $content file contents
@@ -207,8 +210,15 @@ function zz_extract_assignment_value($content, $offset, $relative_path, $pot, $k
 
 	$char = $content[$offset];
 
-	// skip variables, booleans, integers, null
-	if ($char === '$') return;
+	// $var ?? 'literal' — the fallback string is translatable
+	if ($char === '$') {
+		zz_extract_null_coalesce_fallback(
+			$content, $offset, $relative_path, $pot, $entries
+		);
+		return;
+	}
+
+	// skip booleans, integers, null
 	if (preg_match('/\G(true|false|null|TRUE|FALSE|NULL)\b/', $content, $m, 0, $offset)) return;
 	if (preg_match('/\G\d/', $content, $m, 0, $offset)) return;
 
@@ -256,6 +266,56 @@ function zz_extract_assignment_value($content, $offset, $relative_path, $pot, $k
 		);
 		wrap_extract_add($entries, $msgid, $reference, $pot);
 	}
+}
+
+/**
+ * Extract a string literal used as a null-coalescing fallback
+ *
+ * $zz['title'] = $texts['list-title'] ?? 'Registrations';
+ * Walks $var ?? $other ?? 'literal' until the string. Stops when the
+ * fallback is not a variable or a string (function call, boolean, integer).
+ *
+ * @param string $content file contents
+ * @param int $offset byte offset of the value (the $)
+ * @param string $relative_path path relative to package folder
+ * @param string $pot translate_pot suffix
+ * @param array $entries collected entries (by reference)
+ * @return void
+ */
+function zz_extract_null_coalesce_fallback($content, $offset, $relative_path, $pot, &$entries) {
+	$pos = $offset;
+	$length = strlen($content);
+
+	while (true) {
+		if (!preg_match(
+			'/\G\s*\$[a-zA-Z_][a-zA-Z0-9_]*(?:\[[^\]]+\])*/',
+			$content,
+			$variable,
+			0,
+			$pos
+		)) return;
+
+		$pos += strlen($variable[0]);
+		if (!preg_match('/\G\s*\?\?/', $content, $match, 0, $pos)) return;
+
+		$pos += strlen($match[0]);
+		if (preg_match('/\G\s*/', $content, $ws, 0, $pos))
+			$pos += strlen($ws[0]);
+		if ($pos >= $length) return;
+
+		$char = $content[$pos];
+		if ($char === '\'' OR $char === '"') break;
+		if ($char !== '$') return;
+	}
+
+	$msgid = zz_extract_string_at($content, $pos);
+	if ($msgid === null OR $msgid === '') return;
+
+	$reference = sprintf(
+		'%s:%d', $relative_path,
+		wrap_extract_line_number($content, $pos)
+	);
+	wrap_extract_add($entries, $msgid, $reference, $pot);
 }
 
 /**
