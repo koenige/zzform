@@ -910,6 +910,15 @@ function zz_action_change($ops, $zz_tab, $change) {
 							$zz_tab[$tab][$rec]['fields'][$no]['explanation'] = '';
 						$zz_tab[$tab][$rec]['fields'][$no]['explanation'] .= wrap_text($fields[$field['field_name']]['explanation'], ['source' => wrap_static('zzform', 'script_path')]);
 					}
+					if (($fields[$field['field_name']]['class'] ?? '') === 'error') {
+						$zz_tab[$tab][$rec]['fields'][$no]['check_validation'] = false;
+						if (!empty($fields[$field['field_name']]['explanation'])) {
+							// messages are joined and passed through vsprintf()
+							$zz_tab[$tab][$rec]['fields'][$no]['validation_error']['_msg'] = str_replace(
+								'%', '%%', wrap_text($fields[$field['field_name']]['explanation'], ['source' => wrap_static('zzform', 'script_path')])
+							);
+						}
+					}
 				}
 			}
 		}
