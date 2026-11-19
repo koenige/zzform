@@ -32,19 +32,6 @@ function zzform($zz) {
 // diversion?
 	if (!empty($_GET['request'])) return zzform_exit(zzform_request());
 
-	if (isset($_POST['zz_batch_function'])) {
-		wrap_include('zzform/multi', 'custom/active');
-		$index = key($_POST['zz_batch_function']);
-		$function = $zz['list']['batch_function'][$index]['function'];
-		$_POST['zz_record_id'] = $_POST['zz_record_id'] ?? [];
-		return $function($_POST['zz_record_id']);
-	}
-
-	if (isset($_POST['zz_batch_delete'])) {
-		wrap_include('batch', 'zzform');
-		zzform_batch_delete($zz, $_POST);
-	}
-	
 //
 //	Initialize variables & modules
 //
@@ -173,6 +160,22 @@ function zzform($zz) {
 	// set $ops['mode'], $zz['record']['action'], ['id']['value'] and $zz_conf for access
 	list($zz, $ops) = zz_record_access($zz, $ops);
 	$ops['error'] = zz_error_multi($ops['error']);
+
+	if (isset($_POST['zz_batch_function'])) {
+		$index = key($_POST['zz_batch_function']);
+		if (empty($zz['list']['batch_function'][$index])) wrap_quit(403);
+		wrap_include('zzform/multi', 'custom/active');
+		$function = $zz['list']['batch_function'][$index]['function'];
+		$_POST['zz_record_id'] = $_POST['zz_record_id'] ?? [];
+		$result = $function($_POST['zz_record_id']);
+		zzform_setting($ops['old_settings']);
+		return $result;
+	}
+
+	if (isset($_POST['zz_batch_delete'])) {
+		wrap_include('batch', 'zzform');
+		zzform_batch_delete($zz, $_POST);
+	}
 
 	if (!wrap_static('zzform_output', 'batch_mode')) {
 		wrap_static('zzform_page', 'query_strings', zz_query_strings_allowed($zz));

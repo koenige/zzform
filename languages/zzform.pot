@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzform module\n"
-"POT-Creation-Date: 2026-11-16 18:27+0000\n"
+"POT-Creation-Date: 2026-11-19 14:29+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -497,7 +497,7 @@ msgstr ""
 #: zzbrick_xhr/configs.inc.php:83
 #: zzbrick_xhr/zzform.inc.php:135
 #: zzbrick_xhr/zzform.inc.php:141
-#: zzform/functions.inc.php:1907
+#: zzform/functions.inc.php:1928
 msgid "Please enter more characters."
 msgstr ""
 
@@ -843,13 +843,13 @@ msgid "Only one field may be defined as `id`!"
 msgstr ""
 
 # Record form: Validation, displayed inside form
-#: zzform/functions.inc.php:1845
+#: zzform/functions.inc.php:1866
 msgid "No entry found. Try less characters."
 msgstr ""
 
 # Record form: Validation, displayed inside form
-#: zzform/functions.inc.php:1861
-#: zzform/functions.inc.php:1881
+#: zzform/functions.inc.php:1882
+#: zzform/functions.inc.php:1902
 msgid "Please make a different selection."
 msgstr ""
 
@@ -1348,12 +1348,12 @@ msgid "Supported filetypes:"
 msgstr ""
 
 # Record form: Merge
-#: zzform/zzform.php:92
+#: zzform/zzform.php:79
 msgid "%d records merged successfully"
 msgstr ""
 
 # Record form: Validation, resubmit because of logout
-#: zzform/zzform.php:360
+#: zzform/zzform.php:363
 msgid "You had been logged out automatically. Therefore, your changes were not yet saved. Please submit the form again."
 msgstr ""
 

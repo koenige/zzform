@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzform module\n"
-"POT-Creation-Date: 2026-11-16 18:27+0000\n"
+"POT-Creation-Date: 2026-11-19 14:29+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -940,867 +940,867 @@ msgstr ""
 msgid "Allows to restrict access to main record, like $zz['fields'][n]['access'] to subtables"
 msgstr ""
 
-#: configuration/zz.cfg:29
+#: configuration/zz.cfg:30
 msgid "Add WHERE conditions to SQL queries, with field names and values"
 msgstr ""
 
-#: configuration/zz.cfg:33
+#: configuration/zz.cfg:34
 msgid "Field where ID is saved after detail record is added, if it is a different field"
 msgstr ""
 
-#: configuration/zz.cfg:37
+#: configuration/zz.cfg:38
 msgid "Allows to add from source_id even if the access to that ID is restricted by a $zz['where'] or $_GET['where']"
 msgstr ""
 
-#: configuration/zz.cfg:41
+#: configuration/zz.cfg:42
 msgid "CSS class name(s) for the form or table element"
 msgstr ""
 
-#: configuration/zz.cfg:44
+#: configuration/zz.cfg:45
 msgid "Conditions for record and list view that change the form definition"
 msgstr ""
 
-#: configuration/zz.cfg:48
+#: configuration/zz.cfg:49
 msgid "Field name if scope = record"
 msgstr ""
 
-#: configuration/zz.cfg:53
+#: configuration/zz.cfg:54
 msgid "In add mode, treat this condition as true without checking the database"
 msgstr ""
 
-#: configuration/zz.cfg:58
+#: configuration/zz.cfg:59
 msgid "Key field name in add mode, if scope = record"
 msgstr ""
 
-#: configuration/zz.cfg:63
+#: configuration/zz.cfg:64
 msgid "Query in add mode, if scope = record"
 msgstr ""
 
-#: configuration/zz.cfg:68
+#: configuration/zz.cfg:69
 msgid "WHERE clause checked in add mode, if scope = record"
 msgstr ""
 
-#: configuration/zz.cfg:73
+#: configuration/zz.cfg:74
 msgid "Field name if scope = value"
 msgstr ""
 
-#: configuration/zz.cfg:78
+#: configuration/zz.cfg:79
 msgid "Name of function used to check access rights, if scope = access"
 msgstr ""
 
-#: configuration/zz.cfg:83
+#: configuration/zz.cfg:84
 msgid "HAVING clause added when this condition is checked"
 msgstr ""
 
-#: configuration/zz.cfg:88
+#: configuration/zz.cfg:89
 msgid "Key field name, used for query, if scope = query"
 msgstr ""
 
-#: configuration/zz.cfg:93
+#: configuration/zz.cfg:94
 msgid "Allow public access, if scope = access"
 msgstr ""
 
-#: configuration/zz.cfg:98
+#: configuration/zz.cfg:99
 msgid "Minimal required right, if scope = access"
 msgstr ""
 
-#: configuration/zz.cfg:102
+#: configuration/zz.cfg:103
 msgid "When this condition is evaluated"
 msgstr ""
 
-#: configuration/zz.cfg:125
+#: configuration/zz.cfg:126
 msgid "Query for condition, if scope = sql, value"
 msgstr ""
 
-#: configuration/zz.cfg:130
+#: configuration/zz.cfg:131
 msgid "Field number of the detail table, if scope = subrecord"
 msgstr ""
 
-#: configuration/zz.cfg:135
+#: configuration/zz.cfg:136
 msgid "WHERE clause for a condition, used if scope = record"
 msgstr ""
 
-#: configuration/zz.cfg:140
+#: configuration/zz.cfg:141
 msgid "Field name used to build the WHERE clause from where_values or where_values_not"
 msgstr ""
 
-#: configuration/zz.cfg:145
+#: configuration/zz.cfg:146
 msgid "Values the where_field must match"
 msgstr ""
 
-#: configuration/zz.cfg:150
+#: configuration/zz.cfg:151
 msgid "Values the where_field must not match"
 msgstr ""
 
-#: configuration/zz.cfg:155
+#: configuration/zz.cfg:156
 msgid "Replace %s in the WHERE clause with the main record ID, if scope = subrecord"
 msgstr ""
 
-#: configuration/zz.cfg:160
+#: configuration/zz.cfg:161
 msgid "Configuration for links to detail tables or forms"
 msgstr ""
 
-#: configuration/zz.cfg:164
+#: configuration/zz.cfg:165
 msgid "Filename of an icon in the icons folder, used for this link"
 msgstr ""
 
-#: configuration/zz.cfg:168
+#: configuration/zz.cfg:169
 msgid "URL or path to the detail page"
 msgstr ""
 
-#: configuration/zz.cfg:173
+#: configuration/zz.cfg:174
 msgid "Title text for the detail page"
 msgstr ""
 
-#: configuration/zz.cfg:177
+#: configuration/zz.cfg:178
 msgid "Add current page as referer to link to detail page?"
 msgstr ""
 
-#: configuration/zz.cfg:182
+#: configuration/zz.cfg:183
 msgid "If set to true, h1 will not be shown"
 msgstr ""
 
-#: configuration/zz.cfg:190
+#: configuration/zz.cfg:191
 msgid "Textblock after heading"
 msgstr ""
 
-#: configuration/zz.cfg:193
+#: configuration/zz.cfg:194
 msgid "Textblock after heading, only in insert mode"
 msgstr ""
 
-#: configuration/zz.cfg:196
+#: configuration/zz.cfg:197
 msgid "List of possible export modes"
 msgstr ""
 
-#: configuration/zz.cfg:202
+#: configuration/zz.cfg:203
 msgid "Do not export HTML code in exports (CSV, etc.)"
 msgstr ""
 
-#: configuration/zz.cfg:206
+#: configuration/zz.cfg:207
 msgid "List of fields per record"
 msgstr ""
 
-#: configuration/zz.cfg:210
+#: configuration/zz.cfg:211
 msgid "List of filters for records to be shown"
 msgstr ""
 
-#: configuration/zz.cfg:214
+#: configuration/zz.cfg:215
 msgid "Selection key used when the URL sets no value for this filter. An array is used as the selection if none is set"
 msgstr ""
 
-#: configuration/zz.cfg:218
+#: configuration/zz.cfg:219
 msgid "Selection key to redirect to when the filtered list has no rows"
 msgstr ""
 
-#: configuration/zz.cfg:222
+#: configuration/zz.cfg:223
 msgid "Index of another filter. This filter’s selection query is limited to that filter’s active value"
 msgstr ""
 
-#: configuration/zz.cfg:227
+#: configuration/zz.cfg:228
 msgid "Field name where value of this filter, if active, will be inserted per default"
 msgstr ""
 
-#: configuration/zz.cfg:232
+#: configuration/zz.cfg:233
 msgid "Function that is called with the record ID to determine what value it has for a filter (value, no value, NULL)"
 msgstr ""
 
-#: configuration/zz.cfg:237
+#: configuration/zz.cfg:238
 msgid "Function that is called with all record IDs for a filter, e. g. for optimized database queries"
 msgstr ""
 
-#: configuration/zz.cfg:242
+#: configuration/zz.cfg:243
 msgid "Do not show the – all – link for this filter"
 msgstr ""
 
-#: configuration/zz.cfg:247
+#: configuration/zz.cfg:248
 msgid "Unique identifier for this filter, used in URL"
 msgstr ""
 
-#: configuration/zz.cfg:251
+#: configuration/zz.cfg:252
 msgid "Do not log an error when the URL filter value is not in the selection"
 msgstr ""
 
-#: configuration/zz.cfg:256
+#: configuration/zz.cfg:257
 msgid "sprintf pattern for a LIKE filter. %s is the filter value. Default is %%%s%%"
 msgstr ""
 
-#: configuration/zz.cfg:260
+#: configuration/zz.cfg:261
 msgid "Hide this filter when the WHERE field has only one distinct value"
 msgstr ""
 
-#: configuration/zz.cfg:265
+#: configuration/zz.cfg:266
 msgid "List of key/value pairs for selection, instead of an SQL query; NULL, !NULL might be used as keys"
 msgstr ""
 
-#: configuration/zz.cfg:270
+#: configuration/zz.cfg:271
 msgid "SQL query to get selection values for filter"
 msgstr ""
 
-#: configuration/zz.cfg:275
+#: configuration/zz.cfg:276
 msgid "JOIN clause added to the list query when this filter is active"
 msgstr ""
 
-#: configuration/zz.cfg:280
+#: configuration/zz.cfg:281
 msgid "Key/value pairs for wrap_translate(), id field name => table name"
 msgstr ""
 
-#: configuration/zz.cfg:286
+#: configuration/zz.cfg:287
 msgid "Indices of filters that depend on this filter"
 msgstr ""
 
-#: configuration/zz.cfg:292
+#: configuration/zz.cfg:293
 msgid "Display title for this filter"
 msgstr ""
 
-#: configuration/zz.cfg:296
+#: configuration/zz.cfg:297
 msgid "Translate selection labels with wrap_text()"
 msgstr ""
 
-#: configuration/zz.cfg:301
+#: configuration/zz.cfg:302
 msgid "Type of filter"
 msgstr ""
 
-#: configuration/zz.cfg:310
+#: configuration/zz.cfg:311
 msgid "Field name for WHERE clause to apply when this filter is active"
 msgstr ""
 
-#: configuration/zz.cfg:315
+#: configuration/zz.cfg:316
 msgid "WHERE clauses indexed by selection key, applied instead of `where`; key 0 (– all –) may be an empty string"
 msgstr ""
 
-#: configuration/zz.cfg:321
+#: configuration/zz.cfg:322
 msgid "List of active filters"
 msgstr ""
 
-#: configuration/zz.cfg:326
+#: configuration/zz.cfg:327
 msgid "List with root, string, field, mode for a folder that must be renamed/deleted after changing the record"
 msgstr ""
 
-#: configuration/zz.cfg:330
+#: configuration/zz.cfg:331
 msgid "List of content options for footer"
 msgstr ""
 
-#: configuration/zz.cfg:334
+#: configuration/zz.cfg:335
 msgid "Template file to use for footer, current record will be used as data source (if available)"
 msgstr ""
 
-#: configuration/zz.cfg:338
+#: configuration/zz.cfg:339
 msgid "Static HTML to display in footer"
 msgstr ""
 
-#: configuration/zz.cfg:341
+#: configuration/zz.cfg:342
 msgid "Static HTML to display in footer, only in insert mode"
 msgstr ""
 
-#: configuration/zz.cfg:344
+#: configuration/zz.cfg:345
 msgid " if set, zzbrick/forms module will include a javascript map (e. g. OpenLayers) to display the records via a KML export on this map; a map template and a JavaScript-library is required"
 msgstr ""
 
-#: configuration/zz.cfg:348
+#: configuration/zz.cfg:349
 msgid "Template for HTML head section when displaying geo maps"
 msgstr ""
 
-#: configuration/zz.cfg:352
+#: configuration/zz.cfg:353
 msgid "Export format for geo data"
 msgstr ""
 
-#: configuration/zz.cfg:358
+#: configuration/zz.cfg:359
 msgid "Hook functions"
 msgstr ""
 
-#: configuration/zz.cfg:363
+#: configuration/zz.cfg:364
 msgid "Hook function called after a successful delete, but before files are moved"
 msgstr ""
 
-#: configuration/zz.cfg:368
+#: configuration/zz.cfg:369
 msgid "Hook function called after a successful insert, but before files are moved"
 msgstr ""
 
-#: configuration/zz.cfg:373
+#: configuration/zz.cfg:374
 msgid "Hook function called after a successful update, but before files are moved"
 msgstr ""
 
-#: configuration/zz.cfg:378
+#: configuration/zz.cfg:379
 msgid "Hook function called after upload is checked, before validation"
 msgstr ""
 
-#: configuration/zz.cfg:383
+#: configuration/zz.cfg:384
 msgid "Hook function called after record was validated"
 msgstr ""
 
-#: configuration/zz.cfg:388
+#: configuration/zz.cfg:389
 msgid "Hook function called before a delete attempt"
 msgstr ""
 
-#: configuration/zz.cfg:393
+#: configuration/zz.cfg:394
 msgid "Hook function called before an insert attempt"
 msgstr ""
 
-#: configuration/zz.cfg:398
+#: configuration/zz.cfg:399
 msgid "Hook function called before an update attempt"
 msgstr ""
 
-#: configuration/zz.cfg:403
+#: configuration/zz.cfg:404
 msgid "Hook function called before upload is checked"
 msgstr ""
 
-#: configuration/zz.cfg:407
+#: configuration/zz.cfg:408
 msgid "Hook function called after a successful delete"
 msgstr ""
 
-#: configuration/zz.cfg:412
+#: configuration/zz.cfg:413
 msgid "Hook function called after a successful insert"
 msgstr ""
 
-#: configuration/zz.cfg:417
+#: configuration/zz.cfg:418
 msgid "Hook function called after a successful update"
 msgstr ""
 
-#: configuration/zz.cfg:422
+#: configuration/zz.cfg:423
 msgid "Configurations indexed by key that is applied if condition with this key is evaluated as true"
 msgstr ""
 
-#: configuration/zz.cfg:426
+#: configuration/zz.cfg:427
 msgid "Keys to ignore for log of unused defintion keys if definition is initalised"
 msgstr ""
 
-#: configuration/zz.cfg:430
+#: configuration/zz.cfg:431
 msgid "List view definitions"
 msgstr ""
 
-#: configuration/zz.cfg:435
+#: configuration/zz.cfg:436
 msgid "Allows to add a new record"
 msgstr ""
 
-#: configuration/zz.cfg:441
+#: configuration/zz.cfg:442
 msgid "Allow to delete multiple records"
 msgstr ""
 
-#: configuration/zz.cfg:445
+#: configuration/zz.cfg:446
 msgid "Allow to edit multiple records"
 msgstr ""
 
-#: configuration/zz.cfg:450
+#: configuration/zz.cfg:451
 msgid "Allow to call a function on several records at one"
 msgstr ""
 
-#: configuration/zz.cfg:454
+#: configuration/zz.cfg:455
 msgid "Function name"
 msgstr ""
 
-#: configuration/zz.cfg:459
+#: configuration/zz.cfg:460
 msgid "HTML: title of button"
 msgstr ""
 
-#: configuration/zz.cfg:463
+#: configuration/zz.cfg:464
 msgid "HTML code for submit buttons for several actions below list"
 msgstr ""
 
-#: configuration/zz.cfg:468
+#: configuration/zz.cfg:469
 msgid "Definition of all table columns"
 msgstr ""
 
-#: configuration/zz.cfg:473
+#: configuration/zz.cfg:474
 msgid "ID of currently shown record"
 msgstr ""
 
-#: configuration/zz.cfg:478
+#: configuration/zz.cfg:479
 msgid "IDs of activated records"
 msgstr ""
 
-#: configuration/zz.cfg:484
+#: configuration/zz.cfg:485
 msgid "How the tabular data is displayed"
 msgstr ""
 
-#: configuration/zz.cfg:497
+#: configuration/zz.cfg:498
 msgid "Include path for export script"
 msgstr ""
 
-#: configuration/zz.cfg:501
+#: configuration/zz.cfg:502
 msgid "Function for export script"
 msgstr ""
 
-#: configuration/zz.cfg:505
+#: configuration/zz.cfg:506
 msgid "Use drag and drop in list view to change sort order of records"
 msgstr ""
 
-#: configuration/zz.cfg:509
+#: configuration/zz.cfg:510
 msgid "ID field name in table that saves the sort order"
 msgstr ""
 
-#: configuration/zz.cfg:513
+#: configuration/zz.cfg:514
 msgid "Field name in table where the new sort order is saved"
 msgstr ""
 
-#: configuration/zz.cfg:517
+#: configuration/zz.cfg:518
 msgid "Starting value, if records spawn over several pages"
 msgstr ""
 
-#: configuration/zz.cfg:522
+#: configuration/zz.cfg:523
 msgid "URL that is called via XHR to change order of records"
 msgstr ""
 
-#: configuration/zz.cfg:526
+#: configuration/zz.cfg:527
 msgid "Marker that records should not be marked as checked anymore after e. g. a merge operation"
 msgstr ""
 
-#: configuration/zz.cfg:531
+#: configuration/zz.cfg:532
 msgid "Definition of additional table columns"
 msgstr ""
 
-#: configuration/zz.cfg:536
+#: configuration/zz.cfg:537
 msgid "List of field names that records in list view use for grouping"
 msgstr ""
 
-#: configuration/zz.cfg:541
+#: configuration/zz.cfg:542
 msgid "HTML code for group titles"
 msgstr ""
 
-#: configuration/zz.cfg:546
+#: configuration/zz.cfg:547
 msgid "Internal list of grouped fields by no."
 msgstr ""
 
-#: configuration/zz.cfg:551
+#: configuration/zz.cfg:552
 msgid "Don't show a table head for link to details until necessary"
 msgstr ""
 
-#: configuration/zz.cfg:556
+#: configuration/zz.cfg:557
 msgid "Don’t show a table head for link to modes until necessary"
 msgstr ""
 
-#: configuration/zz.cfg:561
+#: configuration/zz.cfg:562
 msgid "Check all columns in list and hide columns if they are empty, behaviour is equivalent to 'hide_in_list_if_empty' on a per field basis"
 msgstr ""
 
-#: configuration/zz.cfg:565
+#: configuration/zz.cfg:566
 msgid "Do not show message that there are no records if there are none"
 msgstr ""
 
-#: configuration/zz.cfg:569
+#: configuration/zz.cfg:570
 msgid "Show list with hierarchy"
 msgstr ""
 
-#: configuration/zz.cfg:574
+#: configuration/zz.cfg:575
 msgid "Display hierarchy in this field, i. e. this field gets indented"
 msgstr ""
 
-#: configuration/zz.cfg:578
+#: configuration/zz.cfg:579
 msgid "Do not show uppermost value in list, just subtree"
 msgstr ""
 
-#: configuration/zz.cfg:582
+#: configuration/zz.cfg:583
 msgid "Top ID value if just a subset of the records are shown"
 msgstr ""
 
-#: configuration/zz.cfg:586
+#: configuration/zz.cfg:587
 msgid "ID field name "
 msgstr ""
 
-#: configuration/zz.cfg:591
+#: configuration/zz.cfg:592
 msgid "Main ID field name"
 msgstr ""
 
-#: configuration/zz.cfg:595
+#: configuration/zz.cfg:596
 msgid "Allow to merge records"
 msgstr ""
 
-#: configuration/zz.cfg:619
+#: configuration/zz.cfg:620
 msgid "Never show link above list to add a new record"
 msgstr ""
 
-#: configuration/zz.cfg:623
+#: configuration/zz.cfg:624
 msgid "Internal marker that multiple records can be selected, e. g. for batch_function or merge"
 msgstr ""
 
-#: configuration/zz.cfg:628
+#: configuration/zz.cfg:629
 msgid "Sums per column"
 msgstr ""
 
-#: configuration/zz.cfg:633
+#: configuration/zz.cfg:634
 msgid "Sums per group per column"
 msgstr ""
 
-#: configuration/zz.cfg:638
+#: configuration/zz.cfg:639
 msgid "Shows table foot, e. g. for sums of individual values"
 msgstr ""
 
-#: configuration/zz.cfg:642
+#: configuration/zz.cfg:643
 msgid "Page-level configuration, passed through to `$page`"
 msgstr ""
 
-#: configuration/zz.cfg:647
+#: configuration/zz.cfg:648
 msgid "Breadcrumbs for page"
 msgstr ""
 
-#: configuration/zz.cfg:651
+#: configuration/zz.cfg:652
 msgid "Do not show page title in breadcrumb navigation"
 msgstr ""
 
-#: configuration/zz.cfg:655
+#: configuration/zz.cfg:656
 msgid "Referer which links back to previous page, overwrites $zz['page']['referer'] and must be array with field1, string1 etc."
 msgstr ""
 
-#: configuration/zz.cfg:660
+#: configuration/zz.cfg:661
 msgid "List of variables that can be used in page template via extra_{key}"
 msgstr ""
 
-#: configuration/zz.cfg:664
+#: configuration/zz.cfg:665
 msgid "HTML code for page HEAD section"
 msgstr ""
 
-#: configuration/zz.cfg:668
+#: configuration/zz.cfg:669
 msgid "Set link tags for webpage"
 msgstr ""
 
-#: configuration/zz.cfg:672
+#: configuration/zz.cfg:673
 msgid "Set meta tags for webpage"
 msgstr ""
 
-#: configuration/zz.cfg:676
+#: configuration/zz.cfg:677
 msgid "List of allowed query strings, as in `$page['query_strings']`"
 msgstr ""
 
-#: configuration/zz.cfg:680
+#: configuration/zz.cfg:681
 msgid "URL to redirect to after form submission or cancel"
 msgstr ""
 
-#: configuration/zz.cfg:683
+#: configuration/zz.cfg:684
 msgid "List of request functions that are called after record form/list is created"
 msgstr ""
 
-#: configuration/zz.cfg:688
+#: configuration/zz.cfg:689
 msgid "List of show functions that are called after record form/list is created"
 msgstr ""
 
-#: configuration/zz.cfg:693
+#: configuration/zz.cfg:694
 msgid "Page title, set inside zzform"
 msgstr ""
 
-#: configuration/zz.cfg:696
+#: configuration/zz.cfg:697
 msgid "Record-level configuration options for form behavior and actions"
 msgstr ""
 
-#: configuration/zz.cfg:701
+#: configuration/zz.cfg:702
 msgid "Current action being performed on the record"
 msgstr ""
 
-#: configuration/zz.cfg:711
+#: configuration/zz.cfg:712
 msgid "Add or do not add data"
 msgstr ""
 
-#: configuration/zz.cfg:716
+#: configuration/zz.cfg:717
 msgid "Always show an empty detail record form even if no detail records exist"
 msgstr ""
 
-#: configuration/zz.cfg:720
+#: configuration/zz.cfg:721
 msgid "Show or hide the cancel link in the form"
 msgstr ""
 
-#: configuration/zz.cfg:725
+#: configuration/zz.cfg:726
 msgid "Show action: copy"
 msgstr ""
 
-#: configuration/zz.cfg:729
+#: configuration/zz.cfg:730
 msgid "Show action: delete"
 msgstr ""
 
-#: configuration/zz.cfg:734
+#: configuration/zz.cfg:735
 msgid "Show action: edit"
 msgstr ""
 
-#: configuration/zz.cfg:739
+#: configuration/zz.cfg:740
 msgid "Anchor (#id) for form, if needed"
 msgstr ""
 
-#: configuration/zz.cfg:742
+#: configuration/zz.cfg:743
 msgid "Markdown code for HTML block directly after form heading"
 msgstr ""
 
-#: configuration/zz.cfg:745
+#: configuration/zz.cfg:746
 msgid "Hide the OK button in the form"
 msgstr ""
 
-#: configuration/zz.cfg:749
+#: configuration/zz.cfg:750
 msgid "Perform check if enough time between calling the form and sending it has passed, for spam prevention"
 msgstr ""
 
-#: configuration/zz.cfg:753
+#: configuration/zz.cfg:754
 msgid "Whether to query records from database"
 msgstr ""
 
-#: configuration/zz.cfg:758
+#: configuration/zz.cfg:759
 msgid "Redirect to referer if there are no records left after deletion"
 msgstr ""
 
-#: configuration/zz.cfg:762
+#: configuration/zz.cfg:763
 msgid "List of redirects after successful operations"
 msgstr ""
 
-#: configuration/zz.cfg:766
+#: configuration/zz.cfg:767
 msgid "URL to redirect to after successful deletion"
 msgstr ""
 
-#: configuration/zz.cfg:769
+#: configuration/zz.cfg:770
 msgid "URL to redirect to after successful insertion"
 msgstr ""
 
-#: configuration/zz.cfg:772
+#: configuration/zz.cfg:773
 msgid "URL to redirect to after successful update"
 msgstr ""
 
-#: configuration/zz.cfg:775
+#: configuration/zz.cfg:776
 msgid "Key: int, value: $no"
 msgstr ""
 
-#: configuration/zz.cfg:780
+#: configuration/zz.cfg:781
 msgid "Save number of subtables, key: $tab, value: $no or $no-$subno"
 msgstr ""
 
-#: configuration/zz.cfg:784
+#: configuration/zz.cfg:785
 msgid "Show action: view"
 msgstr ""
 
-#: configuration/zz.cfg:788
+#: configuration/zz.cfg:789
 msgid "False: no upload, true: upload possible"
 msgstr ""
 
-#: configuration/zz.cfg:793
+#: configuration/zz.cfg:794
 msgid "WHERE conditions applied to the record query (field name => value per table name)"
 msgstr ""
 
-#: configuration/zz.cfg:798
+#: configuration/zz.cfg:799
 msgid "Internal list of field configurations"
 msgstr ""
 
-#: configuration/zz.cfg:807
+#: configuration/zz.cfg:808
 msgid "If active, call revision hooks, as in `revisions_only`"
 msgstr ""
 
-#: configuration/zz.cfg:811
+#: configuration/zz.cfg:812
 msgid "Internal hook, activated if `revision_id` is found"
 msgstr ""
 
-#: configuration/zz.cfg:816
+#: configuration/zz.cfg:817
 msgid "Activate revisions mode, writing changes into revisions table, not into content tables directly"
 msgstr ""
 
-#: configuration/zz.cfg:820
+#: configuration/zz.cfg:821
 msgid "URL path to the revisions view, set if custom URL is needed"
 msgstr ""
 
-#: configuration/zz.cfg:824
+#: configuration/zz.cfg:825
 msgid "List of redirects that will be added to the database redirects table if an identifier is updated or a record with an identifier is deleted. Might be list of strings (old and new pattern is equal), list of arrays (old and new patterns differ); field_name may be set optionally if more than one identifier is in the field list."
 msgstr ""
 
-#: configuration/zz.cfg:828
+#: configuration/zz.cfg:829
 msgid "Settings that you normally set via wrap_setting() but that won’t be set in multi()-calls (e. g. disallowing a child script to change zzform_limit for the main script)"
 msgstr ""
 
-#: configuration/zz.cfg:832
+#: configuration/zz.cfg:833
 msgid "SQL statement for list display and to get field values for form display"
 msgstr ""
 
-#: configuration/zz.cfg:836
+#: configuration/zz.cfg:837
 msgid "SQL statement, part must begin with ' ORDER BY', to sort database table"
 msgstr ""
 
-#: configuration/zz.cfg:840
+#: configuration/zz.cfg:841
 msgid "Separate SQL query for counting records if main query is too heavy"
 msgstr ""
 
-#: configuration/zz.cfg:844
+#: configuration/zz.cfg:845
 msgid "If SQL query is too complex, additional values can be read via 'sql_extra' queries"
 msgstr ""
 
-#: configuration/zz.cfg:849
+#: configuration/zz.cfg:850
 msgid "SQL query which will be used only for record view, not for list view, use `sql` if not set"
 msgstr ""
 
-#: configuration/zz.cfg:854
+#: configuration/zz.cfg:855
 msgid "Allows translation for this table (or key => table or list of tables or keys and tables) with wrap_translate()"
 msgstr ""
 
-#: configuration/zz.cfg:858
+#: configuration/zz.cfg:859
 msgid "SQL query without LIMIT clause, used internally for counting and filtering"
 msgstr ""
 
-#: configuration/zz.cfg:863
+#: configuration/zz.cfg:864
 msgid "SQL query without WHERE clause, used internally before applying conditions"
 msgstr ""
 
-#: configuration/zz.cfg:868
+#: configuration/zz.cfg:869
 msgid "Configuration to display records of a detail table"
 msgstr ""
 
-#: configuration/zz.cfg:875
+#: configuration/zz.cfg:876
 msgid "Text that is used to concat fields in subselect"
 msgstr ""
 
-#: configuration/zz.cfg:879
+#: configuration/zz.cfg:880
 msgid "Text that is used to concat rows in subselect"
 msgstr ""
 
-#: configuration/zz.cfg:883
+#: configuration/zz.cfg:884
 msgid "Show count of detail records before values"
 msgstr ""
 
-#: configuration/zz.cfg:888
+#: configuration/zz.cfg:889
 msgid "Shows result of SQL query in key/value pairs (key = list head, value = column value)"
 msgstr ""
 
-#: configuration/zz.cfg:893
+#: configuration/zz.cfg:894
 msgid "Do not mark search string in subselect text, e. g. if there’s HTML code"
 msgstr ""
 
-#: configuration/zz.cfg:897
+#: configuration/zz.cfg:898
 msgid "Do not export HTML code for detail records"
 msgstr ""
 
-#: configuration/zz.cfg:902
+#: configuration/zz.cfg:903
 msgid "Link just around one of the field values, set by index"
 msgstr ""
 
-#: configuration/zz.cfg:907
+#: configuration/zz.cfg:908
 msgid "Text that is added before field n (per field index in SQL query)"
 msgstr ""
 
-#: configuration/zz.cfg:912
+#: configuration/zz.cfg:913
 msgid "HTML code or text which will be shown after the field value"
 msgstr ""
 
-#: configuration/zz.cfg:917
+#: configuration/zz.cfg:918
 msgid "Path for image, created created with makelink() from subselect data"
 msgstr ""
 
-#: configuration/zz.cfg:922
+#: configuration/zz.cfg:923
 msgid "Function to format fields"
 msgstr ""
 
-#: configuration/zz.cfg:928
+#: configuration/zz.cfg:929
 msgid "HTML code or text which will be shown before the field value"
 msgstr ""
 
-#: configuration/zz.cfg:933
+#: configuration/zz.cfg:934
 msgid "Path for link, created with makelink() from subselect data"
 msgstr ""
 
-#: configuration/zz.cfg:938
+#: configuration/zz.cfg:939
 msgid "Function or list of functions to format individual fields in detail record list"
 msgstr ""
 
-#: configuration/zz.cfg:942
+#: configuration/zz.cfg:943
 msgid "Function to format the entire detail record"
 msgstr ""
 
-#: configuration/zz.cfg:946
+#: configuration/zz.cfg:947
 msgid "Text to display before each record"
 msgstr ""
 
-#: configuration/zz.cfg:949
+#: configuration/zz.cfg:950
 msgid "Query to get values for detail records"
 msgstr ""
 
-#: configuration/zz.cfg:954
+#: configuration/zz.cfg:955
 msgid "List of fields to ignore when displaying detail records"
 msgstr ""
 
-#: configuration/zz.cfg:961
+#: configuration/zz.cfg:962
 msgid "Translation matrix for detail records, e. g. id_field_name => table"
 msgstr ""
 
-#: configuration/zz.cfg:966
+#: configuration/zz.cfg:967
 msgid "Text to display after each record"
 msgstr ""
 
-#: configuration/zz.cfg:970
+#: configuration/zz.cfg:971
 msgid "Configuration for subtitle display below the main heading"
 msgstr ""
 
-#: configuration/zz.cfg:974
+#: configuration/zz.cfg:975
 msgid "Text between subtitle values. A list gives a different separator before each value. Default is a space"
 msgstr ""
 
-#: configuration/zz.cfg:978
+#: configuration/zz.cfg:979
 msgid "Use the active WHERE value as the subtitle text for an enum field"
 msgstr ""
 
-#: configuration/zz.cfg:982
+#: configuration/zz.cfg:983
 msgid "Function or list of functions applied to subtitle values, indexed like var"
 msgstr ""
 
-#: configuration/zz.cfg:988
+#: configuration/zz.cfg:989
 msgid "URL the subtitle links to. The active record ID is appended as show= unless link_no_append is set"
 msgstr ""
 
-#: configuration/zz.cfg:993
+#: configuration/zz.cfg:994
 msgid "Do not append show= and the record ID to the subtitle link"
 msgstr ""
 
-#: configuration/zz.cfg:998
+#: configuration/zz.cfg:999
 msgid "Query to get values for subtitle"
 msgstr ""
 
-#: configuration/zz.cfg:1003
+#: configuration/zz.cfg:1004
 msgid "Use the active WHERE value as the subtitle text"
 msgstr ""
 
-#: configuration/zz.cfg:1007
+#: configuration/zz.cfg:1008
 msgid "List of field names used for subtitle"
 msgstr ""
 
-#: configuration/zz.cfg:1013
+#: configuration/zz.cfg:1014
 msgid "Text block used for subtitle"
 msgstr ""
 
-#: configuration/zz.cfg:1017
+#: configuration/zz.cfg:1018
 msgid "Name of database table (might include database name as well, e. g. Database.Table)"
 msgstr ""
 
-#: configuration/zz.cfg:1020
+#: configuration/zz.cfg:1021
 msgid "List of table names to use for WHERE conditions when multiple tables are involved, indexed by field name"
 msgstr ""
 
-#: configuration/zz.cfg:1024
+#: configuration/zz.cfg:1025
 msgid "Optional: h1-heading to be used for form instead of $zz['table']"
 msgstr ""
 
-#: configuration/zz.cfg:1028
+#: configuration/zz.cfg:1029
 msgid "List of URLs that are triggered after the corresponding hooks are executed"
 msgstr ""
 
-#: configuration/zz.cfg:1032
+#: configuration/zz.cfg:1033
 msgid "URL triggered after a successful update, but before files are moved"
 msgstr ""
 
-#: configuration/zz.cfg:1039
+#: configuration/zz.cfg:1040
 msgid "Describes UNIQUE key for detail tables. For updates via zzform_multi() which do not know the record ID of the detail table this can be used to avoid getting this ID first."
 msgstr ""
 
-#: configuration/zz.cfg:1044
+#: configuration/zz.cfg:1045
 msgid "For UNIQUE keys, do not use a field for the check if its value is NULL"
 msgstr ""
 
-#: configuration/zz.cfg:1048
+#: configuration/zz.cfg:1049
 msgid "Configurations indexed by key that is applied if condition with this key is evaluated as false"
 msgstr ""
 
-#: configuration/zz.cfg:1052
+#: configuration/zz.cfg:1053
 msgid "Variables for internal use inside zzform, later available via wrap_static('zzform')"
 msgstr ""
 
-#: configuration/zz.cfg:1056
+#: configuration/zz.cfg:1057
 msgid "WHERE condition for record, like via URL where[some_id]=10"
 msgstr ""
 
-#: configuration/zz.cfg:1060
+#: configuration/zz.cfg:1061
 msgid "Internal list of WHERE conditions"
 msgstr ""
 
-#: configuration/zz.cfg:1066
+#: configuration/zz.cfg:1067
 msgid "Values from GET, key `where`, used for conditions"
 msgstr ""
 
-#: configuration/zz.cfg:1071
+#: configuration/zz.cfg:1072
 msgid "Values from GET, key `add`, used for conditions"
 msgstr ""
 
@@ -3444,34 +3444,34 @@ msgid "zzform field definition incorrect, field has neither field_name nor title
 msgstr ""
 
 # Record form: Heading
-#: zzform/functions.inc.php:1135
+#: zzform/functions.inc.php:1156
 msgid "Configuration does not allow this mode: %s"
 msgstr ""
 
 # Record form: Heading
-#: zzform/functions.inc.php:1145
+#: zzform/functions.inc.php:1166
 msgid "Configuration does not allow this action: %s"
 msgstr ""
 
 # Record form: Validation, displayed above form
-#: zzform/functions.inc.php:1380
+#: zzform/functions.inc.php:1401
 msgid "Creation of directory %s failed: Parent directory is not writable."
 msgstr ""
 
 # Record form: Validation, displayed above form
-#: zzform/functions.inc.php:1394
+#: zzform/functions.inc.php:1415
 msgid "Creation of directory %s failed."
 msgstr ""
 
-#: zzform/functions.inc.php:1693
+#: zzform/functions.inc.php:1714
 msgid "It is not possible to depend on different fields in a single subtable (%s). Second field is ignored."
 msgstr ""
 
-#: zzform/functions.inc.php:1920
+#: zzform/functions.inc.php:1941
 msgid "Multiple records matching (maybe set \"ids\" for zzform_multi?): value %s in field %s. <br>SQL: %s"
 msgstr ""
 
-#: zzform/functions.inc.php:1925
+#: zzform/functions.inc.php:1946
 msgid "No entry found: value %s in field %s. <br>SQL: %s"
 msgstr ""
 
@@ -3773,19 +3773,19 @@ msgstr ""
 msgid "%s(): calculation did not work. [%s]"
 msgstr ""
 
-#: zzform/zzform.php:102
+#: zzform/zzform.php:89
 msgid "There is no table definition available ('fields'). Please check."
 msgstr ""
 
 # Checks
-#: zzform/zzform.php:323
+#: zzform/zzform.php:326
 msgid "Merging of record is not allowed."
 msgstr ""
 
-#: zzform/zzform.php:611
+#: zzform/zzform.php:614
 msgid "Hash of script and ID differs from secret key (hash %s, secret %s)."
 msgstr ""
 
-#: zzform/zzform.php:709
+#: zzform/zzform.php:712
 msgid "zzform has been called as a function more than once. You might want to check if this is correct."
 msgstr ""

@@ -984,7 +984,7 @@ function zz_record_access($zz, $ops) {
 		$not_allowed = [
 			'show', 'show_and_delete', 'edit_details_only', 'edit_details_and_add',
 			'none', 'search_but_no_list', 'add_only', 'edit_only', 'add_then_edit',
-			'show_after_add', 'show_after_edit', 'show+edit', 'forbidden'
+			'delete_only', 'show_after_add', 'show_after_edit', 'show+edit', 'forbidden'
 		];
 		$only_allowed_with_id = [
 			'add_only', 'edit_only', 'add_then_edit'
@@ -1083,6 +1083,20 @@ function zz_record_access($zz, $ops) {
 		}
 		if (empty($_POST)) $ops['mode'] = 'edit';
 		break;
+	case 'delete_only':
+		$zz['record']['add'] = false;			// don't add record (form+links)
+		$zz['record']['edit'] = false;			// don't edit record (form+links)
+		$zz['record']['delete'] = true;			// delete record (form+links)
+		$zz['record']['view'] = false;			// don't show record (links)
+		wrap_setting('zzform_search', false);	// no search form
+		$zz['list']['display'] = false;			// no list
+		$zz['record']['no_ok'] = true;			// no OK button
+		$zz['record']['cancel_link'] = false; 	// no cancel link
+		if (empty($zz_conf['int']['where_with_unique_id'])) {
+			$zz_conf['int']['hash_id'] = true;	// user cannot view all IDs
+		}
+		if (empty($_POST)) $ops['mode'] = 'delete';
+		break;
 	case 'thumbnails':
 		$zz['record']['add'] = false;
 		$zz['record']['edit'] = false;
@@ -1110,6 +1124,13 @@ function zz_record_access($zz, $ops) {
 		if ($ops['mode'] === 'add') $no_add = false;
 		if ($zz['record']['action'] === 'insert') $no_add = false;
 		if ($no_add) $zz['record']['add'] = false; 		// don't show add record (form+links)
+	}
+
+	// no list = no batch operations on selected records
+	if (!$zz['list']['display']) {
+		$zz['list']['batch_delete'] = false;
+		$zz['list']['batch_function'] = [];
+		$zz['list']['merge'] = false;
 	}
 
 	// $zz['record'] is set regarding add, edit, delete
