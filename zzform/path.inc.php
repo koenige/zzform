@@ -125,7 +125,8 @@ function zz_path($def, $record) {
 	if (empty($def['ignore_record']) AND !$record) return [];
 	if (!$def) return [];
 	if (!is_array($def)) $def = ['string' => $def];
-	
+	$def = zz_path_legacy_route($def);
+
 	$path = [
 		'alt' => '',
 		'file' => '',
@@ -166,7 +167,7 @@ function zz_path($def, $record) {
 			$part = substr($part, 0, strpos($part, '['));
 		}
 		switch ($part) {
-		case 'area':
+		case 'route':
 			$path_values = [];
 			if (empty($def['fields'])) $def['fields'] = [];
 			elseif (!is_array($def['fields'])) $def['fields'] = [$def['fields']];
@@ -187,11 +188,11 @@ function zz_path($def, $record) {
 			foreach ($def['strings'] as $this_field)
 				$path_values[] = $this_field;
 
-			if (strstr($value, '[%s]') AND !empty($def['area_fields'])) {
-				$area_values = [];
-				foreach ($def['area_fields'] as $this_field)
-					$area_values[] = $record[$this_field];
-				$value = vsprintf($value, $area_values);
+			if (strstr($value, '[%s]') AND !empty($def['route_fields'])) {
+				$route_values = [];
+				foreach ($def['route_fields'] as $this_field)
+					$route_values[] = $record[$this_field];
+				$value = vsprintf($value, $route_values);
 			}
 			$settings = ['hide_missing' => true];
 			if (!empty($def['restrict_to']) AND !empty($record[$def['restrict_to']]))
@@ -305,7 +306,7 @@ function zz_path($def, $record) {
 			$sql_fields = [];
 			break;
 
-		case 'area_fields':
+		case 'route_fields':
 		case 'extension_missing':
 		case 'ignore_record':
 		case 'target':
@@ -324,6 +325,33 @@ function zz_path($def, $record) {
 	}
 
 	return $path;
+}
+
+/**
+ * accept deprecated path keys area and area_fields
+ *
+ * @param array $def
+ * @return array
+ */
+function zz_path_legacy_route($def) {
+	static $noted = [];
+	$rename = [
+		'area' => 'route',
+		'area_fields' => 'route_fields'
+	];
+	foreach ($rename as $old => $new) {
+		if (!array_key_exists($old, $def)) continue;
+		if (!array_key_exists($new, $def))
+			$def[$new] = $def[$old];
+		unset($def[$old]);
+		if (!empty($noted[$old])) continue;
+		$noted[$old] = true;
+		wrap_error(sprintf(
+			'zz_path(): key `%s` is deprecated, use `%s`',
+			$old, $new
+		), E_USER_DEPRECATED);
+	}
+	return $def;
 }
 
 /**

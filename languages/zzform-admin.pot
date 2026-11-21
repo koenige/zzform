@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzform module\n"
-"POT-Creation-Date: 2026-11-19 14:29+0000\n"
+"POT-Creation-Date: 2026-11-21 18:08+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -3527,11 +3527,11 @@ msgstr ""
 msgid "Preformat function %s does not exist."
 msgstr ""
 
-#: zzform/path.inc.php:317
+#: zzform/path.inc.php:318
 msgid "Unknown definition key %s in %s"
 msgstr ""
 
-#: zzform/path.inc.php:363
+#: zzform/path.inc.php:391
 msgid "Configuration Error: mode with non-existing function `%s`"
 msgstr ""
 
