@@ -941,6 +941,7 @@ function zz_prepare_unique_record($my_tab, $existing, $fields, $unique) {
 	zz_prepare_unique_remove_foreign_key($unique, $fields);
 	foreach ($my_tab['POST'] as $no => $record) {
 		if (!empty($record[$my_tab['id_field_name']])) continue;
+		if (zz_prepare_unique_record_empty($record, $fields, $my_tab['id_field_name'])) continue;
 		$check_select_fields = zz_prepare_check_select($my_tab['table_name'], $no);
 		foreach ($unique as $field_name) {
 			if (!isset($record[$field_name])) {
@@ -956,7 +957,7 @@ function zz_prepare_unique_record($my_tab, $existing, $fields, $unique) {
 						'_msg_dev' => 'UNIQUE was set but field %s is not in POST',
 						'_msg_dev_values' => [$field_name]
 					]);
-					continue;
+					continue 2;
 				}
 			}
 			// check if we have to get the corresponding ID for a string
@@ -983,6 +984,29 @@ function zz_prepare_unique_record($my_tab, $existing, $fields, $unique) {
 		}
 	}
 	return $my_tab['POST'];
+}
+
+/**
+ * check if a posted detail record has no values besides ID and foreign key
+ *
+ * @param array $record
+ * @param array $fields
+ * @param string $id_field_name
+ * @return bool
+ */
+function zz_prepare_unique_record_empty($record, $fields, $id_field_name) {
+	$ignore = [$id_field_name];
+	foreach ($fields as $field) {
+		if ($field['type'] !== 'foreign_key') continue;
+		$ignore[] = $field['field_name'];
+	}
+	foreach ($record as $field_name => $value) {
+		if (in_array($field_name, $ignore)) continue;
+		if ($value === NULL) continue;
+		if ($value === '') continue;
+		return false;
+	}
+	return true;
 }
 
 /**

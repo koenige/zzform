@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzform module\n"
-"POT-Creation-Date: 2026-11-21 18:08+0000\n"
+"POT-Creation-Date: 2026-11-23 22:38+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -3547,32 +3547,32 @@ msgstr ""
 msgid "Field marked as unique, but value appears more than once in record: %s (SQL %s)"
 msgstr ""
 
-#: zzform/preparation.inc.php:956
+#: zzform/preparation.inc.php:957
 msgid "UNIQUE was set but field %s is not in POST"
 msgstr ""
 
-#: zzform/preparation.inc.php:1029
+#: zzform/preparation.inc.php:1053
 msgid "Field marked as unique, but could not find corresponding value: %s"
 msgstr ""
 
-#: zzform/preparation.inc.php:1546
+#: zzform/preparation.inc.php:1570
 msgid "Illegal value: %s"
 msgstr ""
 
 # Error handling
-#: zzform/preparation.inc.php:1549
+#: zzform/preparation.inc.php:1573
 msgid "Incorrect value: %s"
 msgstr ""
 
-#: zzform/preparation.inc.php:1591
+#: zzform/preparation.inc.php:1615
 msgid "Validation error, value missing in field `%s`. Error was hidden (table misconfiguration?)."
 msgstr ""
 
-#: zzform/preparation.inc.php:1596
+#: zzform/preparation.inc.php:1620
 msgid "Validation error, image upload missing in field `%s`. Error was hidden (table misconfiguration?)."
 msgstr ""
 
-#: zzform/preparation.inc.php:1645
+#: zzform/preparation.inc.php:1669
 msgid "No ID %s found (Query: %s)."
 msgstr ""
 
