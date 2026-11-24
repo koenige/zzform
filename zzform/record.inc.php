@@ -2070,6 +2070,7 @@ function zz_field_text($field, $display, $record, $dont_reformat = false) {
 		$fieldattr['minlength'] = $field['minlength'];
 	if (!empty($field['pattern'])) $fieldattr['pattern'] = $field['pattern'];
 	elseif ($field['type'] === 'phone') $fieldattr['pattern'] = '[+()0-9-/ ]+';
+	$fieldattr['autocomplete'] = $field['autocomplete'] ?? false;
 	return zz_form_element($field['f_field_name'], $value, $fieldtype, true, $fieldattr);
 }
 
@@ -2337,6 +2338,7 @@ function zz_field_memo($field, $display, $record) {
 	}
 	if (!empty($field['minlength']))
 		$fieldattr['minlength'] = $field['minlength'];
+	$fieldattr['autocomplete'] = $field['autocomplete'] ?? false;
 
 	if (!empty($field['sql'])) {
 		$field['unrestricted'] = true;
@@ -2839,7 +2841,8 @@ function zz_field_select($field, $record, $lines) {
 		'type' => 'select',
 		'name' => $field['f_field_name'],
 		'create_id' => true,
-		'required' => $field['required'] ? true : false
+		'required' => $field['required'] ? true : false,
+		'autocomplete' => $field['autocomplete'] ?? false
 	];
 	$element += zz_field_dependent_fields($field, $lines);
 	if (!empty($field['data']['default'])) {
@@ -3896,7 +3899,8 @@ function zz_field_select_enum($field, $display, $record) {
 		'type' => 'select',
 		'required' => $field['required'],
 		'name' => $field['f_field_name'],
-		'create_id' => true
+		'create_id' => true,
+		'autocomplete' => $field['autocomplete'] ?? false
 	];
 	$element = array_merge($element, $fieldattr); // @todo check if this is necessary
 	$data['select_attributes'] = zz_record_element($element, 'attributes');
