@@ -160,6 +160,7 @@ function zzform($zz) {
 	// set $ops['mode'], $zz['record']['action'], ['id']['value'] and $zz_conf for access
 	list($zz, $ops) = zz_record_access($zz, $ops);
 	$ops['error'] = zz_error_multi($ops['error']);
+	zzform_redirect_invalid_request();
 
 	if (isset($_POST['zz_batch_function'])) {
 		$index = key($_POST['zz_batch_function']);
@@ -623,6 +624,28 @@ function zz_valid_request($action = false) {
 		return false;
 	}
 	return true;
+}
+
+/**
+ * redirect if a form that hides its IDs (add_only, edit_only, delete_only)
+ * gets ?insert=, ?update= or ?noupdate= without a valid zzhash
+ *
+ * these query strings would otherwise select any record by its ID
+ *
+ * @global array $zz_conf
+ */
+function zzform_redirect_invalid_request() {
+	global $zz_conf;
+
+	if (wrap_static('zzform_output', 'batch_mode')) return;
+	if (empty($zz_conf['int']['hash_id'])) return;
+	$keys = ['insert', 'update', 'noupdate'];
+	if (!array_intersect($keys, array_keys($_GET))) return;
+	if (zz_valid_request()) return;
+
+	zzform_url_remove(array_merge(['zzhash'], $keys));
+	wrap_static('zzform_page', 'redirect', zzform_url());
+	wrap_quit(301, '', wrap_static('zzform_page'));
 }
 
 /**

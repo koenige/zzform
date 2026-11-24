@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzform module\n"
-"POT-Creation-Date: 2026-11-24 13:21+0000\n"
+"POT-Creation-Date: 2026-11-24 13:54+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -1353,7 +1353,7 @@ msgid "%d records merged successfully"
 msgstr ""
 
 # Record form: Validation, resubmit because of logout
-#: zzform/zzform.php:363
+#: zzform/zzform.php:364
 msgid "You had been logged out automatically. Therefore, your changes were not yet saved. Please submit the form again."
 msgstr ""
 
