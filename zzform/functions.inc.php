@@ -1192,6 +1192,8 @@ function zz_record_access($zz, $ops) {
  * @return array
  */
 function zz_query_strings_allowed($zz) {
+	global $zz_conf;
+
 	// form internals (submission, redirects, uploads)
 	$strings = [
 		'referer', 'nolist', 'zz',
@@ -1212,6 +1214,12 @@ function zz_query_strings_allowed($zz) {
 	}
 	if (!empty($zz['record']['add'])) {
 		$strings[] = 'add';
+		$strings[] = 'insert';
+	}
+	// add_only narrows to show_after_add once ?insert=&zzhash= is valid, which
+	// clears record add/edit/view/delete. The confirmation URL still has both.
+	if (($zz_conf['int']['access'] ?? '') === 'show_after_add') {
+		$strings[] = 'zzhash';
 		$strings[] = 'insert';
 	}
 	if (!empty($zz['record']['edit'])) {
