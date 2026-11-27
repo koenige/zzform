@@ -39,6 +39,7 @@ function zz_export_geojson($ops) {
 
 	$data = [];
 	$data['type'] = 'FeatureCollection';
+	$data['features'] = [];
 	foreach ($ops['output']['rows'] as $line) {
 		if (array_key_exists('latitude/longitude', $fields)) {
 			if (empty($line[$fields['latitude/longitude']]['value'])) continue;
@@ -70,7 +71,6 @@ function zz_export_geojson($ops) {
 		];
 	}
 	$output = json_encode($data);
-	$output = 'var locations = '.$output.';';
 	$headers['filename'] = zz_export_filename($ops['title'], 'geojson');
-	return wrap_send_text($output, 'js', 200, $headers);
+	return wrap_send_text($output, 'geojson', 200, $headers);
 }
